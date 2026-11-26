@@ -1,0 +1,13 @@
+# Bí mật môi trường - không commit
+.env
+
+# Thư viện Composer
+/vendor/
+
+# Dữ liệu runtime ngoài webroot
+/storage/logs/
+/storage/uploads/
+/storage/backups/
+/storage/exports/
+/storage/cache/
+/storage/sessions/

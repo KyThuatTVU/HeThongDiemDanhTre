@@ -2,6 +2,13 @@
 
 CSDL: `happykidsck` · MySQL/MariaDB (XAMPP) · InnoDB · utf8mb4 · utf8mb4_unicode_ci
 
+## Cách nhanh nhất: import 1 file duy nhất
+
+Import file `happykidsck_full.sql` (đã gồm toàn bộ 18 bảng + seed, tự tạo database `happykidsck`).
+Chỉ cần: phpMyAdmin → tab **Import** → chọn file → **Go**.
+
+Muốn chạy từng bước để kiểm soát (hoặc dùng cho migrate runner sau này) thì dùng bảng thứ tự bên dưới.
+
 ## Thứ tự import (bắt buộc)
 
 | Bước | File | Nội dung |
