@@ -1,0 +1,70 @@
+/* ============================================================
+   Design tokens - HappyKidsCK
+   Tỉ lệ màu 60-30-10: nền kem/trắng (60) - teal thương hiệu (30)
+   - cam nắng (10). Không dùng gradient làm khối màu chính.
+   ============================================================ */
+
+:root {
+    /* Font */
+    --font-body: 'Quicksand', 'Be Vietnam Pro', 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-heading: 'Quicksand', 'Plus Jakarta Sans', 'Be Vietnam Pro', system-ui, sans-serif;
+
+    /* Brand - teal đậm (30%) */
+    --hk-brand-950: #07332d;
+    --hk-brand-900: #0b4239;
+    --hk-brand-800: #0e5347;
+    --hk-brand-700: #12665a;
+    --hk-brand-600: #177c6d;
+    --hk-brand-500: #1e9482;
+    --hk-brand-200: #b7e2d7;
+    --hk-brand-100: #dcf1ec;
+    --hk-brand-50: #f1faf7;
+
+    /* Accent - cam nắng (10%) */
+    --hk-accent-600: #d97706;
+    --hk-accent-500: #f59e0b;
+    --hk-accent-400: #fbbf24;
+    --hk-accent-100: #fef3c7;
+    --hk-accent-50: #fffaeb;
+
+    /* Neutral (60%) */
+    --hk-bg: #f7f5ef;
+    --hk-surface: #ffffff;
+    --hk-surface-2: #fbfaf6;
+    --hk-text: #20302c;
+    --hk-text-soft: #45564f;
+    --hk-muted: #6b7b76;
+    --hk-border: #e7e3d8;
+    --hk-border-strong: #d6d1c3;
+
+    /* Semantic */
+    --hk-success: #15803d;
+    --hk-success-bg: #e6f6ec;
+    --hk-danger: #dc2626;
+    --hk-danger-bg: #fdecec;
+    --hk-warning: #b45309;
+    --hk-warning-bg: #fef3c7;
+    --hk-info: #2563eb;
+    --hk-info-bg: #e8f0fe;
+
+    /* Shape */
+    --hk-radius-sm: 10px;
+    --hk-radius: 14px;
+    --hk-radius-lg: 20px;
+    --hk-shadow-sm: 0 1px 2px rgba(23, 45, 39, 0.06), 0 2px 8px rgba(23, 45, 39, 0.05);
+    --hk-shadow-md: 0 10px 30px rgba(20, 60, 50, 0.08);
+
+    /* Chrome */
+    --hk-sidebar-w: 264px;
+    --hk-topbar-h: 72px;
+    --hk-content-max: 1280px;
+
+    /* Bootstrap bindings */
+    --bs-body-font-family: var(--font-body);
+    --bs-body-bg: var(--hk-bg);
+    --bs-body-color: var(--hk-text);
+    --bs-border-color: var(--hk-border);
+    --bs-border-radius: var(--hk-radius-sm);
+    --bs-link-color: var(--hk-brand-600);
+    --bs-link-hover-color: var(--hk-brand-700);
+}

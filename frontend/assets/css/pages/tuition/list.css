@@ -1,0 +1,20 @@
+.tuition-name {
+    font-weight: 600;
+    display: block;
+    color: var(--hk-text);
+}
+
+.tuition-name:hover {
+    color: var(--hk-brand-700);
+    text-decoration: none;
+}
+
+.amount-debt {
+    color: var(--hk-danger);
+    font-weight: 600;
+}
+
+.amount-paid {
+    color: var(--hk-success);
+    font-weight: 600;
+}

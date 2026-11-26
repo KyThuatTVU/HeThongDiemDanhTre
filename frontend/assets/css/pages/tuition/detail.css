@@ -1,0 +1,58 @@
+.fee-hero {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 20px;
+    flex-wrap: wrap;
+}
+
+.fee-hero__main {
+    flex: 1 1 260px;
+    min-width: 0;
+}
+
+.fee-hero__student {
+    margin: 0;
+    font-size: 20px;
+}
+
+.fee-hero__student a {
+    color: var(--hk-text);
+}
+
+.fee-hero__student a:hover {
+    color: var(--hk-brand-700);
+    text-decoration: none;
+}
+
+.fee-hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+    margin-top: 6px;
+    font-size: 13px;
+    color: var(--hk-muted);
+}
+
+.fee-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.fee-hero__actions .btn-hk,
+.fee-hero__actions .btn-hk-outline {
+    padding: .48rem .9rem;
+    font-size: 13.5px;
+}
+
+.fee-hero__actions .btn-hk:disabled {
+    opacity: .5;
+}
+
+.fee-note {
+    margin: 10px 0 0;
+    font-size: 12.5px;
+    color: var(--hk-muted);
+}

@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tổng quan · HappyKidsCK</title>
+    <link rel="icon" href="../../../assets/img/brand/logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap-icons/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../../../assets/css/base/typography.css">
+    <link rel="stylesheet" href="../../../assets/css/base/tokens.css">
+    <link rel="stylesheet" href="../../../assets/css/base/reset.css">
+    <link rel="stylesheet" href="../../../assets/css/base/ui.css">
+    <link rel="stylesheet" href="../../../assets/css/layout/app.css">
+    <link rel="stylesheet" href="../../../assets/css/pages/dashboard/overview.css">
+    <script src="../../../assets/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
+    <script src="../../../assets/vendor/chartjs/chart.umd.min.js" defer></script>
+    <script type="module" src="../../../assets/js/app.js"></script>
+    <script type="module" src="../../../assets/js/pages/dashboard/overview.js"></script>
+</head>
+<body data-auth="required" data-layout="dashboard" data-page="dashboard">
+    <div class="page-stack">
+        <div data-component="page-header"
+             data-title="Tổng quan"
+             data-subtitle="Tình hình học viên và điểm danh hôm nay"
+             data-breadcrumb="[]">
+            <template data-slot="actions">
+                <a class="btn-hk-outline" href="../../attendance/today/" data-permission="attendance.view">
+                    <i class="bi bi-calendar2-check me-1"></i>Điểm danh hôm nay
+                </a>
+                <a class="btn-hk" href="../../students/list/" data-permission="students.view">
+                    <i class="bi bi-people me-1"></i>Quản lý học viên
+                </a>
+            </template>
+        </div>
+
+        <div class="stat-grid">
+            <div data-component="stat-card" data-metric="students" data-tone="brand" data-icon="bi-people-fill"
+                 data-label="Học viên đang học" data-value="—" data-hint="Đang tải..."></div>
+            <div data-component="stat-card" data-metric="present" data-tone="success" data-icon="bi-check2-circle"
+                 data-label="Có mặt hôm nay" data-value="—" data-hint="Đang tải..."></div>
+            <div data-component="stat-card" data-metric="absent" data-tone="danger" data-icon="bi-person-dash"
+                 data-label="Vắng hôm nay" data-value="—" data-hint="Đang tải..."></div>
+            <div data-component="stat-card" data-metric="rate" data-tone="accent" data-icon="bi-graph-up-arrow"
+                 data-label="Tỷ lệ điểm danh" data-value="—" data-hint="Đang tải..."></div>
+        </div>
+
+        <div class="section-grid">
+            <div data-component="chart-card"
+                 data-title="Điểm danh 7 ngày gần nhất"
+                 data-subtitle="Số lượt có mặt và vắng theo ngày (đã ghi nhận)">
+                <template data-slot="actions">
+                    <a class="btn-hk-outline btn-sm" href="../../attendance/board/" data-permission="attendance.view">Xem chi tiết</a>
+                </template>
+            </div>
+
+            <aside class="card card-pad dashboard-branches">
+                <div class="section-head">
+                    <div>
+                        <h2 class="section-title">Hoạt động theo cơ sở</h2>
+                        <p class="section-subtitle">Số liệu điểm danh hôm nay</p>
+                    </div>
+                    <span class="hk-chip" data-dashboard-date>—</span>
+                </div>
+                <div class="dashboard-branches__list" data-branch-summary>
+                    <div class="dashboard-branches__loading">
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Đang tải...
+                    </div>
+                </div>
+                <hr class="hk-divider">
+                <div class="dashboard-branches__links">
+                    <a href="../../tuition/board/" data-permission="tuition.view"><i class="bi bi-cash-stack"></i>Học phí tháng này</a>
+                    <a href="../../reports/students/" data-permission="reports.view"><i class="bi bi-bar-chart"></i>Xem báo cáo</a>
+                </div>
+            </aside>
+        </div>
+    </div>
+</body>
+</html>

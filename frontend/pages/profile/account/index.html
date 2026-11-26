@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tài khoản của tôi · HappyKidsCK</title>
+    <link rel="icon" href="../../../assets/img/brand/logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap-icons/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../../../assets/css/base/typography.css">
+    <link rel="stylesheet" href="../../../assets/css/base/tokens.css">
+    <link rel="stylesheet" href="../../../assets/css/base/reset.css">
+    <link rel="stylesheet" href="../../../assets/css/base/ui.css">
+    <link rel="stylesheet" href="../../../assets/css/layout/app.css">
+    <link rel="stylesheet" href="../../../assets/css/pages/profile/account.css">
+    <script src="../../../assets/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
+    <script type="module" src="../../../assets/js/app.js"></script>
+    <script type="module" src="../../../assets/js/pages/profile/account.js"></script>
+</head>
+<body data-auth="required" data-layout="dashboard" data-page="profile">
+    <div class="page-stack">
+        <div data-component="page-header"
+             data-title="Tài khoản của tôi"
+             data-subtitle="Thông tin cá nhân và bảo mật tài khoản"
+             data-breadcrumb='[{"label":"Tài khoản"}]'></div>
+
+        <section class="card detail-hero">
+            <span class="hk-avatar hk-avatar--lg hk-avatar--fallback detail-hero__avatar" data-avatar>?</span>
+            <div class="profile-hero__body">
+                <h2 class="detail-hero__name" data-profile-name>—</h2>
+                <div class="detail-hero__meta">
+                    <span class="hk-chip" data-profile-role>—</span>
+                    <span class="hk-chip" data-profile-username>—</span>
+                    <span class="hk-chip" data-profile-branches>—</span>
+                </div>
+                <div class="profile-hero__upload">
+                    <label class="btn-hk-outline btn-sm mb-0" for="profile-avatar-input">
+                        <i class="bi bi-camera me-1"></i>Đổi ảnh đại diện
+                    </label>
+                    <input id="profile-avatar-input" type="file" accept="image/jpeg,image/png,image/webp" hidden data-avatar-input>
+                    <span class="fs-13 text-muted-2">JPG/PNG/WEBP, tối đa 2MB.</span>
+                </div>
+            </div>
+        </section>
+
+        <div class="section-grid">
+            <form class="card card-pad profile-form" data-profile-form novalidate>
+                <div class="section-head">
+                    <div>
+                        <h2 class="section-title">Thông tin cá nhân</h2>
+                        <p class="section-subtitle">Tên và số điện thoại hiển thị trong hệ thống</p>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="hk-field span-6">
+                        <label class="form-label" for="profile-full-name">Họ và tên <span class="required">*</span></label>
+                        <input class="form-control" id="profile-full-name" name="full_name" type="text" maxlength="120" required>
+                    </div>
+                    <div class="hk-field span-6">
+                        <label class="form-label" for="profile-phone">Số điện thoại</label>
+                        <input class="form-control" id="profile-phone" name="phone" type="tel" maxlength="30" inputmode="tel">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <span class="form-hint" data-profile-hint></span>
+                    <button class="btn-hk" type="submit" data-profile-submit>
+                        <i class="bi bi-check2 me-1"></i>Lưu thay đổi
+                    </button>
+                </div>
+            </form>
+
+            <aside class="card card-pad">
+                <div class="section-head">
+                    <div>
+                        <h2 class="section-title">Thông tin tài khoản</h2>
+                        <p class="section-subtitle">Không thể tự thay đổi các thông tin này</p>
+                    </div>
+                </div>
+                <dl class="info-list" data-account-info></dl>
+            </aside>
+        </div>
+
+        <form class="card card-pad profile-form" data-password-form novalidate>
+            <div class="section-head">
+                <div>
+                    <h2 class="section-title">Đổi mật khẩu</h2>
+                    <p class="section-subtitle">Nên đổi mật khẩu định kỳ để bảo vệ dữ liệu học viên</p>
+                </div>
+            </div>
+            <div class="form-grid">
+                <div class="hk-field span-4">
+                    <label class="form-label" for="current-password">Mật khẩu hiện tại <span class="required">*</span></label>
+                    <input class="form-control" id="current-password" name="current_password" type="password" autocomplete="current-password" required>
+                </div>
+                <div class="hk-field span-4">
+                    <label class="form-label" for="new-password">Mật khẩu mới <span class="required">*</span></label>
+                    <input class="form-control" id="new-password" name="new_password" type="password" minlength="8" autocomplete="new-password" required>
+                </div>
+                <div class="hk-field span-4">
+                    <label class="form-label" for="confirm-password">Xác nhận mật khẩu mới <span class="required">*</span></label>
+                    <input class="form-control" id="confirm-password" name="new_password_confirmation" type="password" minlength="8" autocomplete="new-password" required>
+                </div>
+            </div>
+            <div class="form-actions">
+                <span class="form-hint" data-password-hint></span>
+                <button class="btn-hk" type="submit" data-password-submit>
+                    <i class="bi bi-shield-lock me-1"></i>Đổi mật khẩu
+                </button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Báo cáo điểm danh · HappyKidsCK</title>
+    <link rel="icon" href="../../../assets/img/brand/logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap-icons/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../../../assets/css/base/typography.css">
+    <link rel="stylesheet" href="../../../assets/css/base/tokens.css">
+    <link rel="stylesheet" href="../../../assets/css/base/reset.css">
+    <link rel="stylesheet" href="../../../assets/css/base/ui.css">
+    <link rel="stylesheet" href="../../../assets/css/layout/app.css">
+    <script src="../../../assets/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
+    <script type="module" src="../../../assets/js/app.js"></script>
+    <script type="module" src="../../../assets/js/pages/reports/attendance.js"></script>
+</head>
+<body data-auth="required" data-layout="dashboard" data-page="reports">
+    <div class="page-stack">
+        <div data-component="page-header"
+             data-title="Báo cáo điểm danh"
+             data-subtitle="Tra cứu lượt điểm danh theo lớp và khoảng ngày"
+             data-breadcrumb='[{"label":"Báo cáo"},{"label":"Điểm danh"}]'></div>
+
+        <div data-component="report-tabs" data-active="attendance"></div>
+
+        <div data-component="table-toolbar">
+            <template data-slot="filters">
+                <div class="hk-field" data-class-filter hidden>
+                    <label class="form-label" for="report-att-class">Lớp học</label>
+                    <select class="form-select" id="report-att-class" data-report-class>
+                        <option value="">Tất cả lớp</option>
+                    </select>
+                </div>
+                <div class="hk-field">
+                    <label class="form-label" for="report-att-from">Từ ngày</label>
+                    <input class="form-control" type="date" id="report-att-from" data-report-from>
+                </div>
+                <div class="hk-field">
+                    <label class="form-label" for="report-att-to">Đến ngày</label>
+                    <input class="form-control" type="date" id="report-att-to" data-report-to>
+                </div>
+            </template>
+        </div>
+
+        <div class="card table-card">
+            <div class="table-card__head">
+                <h2 class="table-card__title">Lượt điểm danh</h2>
+                <div class="d-flex gap-2">
+                    <span class="hk-chip" data-report-period>—</span>
+                    <span class="hk-chip" data-report-total>—</span>
+                </div>
+            </div>
+            <div data-report-table></div>
+        </div>
+    </div>
+</body>
+</html>

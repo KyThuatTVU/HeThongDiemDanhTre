@@ -1,0 +1,60 @@
+.branch-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.branch-form .hk-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.branch-form .form-label {
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0;
+    color: var(--hk-text-soft);
+}
+
+.branch-form .required {
+    color: var(--hk-danger);
+}
+
+.branch-form .form-hint {
+    margin-right: auto;
+    font-size: 12.5px;
+    color: var(--hk-muted);
+}
+
+.branch-form .form-hint--error {
+    color: var(--hk-danger);
+}
+
+.branch-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    overflow: hidden;
+    border: 1px solid var(--hk-border);
+    border-radius: 12px;
+    background: var(--hk-brand-50);
+    color: var(--hk-brand-700);
+    font-size: 20px;
+}
+
+.branch-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.branch-logo--lg {
+    width: 88px;
+    height: 88px;
+    border-radius: 16px;
+    font-size: 32px;
+}

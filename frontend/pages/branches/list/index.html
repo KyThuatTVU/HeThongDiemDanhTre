@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cơ sở · HappyKidsCK</title>
+    <link rel="icon" href="../../../assets/img/brand/logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap-icons/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../../../assets/css/base/typography.css">
+    <link rel="stylesheet" href="../../../assets/css/base/tokens.css">
+    <link rel="stylesheet" href="../../../assets/css/base/reset.css">
+    <link rel="stylesheet" href="../../../assets/css/base/ui.css">
+    <link rel="stylesheet" href="../../../assets/css/layout/app.css">
+    <link rel="stylesheet" href="../../../assets/css/pages/branches/list.css">
+    <script src="../../../assets/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
+    <script type="module" src="../../../assets/js/app.js"></script>
+    <script type="module" src="../../../assets/js/pages/branches/list.js"></script>
+</head>
+<body data-auth="required" data-layout="dashboard" data-page="branches">
+    <div class="page-stack">
+        <div data-component="page-header"
+             data-title="Cơ sở"
+             data-subtitle="Thông tin cơ sở, logo và trạng thái hoạt động"
+             data-breadcrumb='[{"label":"Cơ sở"}]'></div>
+
+        <div data-component="table-toolbar">
+            <template data-slot="filters">
+                <div class="hk-field hk-field--wide">
+                    <label class="visually-hidden" for="branch-search">Tìm kiếm cơ sở</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent"><i class="bi bi-search"></i></span>
+                        <input type="search" class="form-control" id="branch-search"
+                               placeholder="Tìm theo tên, mã cơ sở, địa chỉ..." data-search-input>
+                    </div>
+                </div>
+            </template>
+            <template data-slot="actions">
+                <a class="btn-hk" href="../form/" data-permission="branches.manage">
+                    <i class="bi bi-plus-lg me-1"></i>Thêm cơ sở
+                </a>
+            </template>
+        </div>
+
+        <div class="card table-card">
+            <div data-branches-table></div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,77 @@
+.hk-table-wrap {
+    width: 100%;
+}
+
+.hk-table {
+    width: 100%;
+}
+
+.hk-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.hk-table tbody td {
+    font-size: 13.5px;
+}
+
+.hk-table__person {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.hk-table__person-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.hk-table__person-text strong {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--hk-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.hk-table__person-text small {
+    font-size: 11.5px;
+    color: var(--hk-muted);
+}
+
+.hk-table .cell-actions {
+    white-space: nowrap;
+    text-align: right;
+}
+
+.hk-table .cell-actions .btn {
+    --bs-btn-padding-y: 0.25rem;
+    --bs-btn-padding-x: 0.5rem;
+    --bs-btn-font-size: 12px;
+    --bs-btn-border-radius: 8px;
+}
+
+.hk-table .cell-actions .btn + .btn {
+    margin-left: 4px;
+}
+
+.hk-table__loading,
+.hk-table__error {
+    padding: 30px 16px !important;
+    text-align: center;
+    color: var(--hk-muted);
+    font-size: 13px;
+}
+
+.hk-table__error {
+    color: var(--hk-danger);
+    background-color: var(--hk-danger-bg);
+}
+
+.hk-table td .hk-badge {
+    font-size: 11.5px;
+}

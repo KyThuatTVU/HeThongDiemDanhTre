@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Chi tiết lớp · HappyKidsCK</title>
+    <link rel="icon" href="../../../assets/img/brand/logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap-icons/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../../../assets/css/base/typography.css">
+    <link rel="stylesheet" href="../../../assets/css/base/tokens.css">
+    <link rel="stylesheet" href="../../../assets/css/base/reset.css">
+    <link rel="stylesheet" href="../../../assets/css/base/ui.css">
+    <link rel="stylesheet" href="../../../assets/css/layout/app.css">
+    <link rel="stylesheet" href="../../../assets/css/pages/classes/detail.css">
+    <script src="../../../assets/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
+    <script type="module" src="../../../assets/js/app.js"></script>
+    <script type="module" src="../../../assets/js/pages/classes/detail.js"></script>
+</head>
+<body data-auth="required" data-layout="dashboard" data-page="classes">
+    <div class="page-stack">
+        <div data-component="page-header"
+             data-title="Chi tiết lớp"
+             data-subtitle="Học viên và lịch sử chuyển lớp"
+             data-breadcrumb='[{"label":"Lớp học","href":"../../classes/list/"},{"label":"Chi tiết"}]'>
+            <template data-slot="actions">
+                <a class="btn-hk-outline" href="../list/"><i class="bi bi-arrow-left me-1"></i>Danh sách lớp</a>
+            </template>
+        </div>
+
+        <section class="card class-hero" data-class-hero>
+            <div class="class-hero__icon"><i class="bi bi-diagram-3"></i></div>
+            <div class="class-hero__main" data-class-main>
+                <span class="spinner-border spinner-border-sm text-secondary" role="status" aria-hidden="true"></span>
+                <span class="text-muted-2 ms-2">Đang tải lớp học...</span>
+            </div>
+            <div class="class-hero__actions" data-class-actions></div>
+        </section>
+
+        <div class="section-grid">
+            <section class="card table-card">
+                <div class="table-card__head">
+                    <h2 class="table-card__title">Học viên trong lớp</h2>
+                    <span class="hk-chip" data-student-count>0 học viên</span>
+                </div>
+                <div data-class-students></div>
+            </section>
+
+            <aside class="card card-pad">
+                <div class="section-head">
+                    <div>
+                        <h2 class="section-title">Lịch sử chuyển lớp</h2>
+                        <p class="section-subtitle">Các lượt vào/rời lớp gần đây</p>
+                    </div>
+                </div>
+                <div class="history-list" data-class-history>
+                    <p class="text-muted-2 fs-13 mb-0">Đang tải...</p>
+                </div>
+            </aside>
+        </div>
+    </div>
+</body>
+</html>

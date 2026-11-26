@@ -1,0 +1,52 @@
+.student-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 200px;
+}
+
+.student-cell__name {
+    font-weight: 600;
+    color: var(--hk-text);
+    display: block;
+    line-height: 1.35;
+}
+
+.student-cell__meta {
+    display: block;
+    font-size: 12px;
+    color: var(--hk-muted);
+}
+
+.student-row--deleted {
+    opacity: .62;
+}
+
+.student-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 4px;
+    white-space: nowrap;
+}
+
+.student-actions .btn {
+    --bs-btn-padding-y: .3rem;
+    --bs-btn-padding-x: .55rem;
+    --bs-btn-font-size: 13px;
+}
+
+.hk-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13.5px;
+    color: var(--hk-text-soft);
+    white-space: nowrap;
+    padding-bottom: 2px;
+}
+
+.hk-check input {
+    width: 15px;
+    height: 15px;
+    accent-color: var(--hk-brand-600);
+}

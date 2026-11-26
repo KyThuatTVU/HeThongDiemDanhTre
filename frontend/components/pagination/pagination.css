@@ -1,0 +1,57 @@
+.hk-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 12px 16px;
+    border-top: 1px solid var(--hk-border);
+}
+
+.hk-pagination__info {
+    font-size: 12.5px;
+    color: var(--hk-muted);
+}
+
+.hk-pagination .pagination {
+    margin: 0;
+    gap: 4px;
+}
+
+.hk-pagination .page-link {
+    min-width: 34px;
+    text-align: center;
+    border: 1px solid var(--hk-border);
+    border-radius: 8px;
+    color: var(--hk-text);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 0.3rem 0.55rem;
+    background-color: var(--hk-surface);
+}
+
+.hk-pagination .page-link:hover {
+    border-color: var(--hk-brand-500);
+    color: var(--hk-brand-700);
+    background-color: var(--hk-brand-50);
+}
+
+.hk-pagination .page-item.active .page-link {
+    background-color: var(--hk-brand-700);
+    border-color: var(--hk-brand-700);
+    color: #fff;
+}
+
+.hk-pagination .page-item.disabled .page-link {
+    color: var(--hk-muted);
+    background-color: var(--hk-surface-2);
+    border-color: var(--hk-border);
+    opacity: 0.6;
+}
+
+@media (max-width: 575.98px) {
+    .hk-pagination {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

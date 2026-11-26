@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Nhật ký hoạt động · HappyKidsCK</title>
+    <link rel="icon" href="../../../assets/img/brand/logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap-icons/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../../../assets/css/base/typography.css">
+    <link rel="stylesheet" href="../../../assets/css/base/tokens.css">
+    <link rel="stylesheet" href="../../../assets/css/base/reset.css">
+    <link rel="stylesheet" href="../../../assets/css/base/ui.css">
+    <link rel="stylesheet" href="../../../assets/css/layout/app.css">
+    <link rel="stylesheet" href="../../../assets/css/pages/logs/list.css">
+    <script src="../../../assets/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
+    <script type="module" src="../../../assets/js/app.js"></script>
+    <script type="module" src="../../../assets/js/pages/logs/list.js"></script>
+</head>
+<body data-auth="required" data-layout="dashboard" data-page="logs">
+    <div class="page-stack">
+        <div data-component="page-header"
+             data-title="Nhật ký hoạt động"
+             data-subtitle="Theo dõi thao tác trên hệ thống và lịch sử đăng nhập"
+             data-breadcrumb='[{"label":"Nhật ký"}]'></div>
+
+        <div class="d-flex flex-wrap gap-2" role="tablist" aria-label="Loại nhật ký">
+            <button type="button" class="btn-hk" data-log-tab="activity" role="tab" aria-selected="true">
+                <i class="bi bi-activity me-1"></i>Hoạt động hệ thống
+            </button>
+            <button type="button" class="btn-hk-outline" data-log-tab="logins" role="tab" aria-selected="false">
+                <i class="bi bi-box-arrow-in-right me-1"></i>Lịch sử đăng nhập
+            </button>
+        </div>
+
+        <div data-log-panel="activity">
+            <div data-component="table-toolbar">
+                <template data-slot="filters">
+                    <div class="hk-field">
+                        <label class="form-label" for="log-module">Phân hệ</label>
+                        <select class="form-select" id="log-module" data-activity-module>
+                            <option value="">Tất cả phân hệ</option>
+                            <option value="students">Học viên</option>
+                            <option value="classes">Lớp học</option>
+                            <option value="attendance">Điểm danh</option>
+                            <option value="tuition">Học phí</option>
+                            <option value="staff">Nhân sự</option>
+                            <option value="branches">Cơ sở</option>
+                            <option value="settings">Cấu hình</option>
+                            <option value="auth">Đăng nhập</option>
+                        </select>
+                    </div>
+                    <div class="hk-field">
+                        <label class="form-label" for="log-from">Từ ngày</label>
+                        <input type="date" class="form-control" id="log-from" data-activity-from>
+                    </div>
+                    <div class="hk-field">
+                        <label class="form-label" for="log-to">Đến ngày</label>
+                        <input type="date" class="form-control" id="log-to" data-activity-to>
+                    </div>
+                </template>
+            </div>
+
+            <div class="card table-card">
+                <div class="table-card__head">
+                    <h2 class="table-card__title">Hoạt động hệ thống</h2>
+                    <span class="hk-chip" data-activity-total>—</span>
+                </div>
+                <div data-activity-table></div>
+                <div class="hk-pagination" data-activity-pagination hidden></div>
+            </div>
+        </div>
+
+        <div data-log-panel="logins" hidden>
+            <div data-component="table-toolbar">
+                <template data-slot="filters">
+                    <div class="hk-field">
+                        <label class="form-label" for="login-status">Kết quả</label>
+                        <select class="form-select" id="login-status" data-login-status>
+                            <option value="">Tất cả</option>
+                            <option value="success">Thành công</option>
+                            <option value="failed">Thất bại</option>
+                        </select>
+                    </div>
+                    <div class="hk-field">
+                        <label class="form-label" for="login-from">Từ ngày</label>
+                        <input type="date" class="form-control" id="login-from" data-login-from>
+                    </div>
+                    <div class="hk-field">
+                        <label class="form-label" for="login-to">Đến ngày</label>
+                        <input type="date" class="form-control" id="login-to" data-login-to>
+                    </div>
+                </template>
+            </div>
+
+            <div class="card table-card">
+                <div class="table-card__head">
+                    <h2 class="table-card__title">Lịch sử đăng nhập</h2>
+                    <span class="hk-chip" data-login-total>—</span>
+                </div>
+                <div data-login-table></div>
+                <div class="hk-pagination" data-login-pagination hidden></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

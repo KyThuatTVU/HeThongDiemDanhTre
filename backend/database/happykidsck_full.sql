@@ -1,14 +1,13 @@
 -- ============================================================
 -- HappyKidsCK — Toàn bộ cơ sở dữ liệu trong 1 file
--- Gồm: 18 bảng (schema) + seed: 2 cơ sở, 4 vai trò, 29 quyền,
---       tài khoản Super Admin chưa có thông tin đăng nhập
+-- Gồm: 18 bảng (schema, đã gồm cột students.left_at) + seed:
+--       2 cơ sở, 4 vai trò, 29 quyền, tài khoản Super Admin
 -- Cách dùng: phpMyAdmin → Import → chọn file này → Go
 -- (Nếu đổi tên database, sửa 2 dòng CREATE DATABASE / USE bên dưới)
 -- ============================================================
 
 CREATE DATABASE IF NOT EXISTS `happykidsck` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE `happykidsck`;
-
 
 -- ============================================================
 -- SECTION: migrations/001_create_branches.sql
@@ -413,6 +412,18 @@ CREATE TABLE `system_settings` (
   CONSTRAINT `fk_settings_updated_by` FOREIGN KEY (`updated_by`) REFERENCES `users` (`id`)
     ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Cấu hình hệ thống (quy định học phí...)';
+
+-- ============================================================
+-- SECTION: migrations/008_alter_students_add_left_at.sql
+-- ============================================================
+
+-- ============================================================
+-- 008 - Bổ sung ngày nghỉ học cho học viên
+-- Cần cho báo cáo biến động (danh sách học viên đã nghỉ theo tháng)
+-- ============================================================
+
+ALTER TABLE `students`
+  ADD COLUMN `left_at` DATE NULL COMMENT 'Ngày nghỉ học (gán khi chuyển status = left)' AFTER `status`;
 
 -- ============================================================
 -- SECTION: seeds/001_seed_branches.sql

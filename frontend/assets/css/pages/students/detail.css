@@ -1,0 +1,119 @@
+.hk-avatar--xl {
+    width: 96px;
+    height: 96px;
+    font-size: 26px;
+}
+
+.detail-hero {
+    position: relative;
+    flex-wrap: wrap;
+}
+
+.detail-hero__avatar {
+    position: relative;
+}
+
+.avatar-upload {
+    position: absolute;
+    right: -4px;
+    bottom: -4px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--hk-brand-700);
+    color: #fff;
+    border: 2px solid var(--hk-surface);
+    font-size: 13px;
+    cursor: pointer;
+    transition: background .15s ease;
+}
+
+.avatar-upload:hover {
+    background: var(--hk-brand-800);
+}
+
+.detail-hero__main {
+    flex: 1 1 260px;
+    min-width: 0;
+}
+
+.detail-hero__name {
+    margin: 0;
+    font-size: 21px;
+}
+
+.detail-hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    margin-top: 6px;
+    font-size: 13px;
+    color: var(--hk-muted);
+}
+
+.detail-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.detail-hero__actions .btn-hk,
+.detail-hero__actions .btn-hk-outline,
+.detail-hero__actions .btn-soft-danger {
+    padding: .48rem .9rem;
+    font-size: 13.5px;
+}
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.history-item {
+    border: 1px solid var(--hk-border);
+    border-radius: var(--hk-radius-sm);
+    padding: 10px 12px;
+    background: var(--hk-surface-2);
+}
+
+.history-item__title {
+    margin: 0;
+    font-size: 13.5px;
+    font-weight: 600;
+}
+
+.history-item__meta {
+    margin: 2px 0 0;
+    font-size: 12px;
+    color: var(--hk-muted);
+}
+
+.history-item__reason {
+    margin: 4px 0 0;
+    font-size: 12.5px;
+    color: var(--hk-text-soft);
+}
+
+.branch-transfer-form .hk-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.branch-transfer-form .form-label {
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.text-tel {
+    color: var(--hk-brand-700);
+    font-weight: 600;
+}

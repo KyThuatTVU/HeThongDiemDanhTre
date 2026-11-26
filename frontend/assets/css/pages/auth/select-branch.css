@@ -1,0 +1,94 @@
+.branch-picker {
+    width: 100%;
+}
+
+.branch-picker__list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.branch-picker__loading {
+    padding: 18px;
+    color: var(--hk-muted);
+    font-size: 13px;
+    background: var(--hk-surface);
+    border: 1px solid var(--hk-border);
+    border-radius: var(--hk-radius);
+}
+
+.branch-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    text-align: left;
+    padding: 16px;
+    border: 1px solid var(--hk-border);
+    border-radius: var(--hk-radius);
+    background: var(--hk-surface);
+    color: var(--hk-text);
+    box-shadow: var(--hk-shadow-sm);
+    transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.branch-card:hover {
+    border-color: var(--hk-brand-500);
+    transform: translateY(-1px);
+}
+
+.branch-card__logo {
+    width: 46px;
+    height: 46px;
+    border-radius: 13px;
+    object-fit: cover;
+    background: var(--hk-brand-100);
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: var(--hk-brand-700);
+}
+
+.branch-card__body {
+    flex: 1;
+    min-width: 0;
+}
+
+.branch-card__name {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.branch-card__meta {
+    margin: 2px 0 0;
+    font-size: 12.5px;
+    color: var(--hk-muted);
+}
+
+.branch-card__current {
+    font-size: 11.5px;
+    color: var(--hk-brand-700);
+    background: var(--hk-brand-50);
+    border: 1px solid var(--hk-brand-100);
+    border-radius: 999px;
+    padding: 2px 8px;
+}
+
+.branch-picker__foot {
+    margin-top: 22px;
+    text-align: center;
+}
+
+.branch-picker__link {
+    font-size: 13px;
+    color: var(--hk-muted);
+}
+
+.branch-picker__link:hover {
+    color: var(--hk-danger);
+    text-decoration: none;
+}

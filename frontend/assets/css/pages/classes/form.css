@@ -1,0 +1,32 @@
+.class-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.class-form .hk-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.class-form .form-label {
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0;
+    color: var(--hk-text-soft);
+}
+
+.class-form .required {
+    color: var(--hk-danger);
+}
+
+.class-form .form-hint {
+    margin-right: auto;
+    font-size: 12.5px;
+    color: var(--hk-muted);
+}
+
+.class-form .form-hint--error {
+    color: var(--hk-danger);
+}

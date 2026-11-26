@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lịch sử điểm danh · HappyKidsCK</title>
+    <link rel="icon" href="../../../assets/img/brand/logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap-icons/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../../../assets/css/base/typography.css">
+    <link rel="stylesheet" href="../../../assets/css/base/tokens.css">
+    <link rel="stylesheet" href="../../../assets/css/base/reset.css">
+    <link rel="stylesheet" href="../../../assets/css/base/ui.css">
+    <link rel="stylesheet" href="../../../assets/css/layout/app.css">
+    <link rel="stylesheet" href="../../../assets/css/pages/attendance/history.css">
+    <script src="../../../assets/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
+    <script type="module" src="../../../assets/js/app.js"></script>
+    <script type="module" src="../../../assets/js/pages/attendance/history.js"></script>
+</head>
+<body data-auth="required" data-layout="dashboard" data-page="attendance">
+    <div class="page-stack">
+        <div data-component="page-header"
+             data-title="Lịch sử điểm danh"
+             data-subtitle="Tra cứu lượt điểm danh theo lớp và khoảng ngày"
+             data-breadcrumb='[{"label":"Điểm danh","href":"../../attendance/today/"},{"label":"Lịch sử"}]'>
+            <template data-slot="actions">
+                <a class="btn-hk" href="../board/" data-permission="attendance.view">
+                    <i class="bi bi-journal-check me-1"></i>Mở sổ điểm danh
+                </a>
+            </template>
+        </div>
+
+        <form class="card card-pad history-filters" data-history-filters>
+            <div class="history-filters__grid">
+                <div class="att-field">
+                    <label class="form-label" for="history-class">Lớp học</label>
+                    <select class="form-select" id="history-class" data-history-class>
+                        <option value="">Tất cả lớp</option>
+                    </select>
+                </div>
+                <div class="att-field">
+                    <label class="form-label" for="history-from">Từ ngày</label>
+                    <input class="form-control" id="history-from" type="date" data-history-from>
+                </div>
+                <div class="att-field">
+                    <label class="form-label" for="history-to">Đến ngày</label>
+                    <input class="form-control" id="history-to" type="date" data-history-to>
+                </div>
+                <div class="history-filters__actions">
+                    <button class="btn-hk" type="submit">
+                        <i class="bi bi-funnel me-1"></i>Lọc dữ liệu
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <div class="card table-card">
+            <div class="table-card__head">
+                <h2 class="table-card__title">Lượt điểm danh</h2>
+                <span class="hk-chip" data-history-total>—</span>
+            </div>
+            <div data-history-table></div>
+            <div class="hk-pagination" data-history-pagination hidden></div>
+        </div>
+    </div>
+</body>
+</html>

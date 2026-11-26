@@ -1,0 +1,139 @@
+/* ============================================================
+   Typography - Quicksand (chinh) + Be Vietnam Pro (du phong)
+   Font self-host: assets/fonts/<family>/ (woff2, co subset tieng Viet)
+   ============================================================ */
+
+/* vietnamese */
+@font-face {
+  font-family: 'Quicksand';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('../../fonts/quicksand/quicksand-vietnamese.woff2') format('woff2');
+}
+
+/* latin-ext */
+@font-face {
+  font-family: 'Quicksand';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('../../fonts/quicksand/quicksand-latin-ext.woff2') format('woff2');
+}
+
+/* latin */
+@font-face {
+  font-family: 'Quicksand';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('../../fonts/quicksand/quicksand-latin.woff2') format('woff2');
+}
+
+/* vietnamese */
+@font-face {
+  font-family: 'Be Vietnam Pro';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../fonts/be-vietnam-pro/be-vietnam-pro-400-vietnamese.woff2') format('woff2');
+}
+
+/* latin-ext */
+@font-face {
+  font-family: 'Be Vietnam Pro';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../fonts/be-vietnam-pro/be-vietnam-pro-400-latin-ext.woff2') format('woff2');
+}
+
+/* latin */
+@font-face {
+  font-family: 'Be Vietnam Pro';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../fonts/be-vietnam-pro/be-vietnam-pro-400-latin.woff2') format('woff2');
+}
+
+/* vietnamese */
+@font-face {
+  font-family: 'Be Vietnam Pro';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../../fonts/be-vietnam-pro/be-vietnam-pro-500-vietnamese.woff2') format('woff2');
+}
+
+/* latin-ext */
+@font-face {
+  font-family: 'Be Vietnam Pro';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../../fonts/be-vietnam-pro/be-vietnam-pro-500-latin-ext.woff2') format('woff2');
+}
+
+/* latin */
+@font-face {
+  font-family: 'Be Vietnam Pro';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../../fonts/be-vietnam-pro/be-vietnam-pro-500-latin.woff2') format('woff2');
+}
+
+/* vietnamese */
+@font-face {
+  font-family: 'Be Vietnam Pro';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../../fonts/be-vietnam-pro/be-vietnam-pro-600-vietnamese.woff2') format('woff2');
+}
+
+/* latin-ext */
+@font-face {
+  font-family: 'Be Vietnam Pro';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../../fonts/be-vietnam-pro/be-vietnam-pro-600-latin-ext.woff2') format('woff2');
+}
+
+/* latin */
+@font-face {
+  font-family: 'Be Vietnam Pro';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../../fonts/be-vietnam-pro/be-vietnam-pro-600-latin.woff2') format('woff2');
+}
+
+/* vietnamese */
+@font-face {
+  font-family: 'Be Vietnam Pro';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../../fonts/be-vietnam-pro/be-vietnam-pro-700-vietnamese.woff2') format('woff2');
+}
+
+/* latin-ext */
+@font-face {
+  font-family: 'Be Vietnam Pro';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../../fonts/be-vietnam-pro/be-vietnam-pro-700-latin-ext.woff2') format('woff2');
+}
+
+/* latin */
+@font-face {
+  font-family: 'Be Vietnam Pro';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('../../fonts/be-vietnam-pro/be-vietnam-pro-700-latin.woff2') format('woff2');
+}

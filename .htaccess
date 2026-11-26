@@ -1,0 +1,45 @@
+# ============================================================
+# HappyKidsCK - kiểm soát truy cập tài nguyên (Chuyên đề 03)
+# Chỉ frontend/ (giao diện) và backend/public/ (API) được công khai.
+# ============================================================
+
+Options -Indexes
+ServerSignature Off
+
+<IfModule mod_headers.c>
+    Header unset X-Powered-By
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Chặn mọi tệp bắt đầu bằng dấu chấm (.env, .gitignore, .htaccess...)
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+# Chặn các định dạng tệp nội bộ / nhạy cảm
+<FilesMatch "(?i)\.(env|sql|log|bak|ini|sh|md|docx|lock|example)$">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Chặn đường dẫn chứa thư mục ẩn (.git, .env...)
+    RewriteRule (^|/)\. - [F,L]
+
+    # Backend: chỉ backend/public/ được truy cập, phần còn lại trả 403
+    RewriteRule ^backend/(?!public(/|$)) - [F,L]
+    RewriteRule ^backend$ - [F,L]
+
+    # Tài liệu nội bộ không phục vụ qua web
+    RewriteRule ^docs(/|$) - [F,L]
+
+    # Front Controller: URL thân thiện + chuyển URL vật lý cũ về dạng ngắn
+    RewriteRule ^frontend/pages(/|$) router.php [L]
+    RewriteRule ^[a-z0-9-]+(/index\.html|/)?$ router.php [L]
+
+    # Truy cập tên miền -> trang đăng nhập
+    RewriteRule ^$ %{REQUEST_URI}login/ [R=302,L]
+</IfModule>

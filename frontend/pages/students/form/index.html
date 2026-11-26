@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hồ sơ học viên · HappyKidsCK</title>
+    <link rel="icon" href="../../../assets/img/brand/logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap-icons/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../../../assets/css/base/typography.css">
+    <link rel="stylesheet" href="../../../assets/css/base/tokens.css">
+    <link rel="stylesheet" href="../../../assets/css/base/reset.css">
+    <link rel="stylesheet" href="../../../assets/css/base/ui.css">
+    <link rel="stylesheet" href="../../../assets/css/layout/app.css">
+    <link rel="stylesheet" href="../../../assets/css/pages/students/form.css">
+    <script src="../../../assets/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
+    <script type="module" src="../../../assets/js/app.js"></script>
+    <script type="module" src="../../../assets/js/pages/students/form.js"></script>
+</head>
+<body data-auth="required" data-layout="dashboard" data-page="students">
+    <div class="page-stack">
+        <div data-component="page-header"
+             data-title="Thêm học viên"
+             data-subtitle="Hồ sơ được tạo trong cơ sở đang chọn"
+             data-breadcrumb='[{"label":"Học viên","href":"../../students/list/"},{"label":"Hồ sơ"}]'></div>
+
+        <form class="student-form" data-student-form novalidate>
+            <section class="card card-pad">
+                <div class="section-head">
+                    <div>
+                        <h2 class="section-title">Thông tin học viên</h2>
+                        <p class="section-subtitle">Các trường đánh dấu * là bắt buộc</p>
+                    </div>
+                    <span class="hk-chip" data-branch-chip>Cơ sở hiện tại</span>
+                </div>
+                <div class="form-grid">
+                    <div class="hk-field span-6">
+                        <label class="form-label" for="full_name">Họ tên học viên <span class="required">*</span></label>
+                        <input class="form-control" id="full_name" name="full_name" type="text" maxlength="120"
+                               placeholder="Ví dụ: Nguyễn Minh An" required autocomplete="off">
+                    </div>
+                    <div class="hk-field span-3">
+                        <label class="form-label" for="student_code">Mã học viên <span class="required">*</span></label>
+                        <input class="form-control" id="student_code" name="student_code" type="text" maxlength="30"
+                               placeholder="VD: HV0001" required autocomplete="off">
+                    </div>
+                    <div class="hk-field span-3">
+                        <label class="form-label" for="status">Trạng thái</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="active">Đang học</option>
+                            <option value="paused">Tạm nghỉ</option>
+                            <option value="left">Đã nghỉ</option>
+                        </select>
+                    </div>
+                    <div class="hk-field span-3">
+                        <label class="form-label" for="dob">Ngày sinh</label>
+                        <input class="form-control" id="dob" name="dob" type="date">
+                    </div>
+                    <div class="hk-field span-3">
+                        <label class="form-label" for="gender">Giới tính</label>
+                        <select class="form-select" id="gender" name="gender">
+                            <option value="">Chưa xác định</option>
+                            <option value="male">Nam</option>
+                            <option value="female">Nữ</option>
+                            <option value="other">Khác</option>
+                        </select>
+                    </div>
+                    <div class="hk-field span-3" data-class-field hidden>
+                        <label class="form-label" for="class_id">Lớp học</label>
+                        <select class="form-select" id="class_id" name="class_id">
+                            <option value="">Chưa xếp lớp</option>
+                        </select>
+                    </div>
+                    <div class="hk-field span-3">
+                        <label class="form-label" for="enrollment_date">Ngày nhập học</label>
+                        <input class="form-control" id="enrollment_date" name="enrollment_date" type="date">
+                    </div>
+                    <div class="hk-field span-4">
+                        <label class="form-label" for="study_format">Hình thức học</label>
+                        <input class="form-control" id="study_format" name="study_format" type="text" maxlength="100"
+                               placeholder="VD: Bán trú, 2 buổi/tuần...">
+                    </div>
+                    <div class="hk-field span-4">
+                        <label class="form-label" for="monthly_fee">Học phí thoả thuận (đ/tháng)</label>
+                        <input class="form-control" id="monthly_fee" name="monthly_fee" type="number" min="0" step="1000"
+                               placeholder="Nhập 0 nếu chưa thoả thuận">
+                    </div>
+                    <div class="hk-field span-4">
+                        <label class="form-label" for="identity_code">Mã định danh / CCCD</label>
+                        <input class="form-control" id="identity_code" name="identity_code" type="text" maxlength="20"
+                               placeholder="Thông tin nội bộ, được che với nhân viên không có quyền" autocomplete="off">
+                    </div>
+                </div>
+            </section>
+
+            <section class="card card-pad">
+                <div class="section-head">
+                    <div>
+                        <h2 class="section-title">Phụ huynh & liên hệ</h2>
+                        <p class="section-subtitle">Thông tin liên lạc phục vụ điểm danh và thu học phí</p>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="hk-field span-4">
+                        <label class="form-label" for="guardian_name">Họ tên phụ huynh</label>
+                        <input class="form-control" id="guardian_name" name="guardian_name" type="text" maxlength="120"
+                               placeholder="Ví dụ: Nguyễn Văn Bình">
+                    </div>
+                    <div class="hk-field span-4">
+                        <label class="form-label" for="guardian_phone">Số điện thoại</label>
+                        <input class="form-control" id="guardian_phone" name="guardian_phone" type="tel" maxlength="30"
+                               placeholder="09xx xxx xxx" inputmode="tel">
+                    </div>
+                    <div class="hk-field span-4">
+                        <label class="form-label" for="address">Địa chỉ</label>
+                        <input class="form-control" id="address" name="address" type="text" maxlength="255"
+                               placeholder="Số nhà, đường, xã/phường...">
+                    </div>
+                    <div class="hk-field span-12">
+                        <label class="form-label" for="notes">Ghi chú nội bộ</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3" maxlength="2000"
+                                  placeholder="Lưu ý về sức khoẻ, ăn uống, đưa đón..."></textarea>
+                    </div>
+                </div>
+            </section>
+
+            <div class="form-actions">
+                <span class="form-hint" data-form-hint></span>
+                <a class="btn-hk-outline" href="../list/">Huỷ</a>
+                <button class="btn-hk" type="submit" data-submit>
+                    <i class="bi bi-check2 me-1"></i><span data-submit-text>Lưu hồ sơ</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

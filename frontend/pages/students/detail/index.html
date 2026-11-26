@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hồ sơ học viên · HappyKidsCK</title>
+    <link rel="icon" href="../../../assets/img/brand/logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap-icons/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../../../assets/css/base/typography.css">
+    <link rel="stylesheet" href="../../../assets/css/base/tokens.css">
+    <link rel="stylesheet" href="../../../assets/css/base/reset.css">
+    <link rel="stylesheet" href="../../../assets/css/base/ui.css">
+    <link rel="stylesheet" href="../../../assets/css/layout/app.css">
+    <link rel="stylesheet" href="../../../assets/css/pages/students/detail.css">
+    <script src="../../../assets/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
+    <script type="module" src="../../../assets/js/app.js"></script>
+    <script type="module" src="../../../assets/js/pages/students/detail.js"></script>
+</head>
+<body data-auth="required" data-layout="dashboard" data-page="students">
+    <div class="page-stack">
+        <div data-component="page-header"
+             data-title="Hồ sơ học viên"
+             data-subtitle="Thông tin cá nhân, điểm danh và học phí"
+             data-breadcrumb='[{"label":"Học viên","href":"../../students/list/"},{"label":"Hồ sơ"}]'>
+            <template data-slot="actions">
+                <a class="btn-hk-outline" href="../list/"><i class="bi bi-arrow-left me-1"></i>Danh sách</a>
+            </template>
+        </div>
+
+        <section class="card detail-hero" data-hero>
+            <div class="detail-hero__avatar">
+                <span class="hk-avatar hk-avatar--xl hk-avatar--fallback" data-avatar>…</span>
+                <label class="avatar-upload" data-avatar-upload hidden title="Đổi ảnh học viên">
+                    <i class="bi bi-camera"></i>
+                    <input type="file" accept="image/jpeg,image/png,image/webp" data-avatar-input hidden>
+                </label>
+            </div>
+            <div class="detail-hero__main" data-hero-main>
+                <span class="spinner-border spinner-border-sm text-secondary" role="status" aria-hidden="true"></span>
+                <span class="text-muted-2 ms-2">Đang tải hồ sơ...</span>
+            </div>
+            <div class="detail-hero__actions" data-detail-actions></div>
+        </section>
+
+        <div class="section-grid">
+            <div class="page-stack">
+                <section class="card card-pad">
+                    <div class="section-head">
+                        <div>
+                            <h2 class="section-title">Thông tin cá nhân</h2>
+                            <p class="section-subtitle">Dữ liệu hồ sơ và học phí thoả thuận</p>
+                        </div>
+                    </div>
+                    <dl class="info-list" data-info>
+                        <dt>Đang tải</dt><dd>—</dd>
+                    </dl>
+                </section>
+
+                <section class="card table-card">
+                    <div class="table-card__head">
+                        <h2 class="table-card__title">Điểm danh gần đây</h2>
+                        <a class="fs-13" href="../../attendance/history/" data-permission="attendance.view">Xem lịch sử</a>
+                    </div>
+                    <div data-attendance-table></div>
+                </section>
+
+                <section class="card table-card">
+                    <div class="table-card__head">
+                        <h2 class="table-card__title">Học phí gần đây</h2>
+                        <a class="fs-13" href="../../tuition/list/" data-permission="tuition.view">Quản lý học phí</a>
+                    </div>
+                    <div data-tuition-table></div>
+                </section>
+            </div>
+
+            <aside class="page-stack">
+                <section class="card card-pad">
+                    <div class="section-head">
+                        <div>
+                            <h2 class="section-title">Phụ huynh & liên hệ</h2>
+                            <p class="section-subtitle">Thông tin liên lạc khi cần</p>
+                        </div>
+                    </div>
+                    <dl class="info-list" data-guardian>
+                        <dt>Đang tải</dt><dd>—</dd>
+                    </dl>
+                </section>
+
+                <section class="card card-pad">
+                    <div class="section-head">
+                        <div>
+                            <h2 class="section-title">Lịch sử lớp</h2>
+                            <p class="section-subtitle">Quá trình gán và chuyển lớp</p>
+                        </div>
+                    </div>
+                    <div class="history-list" data-class-history>
+                        <p class="text-muted-2 fs-13 mb-0">Đang tải...</p>
+                    </div>
+                </section>
+
+                <section class="card card-pad" data-branch-history-card hidden>
+                    <div class="section-head">
+                        <div>
+                            <h2 class="section-title">Lịch sử chuyển cơ sở</h2>
+                            <p class="section-subtitle">Các lần chuyển cơ sở của học viên</p>
+                        </div>
+                    </div>
+                    <div class="history-list" data-branch-history></div>
+                </section>
+            </aside>
+        </div>
+    </div>
+</body>
+</html>

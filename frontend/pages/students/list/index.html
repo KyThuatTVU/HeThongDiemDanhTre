@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Học viên · HappyKidsCK</title>
+    <link rel="icon" href="../../../assets/img/brand/logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap-icons/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../../../assets/css/base/typography.css">
+    <link rel="stylesheet" href="../../../assets/css/base/tokens.css">
+    <link rel="stylesheet" href="../../../assets/css/base/reset.css">
+    <link rel="stylesheet" href="../../../assets/css/base/ui.css">
+    <link rel="stylesheet" href="../../../assets/css/layout/app.css">
+    <link rel="stylesheet" href="../../../assets/css/pages/students/list.css">
+    <script src="../../../assets/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
+    <script type="module" src="../../../assets/js/app.js"></script>
+    <script type="module" src="../../../assets/js/pages/students/list.js"></script>
+</head>
+<body data-auth="required" data-layout="dashboard" data-page="students">
+    <div class="page-stack">
+        <div data-component="page-header"
+             data-title="Học viên"
+             data-subtitle="Hồ sơ học viên theo cơ sở đang chọn"
+             data-breadcrumb='[{"label":"Học viên"}]'></div>
+
+        <div data-component="table-toolbar">
+            <template data-slot="filters">
+                <div class="hk-field hk-field--wide">
+                    <label class="visually-hidden" for="student-search">Tìm kiếm học viên</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent"><i class="bi bi-search"></i></span>
+                        <input type="search" class="form-control" id="student-search"
+                               placeholder="Tìm theo tên, mã học viên, phụ huynh..." data-search-input>
+                    </div>
+                </div>
+                <div class="hk-field">
+                    <label class="visually-hidden" for="student-status">Trạng thái</label>
+                    <select class="form-select" id="student-status" data-filter-status>
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="active">Đang học</option>
+                        <option value="paused">Tạm nghỉ</option>
+                        <option value="left">Đã nghỉ</option>
+                    </select>
+                </div>
+                <div class="hk-field" data-class-filter hidden>
+                    <label class="visually-hidden" for="student-class">Lớp học</label>
+                    <select class="form-select" id="student-class" data-filter-class>
+                        <option value="">Tất cả lớp</option>
+                    </select>
+                </div>
+                <label class="hk-check" data-permission="students.restore">
+                    <input type="checkbox" data-include-deleted> Gồm học viên đã xoá
+                </label>
+            </template>
+            <template data-slot="actions">
+                <a class="btn-hk" href="../form/" data-permission="students.create">
+                    <i class="bi bi-plus-lg me-1"></i>Thêm học viên
+                </a>
+            </template>
+        </div>
+
+        <div class="card table-card">
+            <div data-students-table></div>
+            <div class="hk-pagination" data-students-pagination hidden></div>
+        </div>
+    </div>
+</body>
+</html>

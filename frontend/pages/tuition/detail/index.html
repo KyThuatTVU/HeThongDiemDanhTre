@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Phiếu học phí · HappyKidsCK</title>
+    <link rel="icon" href="../../../assets/img/brand/logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap-icons/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../../../assets/css/base/typography.css">
+    <link rel="stylesheet" href="../../../assets/css/base/tokens.css">
+    <link rel="stylesheet" href="../../../assets/css/base/reset.css">
+    <link rel="stylesheet" href="../../../assets/css/base/ui.css">
+    <link rel="stylesheet" href="../../../assets/css/layout/app.css">
+    <link rel="stylesheet" href="../../../assets/css/pages/tuition/detail.css">
+    <script src="../../../assets/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
+    <script type="module" src="../../../assets/js/app.js"></script>
+    <script type="module" src="../../../assets/js/pages/tuition/detail.js"></script>
+</head>
+<body data-auth="required" data-layout="dashboard" data-page="tuition">
+    <div class="page-stack">
+        <div data-component="page-header"
+             data-title="Phiếu học phí"
+             data-subtitle="Chi tiết thu, giảm trừ và lịch sử thanh toán"
+             data-breadcrumb='[{"label":"Học phí","href":"../../tuition/list/"},{"label":"Phiếu học phí"}]'>
+            <template data-slot="actions">
+                <a class="btn-hk-outline" href="../list/"><i class="bi bi-arrow-left me-1"></i>Bảng học phí</a>
+            </template>
+        </div>
+
+        <section class="card fee-hero" data-fee-hero>
+            <div class="fee-hero__main" data-fee-main>
+                <span class="spinner-border spinner-border-sm text-secondary" role="status" aria-hidden="true"></span>
+                <span class="text-muted-2 ms-2">Đang tải phiếu học phí...</span>
+            </div>
+            <div class="fee-hero__actions" data-fee-actions></div>
+        </section>
+
+        <div class="stat-grid">
+            <div data-component="stat-card" data-stat="final" data-tone="brand" data-icon="bi-receipt"
+                 data-label="Phải thu" data-value="—" data-hint="Sau giảm trừ"></div>
+            <div data-component="stat-card" data-stat="paid" data-tone="success" data-icon="bi-cash-coin"
+                 data-label="Đã thu" data-value="—" data-hint="Tổng các lần thu"></div>
+            <div data-component="stat-card" data-stat="remaining" data-tone="danger" data-icon="bi-hourglass-split"
+                 data-label="Còn lại" data-value="—" data-hint="Số cần thu tiếp"></div>
+            <div data-component="stat-card" data-stat="deduction" data-tone="accent" data-icon="bi-slash-circle"
+                 data-label="Giảm trừ" data-value="—" data-hint="Tổng các khoản giảm"></div>
+        </div>
+
+        <div class="section-grid">
+            <div class="page-stack">
+                <section class="card table-card">
+                    <div class="table-card__head">
+                        <h2 class="table-card__title">Lịch sử thanh toán</h2>
+                        <button type="button" class="btn-hk btn-sm" data-collect data-permission="tuition.collect">
+                            <i class="bi bi-cash-coin me-1"></i>Thu học phí
+                        </button>
+                    </div>
+                    <div data-payments-table></div>
+                </section>
+
+                <section class="card table-card">
+                    <div class="table-card__head">
+                        <h2 class="table-card__title">Các khoản giảm trừ</h2>
+                        <button type="button" class="btn-hk-outline btn-sm" data-adjust data-permission="tuition.adjust">
+                            <i class="bi bi-dash-circle me-1"></i>Thêm giảm trừ
+                        </button>
+                    </div>
+                    <div data-adjustments-table></div>
+                </section>
+            </div>
+
+            <aside class="page-stack">
+                <section class="card card-pad">
+                    <div class="section-head">
+                        <div>
+                            <h2 class="section-title">Thông tin kỳ thu</h2>
+                            <p class="section-subtitle">Số liệu chốt trên phiếu</p>
+                        </div>
+                    </div>
+                    <dl class="info-list" data-fee-info>
+                        <dt>Đang tải</dt><dd>—</dd>
+                    </dl>
+                </section>
+
+                <section class="card card-pad">
+                    <div class="section-head">
+                        <div>
+                            <h2 class="section-title">Điểm danh trong kỳ</h2>
+                            <p class="section-subtitle">Thống kê theo ngày ghi nhận</p>
+                        </div>
+                        <span class="hk-chip" data-attendance-total>—</span>
+                    </div>
+                    <dl class="info-list" data-attendance-info>
+                        <dt>Đang tải</dt><dd>—</dd>
+                    </dl>
+                </section>
+            </aside>
+        </div>
+    </div>
+</body>
+</html>

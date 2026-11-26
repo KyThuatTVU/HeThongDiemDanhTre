@@ -1,0 +1,223 @@
+/* ============================================================
+   UI dùng chung cho các trang: lưới, thẻ, chi tiết hồ sơ
+   ============================================================ */
+
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 14px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 14px 16px;
+}
+
+.form-grid .span-12 { grid-column: span 12; }
+.form-grid .span-8 { grid-column: span 8; }
+.form-grid .span-6 { grid-column: span 6; }
+.form-grid .span-4 { grid-column: span 4; }
+.form-grid .span-3 { grid-column: span 3; }
+
+.section-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+}
+
+.card-pad {
+    padding: 1.25rem;
+}
+
+.section-title {
+    font-size: 15px;
+    margin: 0;
+}
+
+.section-subtitle {
+    font-size: 12.5px;
+    color: var(--hk-muted);
+    margin: 2px 0 0;
+}
+
+.section-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.table-card {
+    overflow: hidden;
+}
+
+.table-card .hk-table-wrap {
+    border-radius: 0;
+}
+
+.table-card__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--hk-border);
+}
+
+.table-card__title {
+    font-size: 15px;
+    margin: 0;
+}
+
+.info-list {
+    display: grid;
+    grid-template-columns: minmax(110px, 140px) minmax(0, 1fr);
+    gap: 8px 14px;
+    margin: 0;
+    font-size: 13.5px;
+}
+
+.info-list dt {
+    color: var(--hk-muted);
+    font-weight: 500;
+}
+
+.info-list dd {
+    margin: 0;
+    font-weight: 600;
+    color: var(--hk-text);
+    overflow-wrap: anywhere;
+}
+
+.detail-hero {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 20px;
+}
+
+.detail-hero__avatar {
+    flex: 0 0 auto;
+}
+
+.detail-hero__name {
+    font-size: 20px;
+    margin: 0;
+}
+
+.detail-hero__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    margin-top: 4px;
+    font-size: 13px;
+    color: var(--hk-muted);
+}
+
+.upload-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+
+.upload-row__preview {
+    width: 72px;
+    height: 72px;
+    border-radius: 16px;
+    object-fit: cover;
+    background: var(--hk-brand-100);
+    border: 1px solid var(--hk-border);
+}
+
+.form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    padding-top: 14px;
+    border-top: 1px solid var(--hk-border);
+    margin-top: 4px;
+}
+
+.form-actions .form-hint {
+    margin-right: auto;
+    font-size: 12.5px;
+    color: var(--hk-muted);
+}
+
+.hk-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 12px;
+    background: var(--hk-surface-2);
+    border: 1px solid var(--hk-border);
+    color: var(--hk-muted);
+}
+
+.hk-divider {
+    height: 1px;
+    background: var(--hk-border);
+    margin: 16px 0;
+    border: 0;
+}
+
+.money-positive {
+    color: var(--hk-success);
+    font-weight: 600;
+}
+
+.money-danger {
+    color: var(--hk-danger);
+    font-weight: 600;
+}
+
+.text-strong {
+    font-weight: 600;
+}
+
+.cell-title {
+    display: block;
+    font-weight: 600;
+}
+
+.cell-meta {
+    display: block;
+    font-size: 12.5px;
+    color: var(--hk-muted);
+}
+
+@media (max-width: 991.98px) {
+    .section-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .form-grid .span-8,
+    .form-grid .span-6,
+    .form-grid .span-4,
+    .form-grid .span-3 {
+        grid-column: span 12;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .info-list {
+        grid-template-columns: 1fr;
+        gap: 2px;
+    }
+
+    .info-list dt {
+        margin-top: 6px;
+    }
+
+    .detail-hero {
+        padding: 16px;
+    }
+}

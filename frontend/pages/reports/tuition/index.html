@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Báo cáo học phí · HappyKidsCK</title>
+    <link rel="icon" href="../../../assets/img/brand/logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap-icons/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../../../assets/css/base/typography.css">
+    <link rel="stylesheet" href="../../../assets/css/base/tokens.css">
+    <link rel="stylesheet" href="../../../assets/css/base/reset.css">
+    <link rel="stylesheet" href="../../../assets/css/base/ui.css">
+    <link rel="stylesheet" href="../../../assets/css/layout/app.css">
+    <script src="../../../assets/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
+    <script type="module" src="../../../assets/js/app.js"></script>
+    <script type="module" src="../../../assets/js/pages/reports/tuition.js"></script>
+</head>
+<body data-auth="required" data-layout="dashboard" data-page="reports">
+    <div class="page-stack">
+        <div data-component="page-header"
+             data-title="Báo cáo học phí"
+             data-subtitle="Tổng hợp phải thu, đã thu và công nợ theo kỳ tháng"
+             data-breadcrumb='[{"label":"Báo cáo"},{"label":"Học phí"}]'></div>
+
+        <div data-component="report-tabs" data-active="tuition"></div>
+
+        <div class="stat-grid">
+            <div data-component="stat-card" data-metric="final" data-tone="brand" data-icon="bi-receipt"
+                 data-label="Tổng phải thu" data-value="—" data-hint="Đang tải..."></div>
+            <div data-component="stat-card" data-metric="paid" data-tone="success" data-icon="bi-cash-coin"
+                 data-label="Đã thu" data-value="—" data-hint="Đang tải..."></div>
+            <div data-component="stat-card" data-metric="debt" data-tone="danger" data-icon="bi-exclamation-circle"
+                 data-label="Còn nợ" data-value="—" data-hint="Đang tải..."></div>
+        </div>
+
+        <div data-component="table-toolbar">
+            <template data-slot="filters">
+                <div class="hk-field hk-field--wide">
+                    <label class="visually-hidden" for="report-tuition-search">Tìm kiếm học viên</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent"><i class="bi bi-search"></i></span>
+                        <input type="search" class="form-control" id="report-tuition-search"
+                               placeholder="Tìm theo tên hoặc mã học viên..." data-search-input>
+                    </div>
+                </div>
+                <div class="hk-field">
+                    <label class="visually-hidden" for="report-tuition-status">Trạng thái</label>
+                    <select class="form-select" id="report-tuition-status" data-report-status>
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="unpaid">Chưa thu</option>
+                        <option value="partial">Thu một phần</option>
+                        <option value="paid">Đã thu đủ</option>
+                    </select>
+                </div>
+                <div class="hk-field">
+                    <label class="visually-hidden" for="report-tuition-month">Tháng</label>
+                    <select class="form-select" id="report-tuition-month" data-report-month></select>
+                </div>
+                <div class="hk-field">
+                    <label class="visually-hidden" for="report-tuition-year">Năm</label>
+                    <select class="form-select" id="report-tuition-year" data-report-year></select>
+                </div>
+            </template>
+        </div>
+
+        <div class="card table-card">
+            <div class="table-card__head">
+                <h2 class="table-card__title">Bảng học phí</h2>
+                <div class="d-flex gap-2">
+                    <span class="hk-chip" data-report-period>—</span>
+                    <span class="hk-chip" data-report-total>—</span>
+                </div>
+            </div>
+            <div data-report-table></div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<section class="att-board">
+    <div class="card card-pad att-filters">
+        <div class="att-filters__grid">
+            <div class="att-field att-field--class">
+                <label class="form-label" for="att-class">Lớp học</label>
+                <select class="form-select" id="att-class" data-att-class>
+                    <option value="">Đang tải lớp...</option>
+                </select>
+            </div>
+            <div class="att-field">
+                <label class="form-label" for="att-date">Ngày điểm danh</label>
+                <input class="form-control" id="att-date" type="date" data-att-date>
+            </div>
+            <div class="att-field att-field--slot">
+                <label class="form-label" for="att-slot">Ca học</label>
+                <input class="form-control" id="att-slot" type="text" maxlength="50" value="Chính"
+                       placeholder="Chính" data-att-slot>
+            </div>
+            <div class="att-filters__actions">
+                <button type="button" class="btn-hk" data-att-load>
+                    <i class="bi bi-arrow-repeat me-1"></i>Xem sổ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="att-summary">
+        <div class="att-summary__item att-summary__item--present">
+            <span class="att-summary__label">Có mặt</span>
+            <strong class="att-summary__value" data-att-present>0</strong>
+        </div>
+        <div class="att-summary__item att-summary__item--absent">
+            <span class="att-summary__label">Vắng</span>
+            <strong class="att-summary__value" data-att-absent>0</strong>
+        </div>
+        <div class="att-summary__item att-summary__item--unrecorded">
+            <span class="att-summary__label">Chưa ghi</span>
+            <strong class="att-summary__value" data-att-unrecorded>0</strong>
+        </div>
+        <div class="att-summary__spacer"></div>
+        <div class="att-summary__status" data-att-lock-status></div>
+        <div class="att-summary__buttons" data-att-lock-actions></div>
+    </div>
+
+    <div class="att-banner" data-att-banner hidden></div>
+
+    <div class="card table-card">
+        <div class="table-card__head">
+            <div>
+                <h2 class="table-card__title" data-att-title>Chọn lớp để xem sổ điểm danh</h2>
+                <p class="section-subtitle" data-att-subtitle hidden></p>
+            </div>
+            <div class="att-savebar" data-att-savebar>
+                <button type="button" class="btn-hk-outline btn-sm" data-att-mark-all>
+                    <i class="bi bi-check2-all me-1"></i>Tất cả có mặt
+                </button>
+                <button type="button" class="btn-hk btn-sm" data-att-save>
+                    <i class="bi bi-save me-1"></i>Lưu điểm danh
+                </button>
+            </div>
+        </div>
+        <div data-att-table></div>
+    </div>
+</section>

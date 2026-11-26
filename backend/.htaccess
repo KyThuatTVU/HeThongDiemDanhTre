@@ -1,0 +1,25 @@
+# ============================================================
+# Backend - chỉ thư mục public/ được phép truy cập qua web
+# ============================================================
+
+Options -Indexes
+ServerSignature Off
+
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+<FilesMatch "(?i)\.(env|sql|log|bak|ini|sh|md|docx|lock|example)$">
+    Require all denied
+</FilesMatch>
+
+<FilesMatch "(?i)^composer\.(json|lock)$">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Mọi đường dẫn không thuộc public/ đều bị từ chối
+    RewriteRule ^(?!public(/|$)).* - [F,L]
+</IfModule>

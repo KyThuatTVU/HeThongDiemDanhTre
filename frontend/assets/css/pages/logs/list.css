@@ -1,0 +1,26 @@
+.log-json {
+    margin: 0;
+    padding: 10px 12px;
+    max-height: 240px;
+    overflow: auto;
+    border: 1px solid var(--hk-border);
+    border-radius: 10px;
+    background: var(--hk-surface-2);
+    font-size: 12.5px;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.log-json--empty {
+    color: var(--hk-muted);
+}
+
+.log-detail__section {
+    margin-top: 16px;
+}
+
+.log-detail__section-title {
+    font-size: 13.5px;
+    margin: 0 0 6px;
+    color: var(--hk-text-soft);
+}

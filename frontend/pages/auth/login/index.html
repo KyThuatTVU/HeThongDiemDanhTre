@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Đăng nhập · HappyKidsCK</title>
+    <link rel="icon" href="../../../assets/img/brand/logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap-icons/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../../../assets/css/base/typography.css">
+    <link rel="stylesheet" href="../../../assets/css/base/tokens.css">
+    <link rel="stylesheet" href="../../../assets/css/base/reset.css">
+    <link rel="stylesheet" href="../../../assets/css/base/ui.css">
+    <link rel="stylesheet" href="../../../assets/css/layout/auth.css">
+    <link rel="stylesheet" href="../../../assets/css/pages/auth/login.css">
+    <script src="../../../assets/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
+    <script type="module" src="../../../assets/js/app.js"></script>
+    <script type="module" src="../../../assets/js/pages/auth/login.js"></script>
+</head>
+<body data-auth="guest" data-layout="auth">
+    <div class="login">
+        <div class="auth-card__logo-mobile">
+            <img src="../../../assets/img/brand/logo.svg" alt="" width="40" height="40">
+            <span>HappyKidsCK</span>
+        </div>
+
+        <h1 class="auth-title">Đăng nhập</h1>
+        <p class="auth-subtitle">Dùng tài khoản nội bộ được quản trị viên cấp.</p>
+
+        <div class="alert alert-danger login-alert" data-login-alert hidden role="alert"></div>
+
+        <form data-login-form novalidate>
+            <div class="mb-3">
+                <label class="form-label" for="login-identifier">Tên đăng nhập hoặc email</label>
+                <input type="text" class="form-control" id="login-identifier" name="identifier" autocomplete="username" required maxlength="150" placeholder="vd: admin hoặc email Google">
+                <div class="invalid-feedback" data-error-for="identifier"></div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="login-password">Mật khẩu</label>
+                <div class="login-password">
+                    <input type="password" class="form-control" id="login-password" name="password" autocomplete="current-password" required maxlength="255" placeholder="Nhập mật khẩu">
+                    <button type="button" class="login-password__toggle" data-action="toggle-password" aria-label="Hiện hoặc ẩn mật khẩu">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
+                <div class="invalid-feedback" data-error-for="password"></div>
+            </div>
+            <button type="submit" class="btn btn-hk w-100 login-submit" data-login-submit>Đăng nhập</button>
+        </form>
+
+        <div class="auth-divider" data-login-divider hidden><span>hoặc</span></div>
+
+        <a class="btn btn-hk-outline w-100 login-google" data-google-login hidden>
+            <i class="bi bi-google"></i><span>Đăng nhập bằng Google</span>
+        </a>
+
+        <p class="login-help">Quên mật khẩu hoặc cần cấp tài khoản? Liên hệ quản trị viên hệ thống.</p>
+        <p class="login-foot">© <span data-login-year></span> HappyKidsCK · Hệ thống nội bộ</p>
+    </div>
+</body>
+</html>

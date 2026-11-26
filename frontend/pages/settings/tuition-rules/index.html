@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cấu hình hệ thống · HappyKidsCK</title>
+    <link rel="icon" href="../../../assets/img/brand/logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap-icons/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../../../assets/css/base/typography.css">
+    <link rel="stylesheet" href="../../../assets/css/base/tokens.css">
+    <link rel="stylesheet" href="../../../assets/css/base/reset.css">
+    <link rel="stylesheet" href="../../../assets/css/base/ui.css">
+    <link rel="stylesheet" href="../../../assets/css/layout/app.css">
+    <link rel="stylesheet" href="../../../assets/css/pages/settings/tuition-rules.css">
+    <script src="../../../assets/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
+    <script type="module" src="../../../assets/js/app.js"></script>
+    <script type="module" src="../../../assets/js/pages/settings/tuition-rules.js"></script>
+</head>
+<body data-auth="required" data-layout="dashboard" data-page="settings">
+    <div class="page-stack">
+        <div data-component="page-header"
+             data-title="Cấu hình hệ thống"
+             data-subtitle="Thông tin trung tâm và quy định học phí dùng chung cho hai cơ sở"
+             data-breadcrumb='[{"label":"Cấu hình"}]'></div>
+
+        <form class="settings-form" data-settings-form novalidate>
+            <section class="card card-pad">
+                <div class="section-head">
+                    <div>
+                        <h2 class="section-title">Thông tin trung tâm</h2>
+                        <p class="section-subtitle">Hiển thị trên phiếu thu và báo cáo in</p>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="hk-field span-6">
+                        <label class="form-label" for="center-name">Tên trung tâm</label>
+                        <input class="form-control" id="center-name" name="general.center_name" type="text" maxlength="150"
+                               placeholder="Trung tâm HappyKidsCK">
+                    </div>
+                    <div class="hk-field span-3">
+                        <label class="form-label" for="center-hotline">Hotline</label>
+                        <input class="form-control" id="center-hotline" name="general.hotline" type="tel" maxlength="30" inputmode="tel">
+                    </div>
+                    <div class="hk-field span-3">
+                        <label class="form-label" for="due-day">Hạn thu học phí (ngày)</label>
+                        <input class="form-control" id="due-day" name="tuition.payment_due_day" type="number"
+                               min="1" max="28" step="1" placeholder="VD: 10">
+                    </div>
+                    <div class="hk-field span-12">
+                        <label class="form-label" for="center-address">Địa chỉ</label>
+                        <input class="form-control" id="center-address" name="general.address" type="text" maxlength="255">
+                    </div>
+                </div>
+            </section>
+
+            <section class="card card-pad">
+                <div class="section-head">
+                    <div>
+                        <h2 class="section-title">Quy định giảm trừ học phí</h2>
+                        <p class="section-subtitle">Mức giảm trừ tham chiếu khi lập bảng học phí tháng</p>
+                    </div>
+                </div>
+                <div class="settings-note">
+                    <i class="bi bi-info-circle"></i>
+                    <span>Hiện tại giảm trừ được nhập tay cho từng phiếu học phí. Các mức dưới đây được lưu để áp dụng khi bật tính tự động theo điểm danh.</span>
+                </div>
+                <div class="form-grid">
+                    <div class="hk-field span-4">
+                        <label class="form-label" for="deduct-absent">Giảm trừ mỗi buổi vắng (đ)</label>
+                        <input class="form-control" id="deduct-absent" name="tuition.absent_deduction_amount" type="number"
+                               min="0" step="1000" placeholder="0">
+                    </div>
+                    <div class="hk-field span-4">
+                        <label class="form-label" for="deduct-late">Giảm trừ mỗi lượt đi trễ (đ)</label>
+                        <input class="form-control" id="deduct-late" name="tuition.late_deduction_amount" type="number"
+                               min="0" step="1000" placeholder="0">
+                    </div>
+                    <div class="hk-field span-4">
+                        <label class="form-label" for="deduct-excused">Giảm trừ vắng có phép (đ/buổi)</label>
+                        <input class="form-control" id="deduct-excused" name="tuition.excused_deduction_amount" type="number"
+                               min="0" step="1000" placeholder="0">
+                    </div>
+                    <div class="hk-field span-12">
+                        <label class="form-label" for="tuition-note">Ghi chú quy định</label>
+                        <textarea class="form-control" id="tuition-note" name="tuition.rule_note" rows="3" maxlength="500"
+                                  placeholder="Ví dụ: chỉ giảm trừ khi phụ huynh báo trước 1 ngày..."></textarea>
+                    </div>
+                </div>
+            </section>
+
+            <div class="form-actions">
+                <span class="form-hint" data-form-hint></span>
+                <button class="btn-hk" type="submit" data-submit>
+                    <i class="bi bi-check2 me-1"></i><span data-submit-text>Lưu cấu hình</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

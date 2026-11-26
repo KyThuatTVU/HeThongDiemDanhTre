@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Biến động học viên · HappyKidsCK</title>
+    <link rel="icon" href="../../../assets/img/brand/logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap-icons/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../../../assets/css/base/typography.css">
+    <link rel="stylesheet" href="../../../assets/css/base/tokens.css">
+    <link rel="stylesheet" href="../../../assets/css/base/reset.css">
+    <link rel="stylesheet" href="../../../assets/css/base/ui.css">
+    <link rel="stylesheet" href="../../../assets/css/layout/app.css">
+    <script src="../../../assets/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
+    <script src="../../../assets/vendor/chartjs/chart.umd.min.js" defer></script>
+    <script type="module" src="../../../assets/js/app.js"></script>
+    <script type="module" src="../../../assets/js/pages/reports/movements.js"></script>
+</head>
+<body data-auth="required" data-layout="dashboard" data-page="reports">
+    <div class="page-stack">
+        <div data-component="page-header"
+             data-title="Biến động học viên"
+             data-subtitle="Số học viên nhập học mới và nghỉ học theo từng tháng"
+             data-breadcrumb='[{"label":"Báo cáo"},{"label":"Biến động"}]'></div>
+
+        <div data-component="report-tabs" data-active="movements"></div>
+
+        <div class="stat-grid">
+            <div data-component="stat-card" data-metric="new" data-tone="success" data-icon="bi-person-plus"
+                 data-label="Nhập học trong năm" data-value="—" data-hint="Đang tải..."></div>
+            <div data-component="stat-card" data-metric="left" data-tone="danger" data-icon="bi-person-dash"
+                 data-label="Nghỉ học trong năm" data-value="—" data-hint="Đang tải..."></div>
+            <div data-component="stat-card" data-metric="net" data-tone="brand" data-icon="bi-arrow-left-right"
+                 data-label="Chênh lệch" data-value="—" data-hint="Đang tải..."></div>
+        </div>
+
+        <div data-component="table-toolbar">
+            <template data-slot="filters">
+                <div class="hk-field">
+                    <label class="form-label" for="report-move-year">Năm</label>
+                    <select class="form-select" id="report-move-year" data-report-year></select>
+                </div>
+            </template>
+        </div>
+
+        <div data-component="chart-card"
+             data-title="Biến động học viên theo tháng"
+             data-subtitle="Số hồ sơ nhập học mới và nghỉ học trong năm được chọn"></div>
+
+        <div class="card table-card">
+            <div class="table-card__head">
+                <h2 class="table-card__title">Chi tiết theo tháng</h2>
+                <span class="hk-chip" data-report-period>—</span>
+            </div>
+            <div data-report-table></div>
+        </div>
+    </div>
+</body>
+</html>

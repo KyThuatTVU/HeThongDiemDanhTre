@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Học phí · HappyKidsCK</title>
+    <link rel="icon" href="../../../assets/img/brand/logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap-icons/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../../../assets/css/base/typography.css">
+    <link rel="stylesheet" href="../../../assets/css/base/tokens.css">
+    <link rel="stylesheet" href="../../../assets/css/base/reset.css">
+    <link rel="stylesheet" href="../../../assets/css/base/ui.css">
+    <link rel="stylesheet" href="../../../assets/css/layout/app.css">
+    <link rel="stylesheet" href="../../../assets/css/pages/tuition/list.css">
+    <script src="../../../assets/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
+    <script type="module" src="../../../assets/js/app.js"></script>
+    <script type="module" src="../../../assets/js/pages/tuition/list.js"></script>
+</head>
+<body data-auth="required" data-layout="dashboard" data-page="tuition">
+    <div class="page-stack">
+        <div data-component="page-header"
+             data-title="Học phí"
+             data-subtitle="Bảng thu học phí theo tháng của cơ sở đang chọn"
+             data-breadcrumb='[{"label":"Học phí"}]'>
+            <template data-slot="actions">
+                <button type="button" class="btn-hk" data-generate data-permission="tuition.generate">
+                    <i class="bi bi-magic me-1"></i>Tạo bảng học phí
+                </button>
+            </template>
+        </div>
+
+        <div class="stat-grid">
+            <div data-component="stat-card" data-stat="final" data-tone="brand" data-icon="bi-receipt"
+                 data-label="Tổng phải thu" data-value="—" data-hint="Đang tải..."></div>
+            <div data-component="stat-card" data-stat="paid" data-tone="success" data-icon="bi-cash-coin"
+                 data-label="Đã thu" data-value="—" data-hint="Đang tải..."></div>
+            <div data-component="stat-card" data-stat="debt" data-tone="danger" data-icon="bi-exclamation-circle"
+                 data-label="Còn nợ" data-value="—" data-hint="Đang tải..."></div>
+        </div>
+
+        <div data-component="table-toolbar">
+            <template data-slot="filters">
+                <div class="hk-field hk-field--wide">
+                    <label class="visually-hidden" for="tuition-search">Tìm học viên</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent"><i class="bi bi-search"></i></span>
+                        <input type="search" class="form-control" id="tuition-search"
+                               placeholder="Tìm theo tên hoặc mã học viên..." data-search-input>
+                    </div>
+                </div>
+                <div class="hk-field">
+                    <label class="visually-hidden" for="tuition-month">Tháng</label>
+                    <select class="form-select" id="tuition-month" data-month>
+                        <option value="1">Tháng 1</option>
+                        <option value="2">Tháng 2</option>
+                        <option value="3">Tháng 3</option>
+                        <option value="4">Tháng 4</option>
+                        <option value="5">Tháng 5</option>
+                        <option value="6">Tháng 6</option>
+                        <option value="7">Tháng 7</option>
+                        <option value="8">Tháng 8</option>
+                        <option value="9">Tháng 9</option>
+                        <option value="10">Tháng 10</option>
+                        <option value="11">Tháng 11</option>
+                        <option value="12">Tháng 12</option>
+                    </select>
+                </div>
+                <div class="hk-field">
+                    <label class="visually-hidden" for="tuition-year">Năm</label>
+                    <select class="form-select" id="tuition-year" data-year></select>
+                </div>
+                <div class="hk-field">
+                    <label class="visually-hidden" for="tuition-status">Trạng thái</label>
+                    <select class="form-select" id="tuition-status" data-status>
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="unpaid">Chưa thu</option>
+                        <option value="partial">Thu một phần</option>
+                        <option value="paid">Đã thu đủ</option>
+                    </select>
+                </div>
+            </template>
+            <template data-slot="actions">
+                <a class="btn-hk-outline" href="../../reports/tuition/" data-permission="reports.view">
+                    <i class="bi bi-bar-chart me-1"></i>Báo cáo
+                </a>
+            </template>
+        </div>
+
+        <div class="card table-card">
+            <div class="table-card__head">
+                <h2 class="table-card__title" data-tuition-title>Bảng học phí</h2>
+                <span class="hk-chip" data-tuition-count>—</span>
+            </div>
+            <div data-tuition-table></div>
+            <div class="hk-pagination" data-tuition-pagination hidden></div>
+        </div>
+    </div>
+</body>
+</html>

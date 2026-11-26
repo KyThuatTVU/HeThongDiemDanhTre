@@ -1,0 +1,36 @@
+.student-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.student-form .card {
+    margin: 0;
+}
+
+.student-form .hk-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.student-form .form-label {
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0;
+    color: var(--hk-text-soft);
+}
+
+.student-form .required {
+    color: var(--hk-danger);
+}
+
+.student-form .form-hint {
+    margin-right: auto;
+    font-size: 12.5px;
+    color: var(--hk-muted);
+}
+
+.student-form .form-hint--error {
+    color: var(--hk-danger);
+}

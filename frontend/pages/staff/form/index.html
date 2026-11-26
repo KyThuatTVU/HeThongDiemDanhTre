@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hồ sơ nhân viên · HappyKidsCK</title>
+    <link rel="icon" href="../../../assets/img/brand/logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap-icons/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../../../assets/css/base/typography.css">
+    <link rel="stylesheet" href="../../../assets/css/base/tokens.css">
+    <link rel="stylesheet" href="../../../assets/css/base/reset.css">
+    <link rel="stylesheet" href="../../../assets/css/base/ui.css">
+    <link rel="stylesheet" href="../../../assets/css/layout/app.css">
+    <link rel="stylesheet" href="../../../assets/css/pages/staff/form.css">
+    <script src="../../../assets/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
+    <script type="module" src="../../../assets/js/app.js"></script>
+    <script type="module" src="../../../assets/js/pages/staff/form.js"></script>
+</head>
+<body data-auth="required" data-layout="dashboard" data-page="staff">
+    <div class="page-stack">
+        <div data-component="page-header"
+             data-title="Thêm nhân viên"
+             data-subtitle="Tạo tài khoản và phân công cơ sở làm việc"
+             data-breadcrumb='[{"label":"Nhân viên","href":"../../staff/list/"},{"label":"Hồ sơ"}]'></div>
+
+        <form class="staff-form" data-staff-form novalidate>
+            <section class="card card-pad">
+                <div class="section-head">
+                    <div>
+                        <h2 class="section-title">Thông tin tài khoản</h2>
+                        <p class="section-subtitle">Tài khoản nội bộ, không dùng email công khai nếu không cần</p>
+                    </div>
+                </div>
+                <div class="upload-row mb-3" data-avatar-row hidden>
+                    <span class="hk-avatar hk-avatar--lg hk-avatar--fallback" data-avatar>—</span>
+                    <div>
+                        <label class="btn-hk-outline btn-sm mb-0" for="staff-avatar-input">
+                            <i class="bi bi-camera me-1"></i>Đổi ảnh đại diện
+                        </label>
+                        <input id="staff-avatar-input" type="file" accept="image/jpeg,image/png,image/webp" hidden data-avatar-input>
+                        <p class="fs-13 text-muted-2 mb-0 mt-1">JPG/PNG/WEBP, tối đa 2MB.</p>
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="hk-field span-4">
+                        <label class="form-label" for="full_name">Họ và tên <span class="required">*</span></label>
+                        <input class="form-control" id="full_name" name="full_name" type="text" maxlength="120" required autocomplete="off">
+                    </div>
+                    <div class="hk-field span-4">
+                        <label class="form-label" for="username">Tên đăng nhập <span class="required" data-username-required>*</span></label>
+                        <input class="form-control" id="username" name="username" type="text" maxlength="50"
+                               placeholder="3-50 ký tự: chữ, số, . _ -" autocomplete="off">
+                    </div>
+                    <div class="hk-field span-4" data-password-field>
+                        <label class="form-label" for="password">Mật khẩu <span class="required">*</span></label>
+                        <input class="form-control" id="password" name="password" type="password" minlength="8" maxlength="255"
+                               placeholder="Tối thiểu 8 ký tự" autocomplete="new-password">
+                    </div>
+                    <div class="hk-field span-4">
+                        <label class="form-label" for="role_key">Vai trò <span class="required">*</span></label>
+                        <select class="form-select" id="role_key" name="role_key" required>
+                            <option value="">Chọn vai trò</option>
+                            <option value="branch_manager">Quản lý cơ sở</option>
+                            <option value="attendance_staff">Nhân viên điểm danh</option>
+                            <option value="profile_staff">Nhân viên hồ sơ</option>
+                            <option value="super_admin" data-super-option>Quản trị hệ thống</option>
+                        </select>
+                    </div>
+                    <div class="hk-field span-4">
+                        <label class="form-label" for="email">Email</label>
+                        <input class="form-control" id="email" name="email" type="email" maxlength="150" autocomplete="off">
+                    </div>
+                    <div class="hk-field span-4">
+                        <label class="form-label" for="phone">Số điện thoại</label>
+                        <input class="form-control" id="phone" name="phone" type="tel" maxlength="30" inputmode="tel">
+                    </div>
+                </div>
+            </section>
+
+            <section class="card card-pad">
+                <div class="section-head">
+                    <div>
+                        <h2 class="section-title">Phân công cơ sở</h2>
+                        <p class="section-subtitle" data-branch-hint>Mỗi nhân viên được phân công tối đa 2 cơ sở.</p>
+                    </div>
+                </div>
+                <div class="branch-picker" data-branch-picker>
+                    <p class="text-muted-2 fs-13 mb-0">Đang tải cơ sở...</p>
+                </div>
+                <p class="form-hint form-hint--error mt-2 mb-0" data-branch-error hidden></p>
+            </section>
+
+            <div class="form-actions">
+                <span class="form-hint" data-form-hint></span>
+                <a class="btn-hk-outline" href="../list/">Huỷ</a>
+                <button class="btn-hk" type="submit" data-submit>
+                    <i class="bi bi-check2 me-1"></i><span data-submit-text>Lưu nhân viên</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

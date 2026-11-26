@@ -1,0 +1,323 @@
+/* ============================================================
+   Base - thiết lập nền tảng cho toàn bộ giao diện
+   ============================================================ */
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--hk-text);
+    background-color: var(--hk-bg);
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    color: var(--hk-text);
+    letter-spacing: -0.01em;
+}
+
+a {
+    color: var(--hk-brand-600);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--hk-brand-700);
+    text-decoration: underline;
+}
+
+:focus-visible {
+    outline: 2px solid var(--hk-brand-500);
+    outline-offset: 2px;
+    box-shadow: none;
+}
+
+::selection {
+    background: var(--hk-brand-100);
+    color: var(--hk-brand-900);
+}
+
+/* Thanh cuộn nhẹ, đồng bộ palette */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--hk-border-strong) transparent;
+}
+
+*::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: var(--hk-border-strong);
+    border-radius: 999px;
+}
+
+/* Tiện ích dùng chung */
+.text-muted-2 {
+    color: var(--hk-muted) !important;
+}
+
+.text-brand {
+    color: var(--hk-brand-600) !important;
+}
+
+.bg-surface {
+    background-color: var(--hk-surface) !important;
+}
+
+.fw-600 {
+    font-weight: 600;
+}
+
+.fs-13 {
+    font-size: 13px;
+}
+
+.fs-14 {
+    font-size: 14px;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+/* Nút thương hiệu */
+.btn-hk {
+    background-color: var(--hk-brand-700);
+    border: 1px solid var(--hk-brand-700);
+    color: #fff;
+    font-weight: 600;
+    border-radius: var(--hk-radius-sm);
+    padding: 0.55rem 1.15rem;
+}
+
+.btn-hk:hover,
+.btn-hk:focus {
+    background-color: var(--hk-brand-800);
+    border-color: var(--hk-brand-800);
+    color: #fff;
+}
+
+.btn-hk-outline {
+    background-color: transparent;
+    border: 1px solid var(--hk-border-strong);
+    color: var(--hk-text);
+    font-weight: 600;
+    border-radius: var(--hk-radius-sm);
+    padding: 0.55rem 1.15rem;
+}
+
+.btn-hk-outline:hover {
+    border-color: var(--hk-brand-500);
+    color: var(--hk-brand-700);
+    background-color: var(--hk-brand-50);
+}
+
+.btn-accent {
+    background-color: var(--hk-accent-500);
+    border: 1px solid var(--hk-accent-500);
+    color: #432c04;
+    font-weight: 600;
+    border-radius: var(--hk-radius-sm);
+    padding: 0.55rem 1.15rem;
+}
+
+.btn-accent:hover {
+    background-color: var(--hk-accent-400);
+    border-color: var(--hk-accent-400);
+    color: #432c04;
+}
+
+.btn-soft-danger {
+    background-color: var(--hk-danger-bg);
+    border: 1px solid transparent;
+    color: var(--hk-danger);
+    font-weight: 600;
+    border-radius: var(--hk-radius-sm);
+}
+
+.btn-soft-danger:hover {
+    background-color: #fbdada;
+    color: var(--hk-danger);
+}
+
+/* Thẻ và bảng nền tảng */
+.card {
+    border: 1px solid var(--hk-border);
+    border-radius: var(--hk-radius);
+    box-shadow: var(--hk-shadow-sm);
+    background-color: var(--hk-surface);
+}
+
+.card-header {
+    background-color: transparent;
+    border-bottom: 1px solid var(--hk-border);
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+}
+
+.table {
+    --bs-table-color: var(--hk-text);
+    margin-bottom: 0;
+}
+
+.table > :not(caption) > * > * {
+    padding: 0.7rem 0.9rem;
+    vertical-align: middle;
+}
+
+.table thead th {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--hk-muted);
+    background-color: var(--hk-surface-2);
+    border-bottom: 1px solid var(--hk-border);
+    white-space: nowrap;
+}
+
+.table tbody tr:hover {
+    background-color: var(--hk-brand-50);
+}
+
+.table-responsive {
+    border-radius: var(--hk-radius);
+}
+
+/* Form */
+.form-label {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--hk-text);
+    margin-bottom: 0.35rem;
+}
+
+.form-control,
+.form-select {
+    border-radius: var(--hk-radius-sm);
+    border-color: var(--hk-border-strong);
+    padding: 0.52rem 0.8rem;
+    font-size: 14px;
+    background-color: #fff;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--hk-brand-500);
+    box-shadow: 0 0 0 3px rgba(30, 148, 130, 0.15);
+}
+
+.form-check-input:checked {
+    background-color: var(--hk-brand-600);
+    border-color: var(--hk-brand-600);
+}
+
+.invalid-feedback {
+    font-size: 12px;
+}
+
+/* Badge trạng thái dùng chung */
+.hk-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.22rem 0.6rem;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+
+.hk-badge--success {
+    background: var(--hk-success-bg);
+    color: var(--hk-success);
+}
+
+.hk-badge--danger {
+    background: var(--hk-danger-bg);
+    color: var(--hk-danger);
+}
+
+.hk-badge--warning {
+    background: var(--hk-warning-bg);
+    color: var(--hk-warning);
+}
+
+.hk-badge--info {
+    background: var(--hk-info-bg);
+    color: var(--hk-info);
+}
+
+.hk-badge--neutral {
+    background: #eef0ec;
+    color: var(--hk-muted);
+}
+
+/* Ảnh đại diện */
+.hk-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--hk-surface);
+    box-shadow: var(--hk-shadow-sm);
+    background: var(--hk-brand-100);
+}
+
+.hk-avatar--sm {
+    width: 32px;
+    height: 32px;
+}
+
+.hk-avatar--lg {
+    width: 72px;
+    height: 72px;
+}
+
+.hk-avatar--fallback {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--hk-brand-700);
+    background: var(--hk-brand-100);
+}
+
+.hk-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Khoảng cách nội dung trang */
+.page-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+@media (max-width: 575.98px) {
+    body {
+        font-size: 14px;
+    }
+}

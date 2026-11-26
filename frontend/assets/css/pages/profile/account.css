@@ -1,0 +1,39 @@
+.profile-hero__body {
+    min-width: 0;
+    flex: 1;
+}
+
+.profile-hero__upload {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.profile-form .hk-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.profile-form .form-label {
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0;
+    color: var(--hk-text-soft);
+}
+
+.profile-form .required {
+    color: var(--hk-danger);
+}
+
+.profile-form .form-hint {
+    margin-right: auto;
+    font-size: 12.5px;
+    color: var(--hk-muted);
+}
+
+.profile-form .form-hint--error {
+    color: var(--hk-danger);
+}

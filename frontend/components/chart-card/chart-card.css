@@ -1,0 +1,36 @@
+.chart-card {
+    overflow: hidden;
+}
+
+.chart-card__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem 0.25rem;
+}
+
+.chart-card__title {
+    font-size: 16px;
+    margin: 0;
+}
+
+.chart-card__subtitle {
+    margin: 2px 0 0;
+    color: var(--hk-muted);
+    font-size: 12.5px;
+}
+
+.chart-card__actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.chart-card__body {
+    padding: 0.75rem 1rem 1rem;
+}
+
+.chart-card__body canvas {
+    max-height: 300px;
+}

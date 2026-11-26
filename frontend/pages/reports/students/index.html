@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Báo cáo học viên · HappyKidsCK</title>
+    <link rel="icon" href="../../../assets/img/brand/logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap-icons/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../../../assets/css/base/typography.css">
+    <link rel="stylesheet" href="../../../assets/css/base/tokens.css">
+    <link rel="stylesheet" href="../../../assets/css/base/reset.css">
+    <link rel="stylesheet" href="../../../assets/css/base/ui.css">
+    <link rel="stylesheet" href="../../../assets/css/layout/app.css">
+    <script src="../../../assets/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
+    <script type="module" src="../../../assets/js/app.js"></script>
+    <script type="module" src="../../../assets/js/pages/reports/students.js"></script>
+</head>
+<body data-auth="required" data-layout="dashboard" data-page="reports">
+    <div class="page-stack">
+        <div data-component="page-header"
+             data-title="Báo cáo học viên"
+             data-subtitle="Danh sách hồ sơ học viên theo cơ sở đang chọn"
+             data-breadcrumb='[{"label":"Báo cáo"},{"label":"Học viên"}]'></div>
+
+        <div data-component="report-tabs" data-active="students"></div>
+
+        <div data-component="table-toolbar">
+            <template data-slot="filters">
+                <div class="hk-field hk-field--wide">
+                    <label class="visually-hidden" for="report-student-search">Tìm kiếm học viên</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent"><i class="bi bi-search"></i></span>
+                        <input type="search" class="form-control" id="report-student-search"
+                               placeholder="Tìm theo tên, mã học viên, phụ huynh..." data-search-input>
+                    </div>
+                </div>
+                <div class="hk-field">
+                    <label class="visually-hidden" for="report-student-status">Trạng thái</label>
+                    <select class="form-select" id="report-student-status" data-report-status>
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="active">Đang học</option>
+                        <option value="paused">Tạm nghỉ</option>
+                        <option value="left">Đã nghỉ</option>
+                    </select>
+                </div>
+                <div class="hk-field" data-class-filter hidden>
+                    <label class="visually-hidden" for="report-student-class">Lớp học</label>
+                    <select class="form-select" id="report-student-class" data-report-class>
+                        <option value="">Tất cả lớp</option>
+                    </select>
+                </div>
+            </template>
+        </div>
+
+        <div class="card table-card">
+            <div class="table-card__head">
+                <h2 class="table-card__title">Hồ sơ học viên</h2>
+                <div class="d-flex gap-2">
+                    <span class="hk-chip" data-report-scope>—</span>
+                    <span class="hk-chip" data-report-total>—</span>
+                </div>
+            </div>
+            <div data-report-table></div>
+        </div>
+    </div>
+</body>
+</html>

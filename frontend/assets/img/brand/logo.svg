@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="HappyKidsCK">
+    <rect x="2" y="2" width="44" height="44" rx="14" fill="#FBBF24"/>
+    <circle cx="24" cy="21" r="8.5" fill="#0B4239"/>
+    <circle cx="21" cy="20" r="1.4" fill="#FBBF24"/>
+    <circle cx="27" cy="20" r="1.4" fill="#FBBF24"/>
+    <path d="M20.2 33.2c1.7 2.1 6 2.1 7.6 0" fill="none" stroke="#0B4239" stroke-width="2.4" stroke-linecap="round"/>
+</svg>

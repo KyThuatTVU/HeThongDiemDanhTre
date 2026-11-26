@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lớp học · HappyKidsCK</title>
+    <link rel="icon" href="../../../assets/img/brand/logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap-icons/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../../../assets/css/base/typography.css">
+    <link rel="stylesheet" href="../../../assets/css/base/tokens.css">
+    <link rel="stylesheet" href="../../../assets/css/base/reset.css">
+    <link rel="stylesheet" href="../../../assets/css/base/ui.css">
+    <link rel="stylesheet" href="../../../assets/css/layout/app.css">
+    <link rel="stylesheet" href="../../../assets/css/pages/classes/form.css">
+    <script src="../../../assets/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
+    <script type="module" src="../../../assets/js/app.js"></script>
+    <script type="module" src="../../../assets/js/pages/classes/form.js"></script>
+</head>
+<body data-auth="required" data-layout="dashboard" data-page="classes">
+    <div class="page-stack">
+        <div data-component="page-header"
+             data-title="Thêm lớp học"
+             data-subtitle="Lớp mới thuộc cơ sở đang chọn"
+             data-breadcrumb='[{"label":"Lớp học","href":"../../classes/list/"},{"label":"Lớp học"}]'></div>
+
+        <form class="class-form" data-class-form novalidate>
+            <section class="card card-pad">
+                <div class="form-grid">
+                    <div class="hk-field span-8">
+                        <label class="form-label" for="name">Tên lớp <span class="required">*</span></label>
+                        <input class="form-control" id="name" name="name" type="text" maxlength="120"
+                               placeholder="Ví dụ: Lá 1, Mầm 2, Rồng nhỏ..." required autocomplete="off">
+                    </div>
+                    <div class="hk-field span-4" data-status-field hidden>
+                        <label class="form-label" for="status">Trạng thái</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="active">Đang hoạt động</option>
+                            <option value="inactive">Ngừng hoạt động</option>
+                        </select>
+                    </div>
+                    <div class="hk-field span-12">
+                        <label class="form-label" for="note">Ghi chú</label>
+                        <input class="form-control" id="note" name="note" type="text" maxlength="255"
+                               placeholder="Thời gian học, giáo viên phụ trách...">
+                    </div>
+                </div>
+            </section>
+
+            <div class="form-actions">
+                <span class="form-hint" data-form-hint></span>
+                <a class="btn-hk-outline" href="../list/">Huỷ</a>
+                <button class="btn-hk" type="submit" data-submit>
+                    <i class="bi bi-check2 me-1"></i><span data-submit-text>Lưu lớp học</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

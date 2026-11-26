@@ -1,0 +1,23 @@
+.history-filters__grid {
+    display: grid;
+    grid-template-columns: minmax(200px, 1.2fr) repeat(2, minmax(160px, 0.8fr)) auto;
+    gap: 12px;
+    align-items: end;
+}
+
+.history-filters .form-label {
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0 0 6px;
+    color: var(--hk-text-soft);
+}
+
+.history-filters__actions .btn-hk {
+    padding: .55rem 1.1rem;
+}
+
+@media (max-width: 767.98px) {
+    .history-filters__grid {
+        grid-template-columns: 1fr;
+    }
+}

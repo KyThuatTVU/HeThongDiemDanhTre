@@ -1,0 +1,39 @@
+.hk-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 6px;
+    padding: 40px 20px;
+    color: var(--hk-muted);
+}
+
+.hk-empty__icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--hk-brand-50);
+    color: var(--hk-brand-500);
+    font-size: 22px;
+    margin-bottom: 4px;
+}
+
+.hk-empty__title {
+    font-size: 15px;
+    margin: 0;
+    color: var(--hk-text);
+}
+
+.hk-empty__hint {
+    margin: 0;
+    font-size: 13px;
+    max-width: 420px;
+}
+
+.hk-empty--table {
+    padding: 30px 16px;
+}

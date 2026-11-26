@@ -1,0 +1,34 @@
+.splash {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: var(--hk-bg);
+}
+
+.splash__logo {
+    border-radius: 18px;
+    box-shadow: var(--hk-shadow-md);
+}
+
+.splash__name {
+    margin: 6px 0 0;
+    font-family: var(--font-heading);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--hk-brand-800);
+}
+
+.splash__text {
+    margin: 0 0 10px;
+    color: var(--hk-muted);
+    font-size: 13px;
+}
+
+.splash__spinner {
+    color: var(--hk-brand-600);
+    width: 26px;
+    height: 26px;
+}

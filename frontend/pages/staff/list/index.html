@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Nhân viên · HappyKidsCK</title>
+    <link rel="icon" href="../../../assets/img/brand/logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap-icons/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../../../assets/css/base/typography.css">
+    <link rel="stylesheet" href="../../../assets/css/base/tokens.css">
+    <link rel="stylesheet" href="../../../assets/css/base/reset.css">
+    <link rel="stylesheet" href="../../../assets/css/base/ui.css">
+    <link rel="stylesheet" href="../../../assets/css/layout/app.css">
+    <link rel="stylesheet" href="../../../assets/css/pages/staff/list.css">
+    <script src="../../../assets/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
+    <script type="module" src="../../../assets/js/app.js"></script>
+    <script type="module" src="../../../assets/js/pages/staff/list.js"></script>
+</head>
+<body data-auth="required" data-layout="dashboard" data-page="staff">
+    <div class="page-stack">
+        <div data-component="page-header"
+             data-title="Nhân viên"
+             data-subtitle="Tài khoản và phân công cơ sở"
+             data-breadcrumb='[{"label":"Nhân viên"}]'></div>
+
+        <div data-component="table-toolbar">
+            <template data-slot="filters">
+                <div class="hk-field hk-field--wide">
+                    <label class="visually-hidden" for="staff-search">Tìm nhân viên</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent"><i class="bi bi-search"></i></span>
+                        <input type="search" class="form-control" id="staff-search"
+                               placeholder="Tìm theo tên, tên đăng nhập, email, SĐT..." data-search-input>
+                    </div>
+                </div>
+                <div class="hk-field">
+                    <label class="visually-hidden" for="staff-role">Vai trò</label>
+                    <select class="form-select" id="staff-role" data-role>
+                        <option value="">Tất cả vai trò</option>
+                        <option value="super_admin">Quản trị hệ thống</option>
+                        <option value="branch_manager">Quản lý cơ sở</option>
+                        <option value="attendance_staff">Nhân viên điểm danh</option>
+                        <option value="profile_staff">Nhân viên hồ sơ</option>
+                    </select>
+                </div>
+                <div class="hk-field">
+                    <label class="visually-hidden" for="staff-status">Trạng thái</label>
+                    <select class="form-select" id="staff-status" data-status>
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="active">Đang hoạt động</option>
+                        <option value="locked">Đã khoá</option>
+                    </select>
+                </div>
+            </template>
+            <template data-slot="actions">
+                <a class="btn-hk" href="../form/" data-permission="staff.manage">
+                    <i class="bi bi-person-plus me-1"></i>Thêm nhân viên
+                </a>
+            </template>
+        </div>
+
+        <div class="card table-card">
+            <div data-staff-table></div>
+            <div class="hk-pagination" data-staff-pagination hidden></div>
+        </div>
+    </div>
+</body>
+</html>
