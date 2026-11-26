@@ -21,6 +21,7 @@ use App\Core\Config;
 use App\Core\Env;
 use App\Core\ErrorHandler;
 use App\Core\Router;
+use App\Core\SecurityHeaders;
 use App\Core\Session;
 
 Env::load(BASE_PATH . '/.env');
@@ -28,9 +29,11 @@ Config::load(BASE_PATH . '/config');
 
 date_default_timezone_set((string) Config::get('app.timezone', 'Asia/Ho_Chi_Minh'));
 mb_internal_encoding('UTF-8');
+@set_time_limit((int) Config::get('security.request.max_execution_seconds', 30));
 
 ErrorHandler::register((bool) Config::get('app.debug', false));
 Session::start((array) Config::get('auth.session', []));
+SecurityHeaders::apply();
 
 $router = new Router();
 require BASE_PATH . '/routes/web.php';

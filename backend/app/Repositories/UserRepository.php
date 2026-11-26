@@ -106,6 +106,9 @@ final class UserRepository extends Repository
 
     private function scalarExists(string $column, string $value, ?int $exceptId): bool
     {
+        if (!in_array($column, ['username', 'email'], true)) {
+            throw new \InvalidArgumentException('Cột kiểm tra không hợp lệ: ' . $column);
+        }
         $sql = "SELECT COUNT(*) FROM users WHERE `{$column}` = ?";
         $params = [$value];
         if ($exceptId !== null) {

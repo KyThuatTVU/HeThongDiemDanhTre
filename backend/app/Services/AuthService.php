@@ -8,6 +8,7 @@ use App\Core\Request;
 use App\Core\Session;
 use App\Exceptions\HttpException;
 use App\Infrastructure\Auth\GoogleOAuthClient;
+use App\Infrastructure\Security\RateLimiter;
 use App\Models\User;
 use App\Repositories\BranchRepository;
 use App\Repositories\UserRepository;
@@ -35,22 +36,32 @@ final class AuthService
             $this->logs->recordLogin(null, $identifier, 'password', 'failed');
             throw new HttpException(401, 'Tài khoản hoặc mật khẩu không đúng');
         }
-        if ((string) $user->status !== 'active') {
-            $this->logs->recordLogin((int) $user->id, $identifier, 'password', 'failed');
-            throw new HttpException(403, 'Tài khoản đã bị khoá, vui lòng liên hệ quản trị viên');
-        }
         if (!password_verify($password, (string) $user->password_hash)) {
             $this->logs->recordLogin((int) $user->id, $identifier, 'password', 'failed');
             throw new HttpException(401, 'Tài khoản hoặc mật khẩu không đúng');
         }
+        if ((string) $user->status !== 'active') {
+            $this->logs->recordLogin((int) $user->id, $identifier, 'password', 'failed');
+            throw new HttpException(403, 'Tài khoản đã bị khoá, vui lòng liên hệ quản trị viên');
+        }
+        RateLimiter::clear('login', 'ip', $request->ip());
+        RateLimiter::clear('login', 'account', $identifier);
         return $this->establishSession($user, $identifier, 'password');
     }
 
     public function googleAuthUrl(): string
     {
+        if (!$this->googleLoginEnabled()) {
+            throw new HttpException(503, 'Đăng nhập Google chưa được cấu hình cho tài khoản quản trị');
+        }
         $state = bin2hex(random_bytes(16));
         Session::set('google_oauth_state', $state);
         return $this->google->buildAuthUrl($state);
+    }
+
+    public function googleLoginEnabled(): bool
+    {
+        return $this->google->isConfigured() && $this->allowedGoogleEmails() !== [];
     }
 
     public function loginWithGoogle(string $code, string $state): array
@@ -61,12 +72,16 @@ final class AuthService
             throw new HttpException(400, 'Phiên đăng nhập Google không hợp lệ hoặc đã hết hạn');
         }
         $profile = $this->google->fetchUser($code);
-        $email = (string) $profile['email'];
+        $email = strtolower((string) $profile['email']);
 
-        $allowedEmails = (array) Config::get('auth.google.allowed_emails', []);
-        if ($allowedEmails !== [] && !in_array(strtolower($email), $allowedEmails, true)) {
+        $allowedEmails = $this->allowedGoogleEmails();
+        if ($allowedEmails === [] || !in_array($email, $allowedEmails, true)) {
             $this->logs->recordLogin(null, $email, 'google', 'failed');
-            throw new HttpException(403, 'Email Google không nằm trong danh sách được phép đăng nhập');
+            throw new HttpException(403, 'Tài khoản Google này không được phép truy cập trang quản trị');
+        }
+        if (($profile['email_verified'] ?? false) !== true) {
+            $this->logs->recordLogin(null, $email, 'google', 'failed');
+            throw new HttpException(403, 'Email Google chưa được xác minh');
         }
 
         $user = $this->users->findByGoogleId((string) $profile['google_id']) ?? $this->users->findByEmail($email);
@@ -90,7 +105,21 @@ final class AuthService
             throw new HttpException(403, 'Tài khoản Google không khớp với hồ sơ nhân sự');
         }
 
+        $googleName = mb_substr(trim((string) ($profile['name'] ?? '')), 0, 120);
+        if ($googleName !== '' && $googleName !== (string) $user->full_name) {
+            $this->users->update((int) $user->id, ['full_name' => $googleName]);
+            $user->full_name = $googleName;
+        }
+
         return $this->establishSession($user, $email, 'google');
+    }
+
+    private function allowedGoogleEmails(): array
+    {
+        return array_values(array_unique(array_filter(array_map(
+            static fn ($email): string => strtolower(trim((string) $email)),
+            (array) Config::get('auth.google.allowed_emails', [])
+        ), static fn (string $email): bool => $email !== '')));
     }
 
     private function establishSession(User $user, string $identifier, string $method): array
@@ -151,7 +180,7 @@ final class AuthService
                 'logo_path' => $branch->logo_path,
             ], $branches),
             'current_branch_id' => Session::get('current_branch_id'),
-            'google_login_enabled' => (new GoogleOAuthClient())->isConfigured(),
+            'google_login_enabled' => $this->googleLoginEnabled(),
             'csrf_token' => Session::csrfToken(),
         ];
     }

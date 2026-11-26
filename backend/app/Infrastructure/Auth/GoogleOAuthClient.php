@@ -18,7 +18,7 @@ final class GoogleOAuthClient
     public function buildAuthUrl(string $state): string
     {
         if (!$this->isConfigured()) {
-            throw new HttpException(503, 'Google OAuth chưa được cấu hình (GOOGLE_CLIENT_ID/SECRET/REDIRECT_URI)');
+            throw new HttpException(503, 'Đăng nhập Google chưa được cấu hình');
         }
         return 'https://accounts.google.com/o/oauth2/v2/auth?' . http_build_query([
             'client_id' => Config::get('auth.google.client_id'),
@@ -34,7 +34,7 @@ final class GoogleOAuthClient
     public function fetchUser(string $code): array
     {
         if (!$this->isConfigured()) {
-            throw new HttpException(503, 'Google OAuth chưa được cấu hình');
+            throw new HttpException(503, 'Đăng nhập Google chưa được cấu hình');
         }
         $token = $this->post('https://oauth2.googleapis.com/token', [
             'code' => $code,
@@ -48,16 +48,20 @@ final class GoogleOAuthClient
             throw new HttpException(502, 'Không lấy được access token từ Google');
         }
         $user = $this->get('https://www.googleapis.com/oauth2/v3/userinfo', $accessToken);
+        $googleId = $user['sub'] ?? null;
+        if (!is_string($googleId) || $googleId === '') {
+            throw new HttpException(502, 'Không lấy được mã định danh tài khoản từ Google');
+        }
         $email = $user['email'] ?? null;
         if (!is_string($email) || $email === '') {
             throw new HttpException(502, 'Không lấy được email từ Google');
         }
         return [
-            'google_id' => (string) ($user['sub'] ?? ''),
+            'google_id' => $googleId,
             'email' => strtolower($email),
             'name' => (string) ($user['name'] ?? ''),
             'avatar' => (string) ($user['picture'] ?? ''),
-            'email_verified' => (bool) ($user['email_verified'] ?? false),
+            'email_verified' => filter_var($user['email_verified'] ?? false, FILTER_VALIDATE_BOOL),
         ];
     }
 

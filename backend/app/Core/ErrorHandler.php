@@ -29,9 +29,10 @@ final class ErrorHandler
         ]);
 
         $status = $exception instanceof HttpException ? $exception->getStatusCode() : 500;
+        $databaseError = $exception instanceof \PDOException;
         $message = $exception instanceof HttpException
             ? $exception->getMessage()
-            : (self::$debug ? $exception->getMessage() : 'Đã xảy ra lỗi hệ thống, vui lòng thử lại sau');
+            : ((self::$debug && !$databaseError) ? $exception->getMessage() : 'Đã xảy ra lỗi hệ thống, vui lòng thử lại sau');
 
         $payload = ['message' => $message];
         if ($exception instanceof ValidationException) {
@@ -42,14 +43,16 @@ final class ErrorHandler
         $wantsJson = $request !== null && $request->wantsJson();
 
         if ($wantsJson) {
-            http_response_code($status);
+            Response::status($status);
             header('Content-Type: application/json; charset=utf-8');
+            header('Cache-Control: no-store');
             echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
             exit;
         }
 
-        http_response_code($status);
+        Response::status($status);
         header('Content-Type: text/html; charset=utf-8');
+        header('Cache-Control: no-store');
         $safeMessage = htmlspecialchars($message, ENT_QUOTES, 'UTF-8');
         echo '<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>' . $status . ' - HappyKidsCK</title></head>'
             . '<body style="font-family:sans-serif;padding:40px"><h1>' . $status . '</h1><p>' . $safeMessage . '</p></body></html>';

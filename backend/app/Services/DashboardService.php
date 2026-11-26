@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Core\Config;
+use App\Infrastructure\Cache\FileCache;
 use App\Repositories\AttendanceRepository;
 use App\Repositories\StudentRepository;
 
@@ -20,6 +22,18 @@ final class DashboardService
     }
 
     public function summary(int $branchId): array
+    {
+        $scope = $this->authz->currentUserBranchIds();
+        sort($scope);
+        $key = 'dashboard.summary.' . sha1($branchId . '|' . implode(',', $scope) . '|' . today());
+        return FileCache::remember(
+            $key,
+            (int) Config::get('cache.ttl.dashboard', 30),
+            fn (): array => $this->buildSummary($branchId)
+        );
+    }
+
+    private function buildSummary(int $branchId): array
     {
         $branches = $this->authz->accessibleBranches();
         $today = today();

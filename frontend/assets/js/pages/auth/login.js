@@ -134,9 +134,7 @@ if (yearNode) {
 const oauthStatus = queryParam('oauth');
 if (oauthStatus === 'error') {
     showAlert(queryParam('message') || 'Đăng nhập Google không thành công. Vui lòng thử lại.');
-} else if (oauthStatus === 'success') {
-    checkExistingSession();
 } else {
     checkExistingSession();
-    loadGoogleAvailability();
 }
+loadGoogleAvailability();

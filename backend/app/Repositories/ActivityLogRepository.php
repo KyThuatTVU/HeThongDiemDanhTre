@@ -54,6 +54,9 @@ final class ActivityLogRepository extends Repository
     public function createLogin(array $data): int
     {
         $columns = array_keys($data);
+        foreach ($columns as $column) {
+            $this->assertIdentifier((string) $column);
+        }
         $sql = sprintf(
             'INSERT INTO login_histories (`%s`) VALUES (%s)',
             implode('`, `', $columns),

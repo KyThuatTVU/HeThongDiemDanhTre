@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 use App\Core\Env;
 
-$allowedEmails = array_values(array_filter(array_map(
-    'trim',
+$allowedEmails = array_values(array_unique(array_filter(array_map(
+    static fn (string $email): string => strtolower(trim($email)),
     explode(',', (string) Env::get('GOOGLE_ALLOWED_EMAILS', ''))
-)));
+), static fn (string $email): bool => $email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL) !== false)));
 
 return [
     'session' => [
@@ -20,7 +20,7 @@ return [
         'client_id' => Env::get('GOOGLE_CLIENT_ID', ''),
         'client_secret' => Env::get('GOOGLE_CLIENT_SECRET', ''),
         'redirect_uri' => Env::get('GOOGLE_REDIRECT_URI', ''),
-        'allowed_emails' => array_map('strtolower', $allowedEmails),
+        'allowed_emails' => $allowedEmails,
     ],
     'roles' => [
         'super_admin' => 'Super Admin',

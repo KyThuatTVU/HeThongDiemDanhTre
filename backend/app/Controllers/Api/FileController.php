@@ -34,7 +34,17 @@ final class FileController extends Controller
             throw new HttpException(404, 'Tệp không tồn tại');
         }
 
-        $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($absolute) ?: 'application/octet-stream';
+        $mimeByExtension = [
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'webp' => 'image/webp',
+        ];
+        $extension = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        $mime = $mimeByExtension[$extension] ?? null;
+        if ($mime === null) {
+            throw new HttpException(404, 'Tệp không tồn tại');
+        }
         header('Content-Type: ' . $mime);
         header('Content-Length: ' . (string) filesize($absolute));
         header('Cache-Control: private, max-age=3600');

@@ -9,6 +9,7 @@ use App\Middleware\BranchScopeMiddleware;
 use App\Middleware\CsrfMiddleware;
 use App\Middleware\GuestMiddleware;
 use App\Middleware\PermissionMiddleware;
+use App\Middleware\RateLimitMiddleware;
 use App\Middleware\RoleMiddleware;
 
 final class Router
@@ -20,6 +21,7 @@ final class Router
         'role' => RoleMiddleware::class,
         'permission' => PermissionMiddleware::class,
         'branch' => BranchScopeMiddleware::class,
+        'throttle' => RateLimitMiddleware::class,
     ];
 
     private array $routes = [];
@@ -65,6 +67,7 @@ final class Router
     {
         Request::setCurrent($request);
         try {
+            RequestGuard::enforce();
             foreach ($this->routes as $route) {
                 if ($route['method'] !== $request->method()) {
                     continue;

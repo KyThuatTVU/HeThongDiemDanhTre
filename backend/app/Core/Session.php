@@ -15,6 +15,8 @@ final class Session
             session_save_path($savePath);
         }
         ini_set('session.use_strict_mode', '1');
+        ini_set('session.use_only_cookies', '1');
+        ini_set('session.gc_maxlifetime', (string) max(1, (int) ($config['lifetime'] ?? 120) * 60));
         session_name((string) ($config['name'] ?? 'app_session'));
         session_set_cookie_params([
             'lifetime' => max(0, (int) ($config['lifetime'] ?? 120)) * 60,
@@ -58,6 +60,15 @@ final class Session
     {
         $_SESSION = [];
         if (session_status() === PHP_SESSION_ACTIVE) {
+            $params = session_get_cookie_params();
+            setcookie(session_name(), '', [
+                'expires' => time() - 42000,
+                'path' => $params['path'],
+                'domain' => $params['domain'],
+                'secure' => $params['secure'],
+                'httponly' => $params['httponly'],
+                'samesite' => $params['samesite'] ?? 'Lax',
+            ]);
             session_destroy();
         }
     }

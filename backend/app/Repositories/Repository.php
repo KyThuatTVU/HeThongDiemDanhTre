@@ -50,9 +50,7 @@ abstract class Repository
     {
         $columns = array_keys($data);
         foreach ($columns as $column) {
-            if (!preg_match('/^[a-z_][a-z0-9_]*$/', (string) $column)) {
-                throw new \InvalidArgumentException('Tên cột không hợp lệ: ' . $column);
-            }
+            $this->assertIdentifier((string) $column);
         }
         $placeholders = array_map(static fn ($column): string => ':' . $column, $columns);
         $sql = sprintf(
@@ -72,9 +70,7 @@ abstract class Repository
         }
         $assignments = [];
         foreach (array_keys($data) as $column) {
-            if (!preg_match('/^[a-z_][a-z0-9_]*$/', (string) $column)) {
-                throw new \InvalidArgumentException('Tên cột không hợp lệ: ' . $column);
-            }
+            $this->assertIdentifier((string) $column);
             $assignments[] = sprintf('`%s` = :%s', $column, $column);
         }
         $sql = sprintf('UPDATE `%s` SET %s WHERE id = :id', $this->table, implode(', ', $assignments));
@@ -90,6 +86,13 @@ abstract class Repository
             $params[':' . $column] = is_array($value) ? json_encode($value, JSON_UNESCAPED_UNICODE) : $value;
         }
         return $params;
+    }
+
+    protected function assertIdentifier(string $identifier): void
+    {
+        if (!preg_match('/^[a-z_][a-z0-9_]*$/', $identifier)) {
+            throw new \InvalidArgumentException('Tên cột không hợp lệ: ' . $identifier);
+        }
     }
 
     protected function hydrate(?array $row): ?Model

@@ -572,3 +572,19 @@ SET u.`username` = 'admin',
 WHERE r.`role_key` = 'super_admin'
   AND u.`username` IS NULL
   AND u.`password_hash` IS NULL;
+
+-- ============================================================
+-- SECTION: seeds/005_assign_google_admin.sql
+-- ============================================================
+
+-- ============================================================
+-- SEED 005 - Gán email Google duy nhất cho tài khoản Super Admin
+-- ============================================================
+
+UPDATE `users` u
+JOIN `roles` r ON r.`id` = u.`role_id`
+SET u.`email` = 'dothienvu84tv@gmail.com',
+    u.`google_id` = NULL
+WHERE r.`role_key` = 'super_admin'
+  AND u.`username` = 'admin';
+

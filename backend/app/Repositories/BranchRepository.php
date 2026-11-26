@@ -3,18 +3,28 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
+use App\Core\Config;
+use App\Infrastructure\Cache\FileCache;
 use App\Models\Branch;
 use App\Models\Model;
 
 final class BranchRepository extends Repository
 {
+    private const CACHE_KEYS = ['branches.all.any', 'branches.all.active', 'branches.ids'];
+
     protected string $table = 'branches';
     protected string $model = Branch::class;
 
     public function all(bool $onlyActive = false): array
     {
-        $sql = 'SELECT * FROM branches' . ($onlyActive ? " WHERE status = 'active'" : '') . ' ORDER BY name';
-        return array_map(static fn (array $row): Branch => Branch::from($row), $this->fetchAll($sql));
+        $rows = FileCache::remember(
+            $onlyActive ? 'branches.all.active' : 'branches.all.any',
+            (int) Config::get('cache.ttl.branches', 600),
+            fn (): array => $this->fetchAll(
+                'SELECT * FROM branches' . ($onlyActive ? " WHERE status = 'active'" : '') . ' ORDER BY name'
+            )
+        );
+        return array_map(static fn (array $row): Branch => Branch::from($row), $rows);
     }
 
     public function find(int $id): ?Model
@@ -35,16 +45,32 @@ final class BranchRepository extends Repository
 
     public function ids(): array
     {
-        return array_map('intval', array_column($this->fetchAll('SELECT id FROM branches ORDER BY id'), 'id'));
+        return FileCache::remember(
+            'branches.ids',
+            (int) Config::get('cache.ttl.branches', 600),
+            fn (): array => array_map('intval', array_column(
+                $this->fetchAll('SELECT id FROM branches ORDER BY id'),
+                'id'
+            ))
+        );
     }
 
     public function create(array $data): int
     {
-        return $this->insert($data);
+        $id = $this->insert($data);
+        $this->flushCache();
+        return $id;
     }
 
     public function update(int $id, array $data): int
     {
-        return $this->updateById($id, $data);
+        $affected = $this->updateById($id, $data);
+        $this->flushCache();
+        return $affected;
+    }
+
+    private function flushCache(): void
+    {
+        FileCache::forget(self::CACHE_KEYS);
     }
 }

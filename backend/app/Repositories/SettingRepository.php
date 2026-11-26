@@ -3,19 +3,32 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
+use App\Core\Config;
+use App\Infrastructure\Cache\FileCache;
+
 final class SettingRepository extends Repository
 {
+    private const CACHE_KEY = 'settings.all';
+
     protected string $table = 'system_settings';
 
     public function all(): array
     {
-        return $this->fetchAll('SELECT * FROM system_settings ORDER BY setting_group, setting_key');
+        return FileCache::remember(
+            self::CACHE_KEY,
+            (int) Config::get('cache.ttl.settings', 300),
+            fn (): array => $this->fetchAll('SELECT * FROM system_settings ORDER BY setting_group, setting_key')
+        );
     }
 
     public function get(string $key, ?string $default = null): ?string
     {
-        $value = $this->fetchValue('SELECT setting_value FROM system_settings WHERE setting_key = ? LIMIT 1', [$key]);
-        return $value === false || $value === null ? $default : (string) $value;
+        foreach ($this->all() as $row) {
+            if ((string) ($row['setting_key'] ?? '') === $key) {
+                return (string) ($row['setting_value'] ?? '');
+            }
+        }
+        return $default;
     }
 
     public function getJson(string $key, array $default = []): array
@@ -41,5 +54,6 @@ final class SettingRepository extends Repository
             'description' => $description,
             'user' => $userId,
         ]);
+        FileCache::forget(self::CACHE_KEY);
     }
 }
