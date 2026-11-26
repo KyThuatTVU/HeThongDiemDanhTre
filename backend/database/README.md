@@ -26,15 +26,18 @@ Muốn chạy từng bước để kiểm soát (hoặc dùng cho migrate runner
 | 11 | `seeds/001_seed_branches.sql` | 2 cơ sở: Tân Nhựt, Càng Long |
 | 12 | `seeds/002_seed_roles_permissions.sql` | 4 vai trò + 29 quyền + gán quyền |
 | 13 | `seeds/003_seed_super_admin.sql` | Tài khoản Super Admin (chờ gán email Google) |
-| 14 | `seeds/004_seed_dev_admin_password.sql` | Mật khẩu dev `admin / Admin@123` cho Super Admin (dev-only) |
-| 15 | `seeds/005_assign_google_admin.sql` | Gán email Google duy nhất được đăng nhập admin |
+| 14 | `seeds/005_assign_google_admin.sql` | Gán email Google duy nhất được đăng nhập admin |
+
+Sau khi import, tạo mật khẩu super-admin bằng CLI (mật khẩu ngẫu nhiên in ra một lần):
+
+`php backend/bin/reset-admin-password.php --username=admin --email=dothienvu84tv@gmail.com`
 
 ## Cách import bằng phpMyAdmin
 
 1. Mở `http://localhost/phpmyadmin` → tab **Import**.
 2. Import `000_create_database.sql`.
 3. Bấm chọn database `happykidsck` ở cột trái.
-4. Lần lượt **Import** các file từ bước 2 đến bước 12 (mỗi lần import 1 file).
+4. Lần lượt **Import** các file từ bước 2 đến bước 14 (mỗi lần import 1 file).
 5. Charset để mặc định `utf-8` — file đã khai báo utf8mb4.
 
 ## Import bằng dòng lệnh (nếu cần)
@@ -46,6 +49,6 @@ Di chuyển vào thư mục này và chạy lần lượt theo bảng trên, ví
 ## Lưu ý
 
 - **Đã import CSDL trước bản cập nhật này?** Chỉ cần chạy thêm `migrations/008_alter_students_add_left_at.sql` (nếu chưa có cột `left_at`), `migrations/009_create_user_permissions.sql` (bảng quyền riêng từng nhân viên) và `seeds/005_assign_google_admin.sql` (gán email Google cho tài khoản `admin`). Không cần import lại. File `happykidsck_full.sql` đã bao gồm các thay đổi cho lần import mới.
-- Để đăng nhập khi phát triển, chạy thêm `seeds/004_seed_dev_admin_password.sql` — tạo tài khoản `admin / Admin@123` cho Super Admin (chỉ khi tài khoản còn trống). Trước khi vận hành thật hãy đổi mật khẩu và gán email Google bằng `seeds/005_assign_google_admin.sql`.
+- Không còn seed mật khẩu mặc định. Chạy `php backend/bin/reset-admin-password.php` để đặt mật khẩu super-admin; công cụ sinh mật khẩu mạnh và chỉ in ra một lần. Gán email Google bằng `seeds/005_assign_google_admin.sql`.
 - Muốn làm lại từ đầu: `DROP DATABASE happykidsck;` rồi import lại (chỉ làm khi chưa có dữ liệu thật).
 - Nếu đổi tên database, cập nhật `backend/config/database.php` ở giai đoạn 3.

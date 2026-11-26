@@ -8,6 +8,7 @@ use App\Core\Request;
 use App\Core\Session;
 use App\Exceptions\HttpException;
 use App\Infrastructure\Auth\GoogleOAuthClient;
+use App\Infrastructure\Security\PasswordPolicy;
 use App\Infrastructure\Security\RateLimiter;
 use App\Models\User;
 use App\Repositories\BranchRepository;
@@ -15,6 +16,8 @@ use App\Repositories\UserRepository;
 
 final class AuthService
 {
+    private const DUMMY_PASSWORD_HASH = '$2y$10$Vq2Td2nz.zEBzDjhxFDbgOGP3ZMEj7p5mGyA29s9UFfQSFCthNFG6';
+
     private UserRepository $users;
     private BranchRepository $branches;
     private ActivityLogService $logs;
@@ -32,12 +35,13 @@ final class AuthService
     {
         $identifier = trim($identifier);
         $user = $this->users->findByLogin($identifier);
-        if ($user === null || (string) $user->password_hash === '') {
-            $this->logs->recordLogin(null, $identifier, 'password', 'failed');
-            throw new HttpException(401, 'Tài khoản hoặc mật khẩu không đúng');
+        $hash = $user !== null ? (string) $user->password_hash : '';
+        if ($hash === '') {
+            $hash = self::DUMMY_PASSWORD_HASH;
         }
-        if (!password_verify($password, (string) $user->password_hash)) {
-            $this->logs->recordLogin((int) $user->id, $identifier, 'password', 'failed');
+        $valid = password_verify($password, $hash);
+        if ($user === null || !$valid) {
+            $this->logs->recordLogin($user !== null ? (int) $user->id : null, $identifier, 'password', 'failed');
             throw new HttpException(401, 'Tài khoản hoặc mật khẩu không đúng');
         }
         if ((string) $user->status !== 'active') {
@@ -127,6 +131,7 @@ final class AuthService
         Session::regenerate();
         Session::set('user_id', (int) $user->id);
         Session::set('role_key', (string) $user->role_key);
+        Session::set('password_fingerprint', hash('sha256', (string) $user->password_hash));
 
         $branchIds = (string) $user->role_key === 'super_admin'
             ? $this->branches->ids()
@@ -212,7 +217,10 @@ final class AuthService
         if ((string) $user->password_hash === '' || !password_verify($currentPassword, (string) $user->password_hash)) {
             throw new HttpException(422, 'Mật khẩu hiện tại không đúng');
         }
-        $this->users->setPassword($userId, password_hash($newPassword, PASSWORD_DEFAULT));
+        PasswordPolicy::assertValid($newPassword);
+        $hash = password_hash($newPassword, PASSWORD_DEFAULT);
+        $this->users->setPassword($userId, $hash);
+        Session::set('password_fingerprint', hash('sha256', $hash));
         $this->logs->record('change_password', 'staff', 'user', $userId, 'Đổi mật khẩu cá nhân');
     }
 

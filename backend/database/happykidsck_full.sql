@@ -557,23 +557,6 @@ FROM `roles` r
 WHERE r.`role_key` = 'super_admin';
 
 -- ============================================================
--- SECTION: seeds/004_seed_dev_admin_password.sql
--- ============================================================
-
--- ============================================================
--- SEED 004 - Mật khẩu dev cho Super Admin (CHỈ DÙNG KHI PHÁT TRIỂN)
--- Tên đăng nhập: admin · Mật khẩu: Admin@123
--- ============================================================
-
-UPDATE `users` u
-JOIN `roles` r ON r.`id` = u.`role_id`
-SET u.`username` = 'admin',
-    u.`password_hash` = '$2y$10$S.bbKciw8gDMEr0/xKOc5ehPm10LblmSwaFrfSsAhqEseccbYmvSa'
-WHERE r.`role_key` = 'super_admin'
-  AND u.`username` IS NULL
-  AND u.`password_hash` IS NULL;
-
--- ============================================================
 -- SECTION: seeds/005_assign_google_admin.sql
 -- ============================================================
 

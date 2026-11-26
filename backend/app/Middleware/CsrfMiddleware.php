@@ -36,16 +36,16 @@ final class CsrfMiddleware
             $source = (string) ($request->header('Referer') ?? '');
         }
         if ($source === '') {
-            return true;
+            return !(bool) Config::get('security.csrf.require_source', true);
         }
         $origin = $this->normalizeOrigin($source);
         if ($origin === null) {
             return false;
         }
-        return in_array($origin, $this->trustedOrigins($request), true);
+        return in_array($origin, $this->trustedOrigins(), true);
     }
 
-    private function trustedOrigins(Request $request): array
+    private function trustedOrigins(): array
     {
         $origins = [];
         foreach ([Config::get('app.url'), Config::get('app.frontend_url')] as $url) {
@@ -56,13 +56,6 @@ final class CsrfMiddleware
         }
         foreach ((array) Config::get('security.csrf.trusted_origins', []) as $url) {
             $origin = is_string($url) ? $this->normalizeOrigin($url) : null;
-            if ($origin !== null) {
-                $origins[] = $origin;
-            }
-        }
-        $host = (string) ($request->header('Host') ?? '');
-        if ($host !== '') {
-            $origin = $this->normalizeOrigin($this->requestScheme() . '://' . $host);
             if ($origin !== null) {
                 $origins[] = $origin;
             }
@@ -82,16 +75,5 @@ final class CsrfMiddleware
         }
         $port = isset($parts['port']) ? (int) $parts['port'] : ($scheme === 'https' ? 443 : 80);
         return $scheme . '://' . strtolower((string) $parts['host']) . ':' . $port;
-    }
-
-    private function requestScheme(): string
-    {
-        if (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off') {
-            return 'https';
-        }
-        if (strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https') {
-            return 'https';
-        }
-        return 'http';
     }
 }

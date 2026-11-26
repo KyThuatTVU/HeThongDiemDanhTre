@@ -1,6 +1,7 @@
 -- ============================================================
 -- SEED 005 - Gán email Google duy nhất cho tài khoản Super Admin
--- Chạy SAU 003_seed_super_admin.sql và 004_seed_dev_admin_password.sql
+-- Chạy SAU 003_seed_super_admin.sql và sau khi tạo mật khẩu bằng
+-- backend/bin/reset-admin-password.php (username mặc định: admin)
 --
 -- Tài khoản `admin` sẽ dùng email này để đăng nhập Google.
 -- `google_id` được xoá để lần đăng nhập Google đầu tiên liên kết

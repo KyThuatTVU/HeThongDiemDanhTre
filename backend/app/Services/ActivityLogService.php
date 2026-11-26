@@ -26,6 +26,8 @@ final class ActivityLogService
         ?array $newValues = null
     ): void {
         $request = Request::current();
+        $oldValues = $this->redactSensitiveValues($oldValues);
+        $newValues = $this->redactSensitiveValues($newValues);
         $this->repository->create([
             'user_id' => Session::get('user_id') ?: null,
             'action' => $action,
@@ -55,11 +57,37 @@ final class ActivityLogService
 
     public function activityList(array $filters, int $page, int $perPage): array
     {
-        return $this->repository->paginate($filters, $page, $perPage);
+        return $this->repository->paginate($this->applyViewerScope($filters), $page, $perPage);
     }
 
     public function loginList(array $filters, int $page, int $perPage): array
     {
-        return $this->repository->loginHistory($filters, $page, $perPage);
+        return $this->repository->loginHistory($this->applyViewerScope($filters), $page, $perPage);
+    }
+
+    private function applyViewerScope(array $filters): array
+    {
+        $authz = new AuthorizationService();
+        if (!$authz->isSuperAdmin()) {
+            $filters['scope_branch_ids'] = $authz->currentUserBranchIds();
+        }
+        return $filters;
+    }
+
+    private function redactSensitiveValues(?array $values): ?array
+    {
+        if ($values === null) {
+            return null;
+        }
+        foreach ($values as $key => $value) {
+            if (is_string($key) && preg_match('/password|token|secret|hash/i', $key)) {
+                $values[$key] = '[redacted]';
+                continue;
+            }
+            if (is_array($value)) {
+                $values[$key] = $this->redactSensitiveValues($value);
+            }
+        }
+        return $values;
     }
 }

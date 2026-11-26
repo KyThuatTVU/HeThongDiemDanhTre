@@ -5,6 +5,7 @@ namespace App\Services;
 
 use App\Core\Session;
 use App\Exceptions\HttpException;
+use App\Infrastructure\Security\PasswordPolicy;
 use App\Infrastructure\Storage\FileStorage;
 use App\Models\User;
 use App\Repositories\BranchRepository;
@@ -72,10 +73,13 @@ final class StaffService
 
     public function create(array $data, int $actorId): array
     {
-        $role = $this->roles->findByKey((string) $data['role_key']);
+        $roleKey = (string) $data['role_key'];
+        $this->assertCanAssignRole($roleKey);
+        $role = $this->roles->findByKey($roleKey);
         if ($role === null) {
             throw new HttpException(422, 'Vai trò không hợp lệ');
         }
+        PasswordPolicy::assertValid((string) $data['password']);
         $username = trim((string) $data['username']);
         if ($this->users->usernameExists($username)) {
             throw new HttpException(422, 'Tên đăng nhập đã tồn tại');
@@ -84,12 +88,12 @@ final class StaffService
         if ($email !== null && $this->users->emailExists($email)) {
             throw new HttpException(422, 'Email đã tồn tại');
         }
-        $branchIds = $this->validateBranchIds($data['branch_ids'] ?? [], (string) $data['role_key']);
+        $branchIds = $this->validateBranchIds($data['branch_ids'] ?? [], $roleKey);
         $permissionKeys = null;
         if (array_key_exists('permission_keys', $data)) {
             $this->assertCanAssignPermissions();
             $permissionKeys = $this->normalizePermissionKeys((array) $data['permission_keys']);
-            if ((string) $data['role_key'] === 'super_admin' && $permissionKeys !== []) {
+            if ($roleKey === 'super_admin' && $permissionKeys !== []) {
                 throw new HttpException(422, 'Quản trị hệ thống luôn có toàn bộ quyền, không thể chỉnh riêng');
             }
         }
@@ -118,6 +122,7 @@ final class StaffService
         if ($user === null) {
             throw new HttpException(404, 'Không tìm thấy nhân viên');
         }
+        $this->assertCanManageTarget($user);
         $payload = [];
         foreach (['full_name', 'phone'] as $field) {
             if (array_key_exists($field, $data)) {
@@ -133,10 +138,12 @@ final class StaffService
         }
 
         if (array_key_exists('role_key', $data) && $data['role_key'] !== '') {
-            if ($id === $actorId && (string) $data['role_key'] !== (string) $user->role_key) {
+            $newRoleKey = (string) $data['role_key'];
+            if ($id === $actorId && $newRoleKey !== (string) $user->role_key) {
                 throw new HttpException(422, 'Không thể tự thay đổi vai trò của chính mình');
             }
-            $role = $this->roles->findByKey((string) $data['role_key']);
+            $this->assertCanAssignRole($newRoleKey);
+            $role = $this->roles->findByKey($newRoleKey);
             if ($role === null) {
                 throw new HttpException(422, 'Vai trò không hợp lệ');
             }
@@ -145,6 +152,9 @@ final class StaffService
 
         $roleChanged = array_key_exists('role_id', $payload) && (int) $payload['role_id'] !== (int) $user->role_id;
         $finalRoleKey = $roleChanged ? (string) $data['role_key'] : (string) $user->role_key;
+        if ($roleChanged && (string) $user->role_key === 'super_admin' && $finalRoleKey !== 'super_admin') {
+            $this->assertNotLastSuperAdmin($user);
+        }
         $hasPermissionPayload = array_key_exists('permission_keys', $data);
         $permissionKeys = null;
         if ($hasPermissionPayload) {
@@ -224,6 +234,8 @@ final class StaffService
         if ($user === null) {
             throw new HttpException(404, 'Không tìm thấy nhân viên');
         }
+        $this->assertCanManageTarget($user);
+        $this->assertNotLastSuperAdmin($user);
         $this->users->setStatus($id, 'locked');
         $this->logs->record('lock', 'staff', 'user', $id, 'Khoá tài khoản ' . $user->full_name);
     }
@@ -234,6 +246,7 @@ final class StaffService
         if ($user === null) {
             throw new HttpException(404, 'Không tìm thấy nhân viên');
         }
+        $this->assertCanManageTarget($user);
         $this->users->setStatus($id, 'active');
         $this->logs->record('unlock', 'staff', 'user', $id, 'Mở khoá tài khoản ' . $user->full_name);
     }
@@ -244,7 +257,13 @@ final class StaffService
         if ($user === null) {
             throw new HttpException(404, 'Không tìm thấy nhân viên');
         }
-        $this->users->setPassword($id, password_hash($newPassword, PASSWORD_DEFAULT));
+        $this->assertCanManageTarget($user);
+        PasswordPolicy::assertValid($newPassword);
+        $hash = password_hash($newPassword, PASSWORD_DEFAULT);
+        $this->users->setPassword($id, $hash);
+        if ($id === $actorId) {
+            Session::set('password_fingerprint', hash('sha256', $hash));
+        }
         $this->logs->record('reset_password', 'staff', 'user', $id, 'Đặt lại mật khẩu cho ' . $user->full_name);
     }
 
@@ -254,6 +273,7 @@ final class StaffService
         if ($user === null) {
             throw new HttpException(404, 'Không tìm thấy nhân viên');
         }
+        $this->assertCanManageTarget($user);
         $validated = $this->validateBranchIds($branchIds, (string) $user->role_key);
         $this->users->setBranches($id, $validated);
         $this->logs->record('assign_branches', 'staff', 'user', $id, 'Phân công cơ sở cho ' . $user->full_name, null, ['branch_ids' => $validated]);
@@ -266,6 +286,7 @@ final class StaffService
         if ($user === null) {
             throw new HttpException(404, 'Không tìm thấy nhân viên');
         }
+        $this->assertCanManageTarget($user);
         $path = FileStorage::storeImage($file, 'users');
         FileStorage::delete((string) $user->avatar_path);
         $this->users->update($id, ['avatar_path' => $path]);
@@ -319,6 +340,9 @@ final class StaffService
     {
         $branchIds = array_values(array_unique(array_map('intval', $branchIds)));
         if ($roleKey === 'super_admin') {
+            if (!$this->authz->isSuperAdmin()) {
+                throw new HttpException(403, 'Chỉ quản trị hệ thống được cấp vai trò quản trị hệ thống');
+            }
             return $branchIds;
         }
         if ($branchIds === []) {
@@ -333,7 +357,44 @@ final class StaffService
                 throw new HttpException(422, 'Cơ sở được phân công không tồn tại');
             }
         }
+        if (!$this->authz->isSuperAdmin()) {
+            $allowed = $this->authz->currentUserBranchIds();
+            foreach ($branchIds as $branchId) {
+                if (!in_array($branchId, $allowed, true)) {
+                    throw new HttpException(403, 'Bạn chỉ được phân công nhân viên vào cơ sở mình quản lý');
+                }
+            }
+        }
         return $branchIds;
+    }
+
+    private function assertCanAssignRole(string $roleKey): void
+    {
+        if ($roleKey === 'super_admin' && !$this->authz->isSuperAdmin()) {
+            throw new HttpException(403, 'Chỉ quản trị hệ thống được cấp vai trò quản trị hệ thống');
+        }
+    }
+
+    private function assertCanManageTarget(User $user): void
+    {
+        if ($this->authz->isSuperAdmin()) {
+            return;
+        }
+        if ((string) $user->role_key === 'super_admin') {
+            throw new HttpException(403, 'Chỉ quản trị hệ thống được thao tác trên tài khoản quản trị hệ thống');
+        }
+        $this->assertStaffInScope((int) $user->id);
+    }
+
+    private function assertNotLastSuperAdmin(User $user): void
+    {
+        if ((string) $user->role_key !== 'super_admin') {
+            return;
+        }
+        if ($this->users->countActiveSuperAdmins() > 1) {
+            return;
+        }
+        throw new HttpException(422, 'Không thể khoá hoặc hạ cấp quản trị hệ thống cuối cùng');
     }
 
     private function assertNotSelf(int $id, int $actorId, string $message): void

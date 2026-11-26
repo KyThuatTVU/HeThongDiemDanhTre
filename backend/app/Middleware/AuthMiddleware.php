@@ -22,6 +22,12 @@ final class AuthMiddleware
             Session::destroy();
             $this->reject($request, 'Phiên đăng nhập không hợp lệ hoặc tài khoản đã bị khoá');
         }
+        $fingerprint = Session::get('password_fingerprint');
+        $expected = hash('sha256', (string) $user->password_hash);
+        if (!is_string($fingerprint) || $fingerprint === '' || !hash_equals($expected, $fingerprint)) {
+            Session::destroy();
+            $this->reject($request, 'Phiên đăng nhập đã hết hiệu lực. Vui lòng đăng nhập lại');
+        }
         Session::set('role_key', (string) $user->role_key);
         $request->setAttribute('user', $user);
         $next();

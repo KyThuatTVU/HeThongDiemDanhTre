@@ -45,7 +45,7 @@ final class StaffController extends Controller
         $data = $this->validate($this->request->all(), [
             'full_name' => 'required|string|max:120',
             'username' => 'required|string|max:50|regex:^[a-zA-Z0-9._-]{3,50}$',
-            'password' => 'required|string|min:8|max:255',
+            'password' => 'required|string|min:10|max:255',
             'email' => 'nullable|email|max:150',
             'phone' => 'nullable|string|max:30',
             'role_key' => 'required|in:super_admin,branch_manager,attendance_staff,profile_staff',
@@ -94,7 +94,7 @@ final class StaffController extends Controller
     public function resetPassword(string $id): never
     {
         $data = $this->validate($this->request->all(), [
-            'new_password' => 'required|string|min:8|max:255',
+            'new_password' => 'required|string|min:10|max:255',
         ], ['new_password' => 'Mật khẩu mới']);
         (new StaffService())->resetPassword((int) $id, (string) $data['new_password'], $this->userId());
         $this->message('Đặt lại mật khẩu thành công');

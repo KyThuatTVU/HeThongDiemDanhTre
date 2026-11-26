@@ -31,7 +31,7 @@ final class ProfileController extends Controller
     {
         $data = $this->validate($this->request->all(), [
             'current_password' => 'required|string',
-            'new_password' => 'required|string|min:8|max:255',
+            'new_password' => 'required|string|min:10|max:255',
             'new_password_confirmation' => 'required|string',
         ], [
             'current_password' => 'Mật khẩu hiện tại',

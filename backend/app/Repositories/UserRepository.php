@@ -40,6 +40,23 @@ final class UserRepository extends Repository
         return $row === null ? null : User::from($row);
     }
 
+    public function findByAvatarPath(string $path): ?array
+    {
+        return $this->fetchOne(
+            self::SELECT . ' WHERE u.avatar_path = ? LIMIT 1',
+            [$path]
+        );
+    }
+
+    public function countActiveSuperAdmins(): int
+    {
+        return (int) $this->fetchValue(
+            "SELECT COUNT(*) FROM users u
+             JOIN roles r ON r.id = u.role_id
+             WHERE r.role_key = 'super_admin' AND u.status = 'active'"
+        );
+    }
+
     public function find(int $id): ?Model
     {
         return $this->findWithRole($id);

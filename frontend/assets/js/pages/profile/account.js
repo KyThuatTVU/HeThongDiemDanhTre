@@ -128,8 +128,8 @@ async function changePassword(event) {
         passwordHint('Vui lòng nhập mật khẩu hiện tại.', true);
         return;
     }
-    if (next.length < 8) {
-        passwordHint('Mật khẩu mới tối thiểu 8 ký tự.', true);
+    if (next.length < 10 || !/\p{L}/u.test(next) || !/\p{N}/u.test(next)) {
+        passwordHint('Mật khẩu mới tối thiểu 10 ký tự, gồm chữ và số.', true);
         return;
     }
     if (next !== confirm) {

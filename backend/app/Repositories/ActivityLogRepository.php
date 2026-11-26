@@ -36,6 +36,7 @@ final class ActivityLogRepository extends Repository
             $where[] = 'al.created_at <= ?';
             $params[] = $filters['date_to'] . ' 23:59:59';
         }
+        $this->applyBranchScope($filters, 'al.user_id', $where, $params);
         $whereSql = $where === [] ? '' : ' WHERE ' . implode(' AND ', $where);
 
         $total = (int) $this->fetchValue('SELECT COUNT(*) FROM activity_logs al' . $whereSql, $params);
@@ -90,6 +91,7 @@ final class ActivityLogRepository extends Repository
             $where[] = 'lh.created_at <= ?';
             $params[] = $filters['date_to'] . ' 23:59:59';
         }
+        $this->applyBranchScope($filters, 'lh.user_id', $where, $params);
         $whereSql = $where === [] ? '' : ' WHERE ' . implode(' AND ', $where);
 
         $total = (int) $this->fetchValue('SELECT COUNT(*) FROM login_histories lh' . $whereSql, $params);
@@ -103,5 +105,26 @@ final class ActivityLogRepository extends Repository
             $params
         );
         return ['items' => $rows, 'total' => $total];
+    }
+
+    private function applyBranchScope(array $filters, string $userColumn, array &$where, array &$params): void
+    {
+        if (!array_key_exists('scope_branch_ids', $filters)) {
+            return;
+        }
+        if (!in_array($userColumn, ['al.user_id', 'lh.user_id'], true)) {
+            throw new \InvalidArgumentException('Cột lọc nhật ký không hợp lệ');
+        }
+        $ids = array_values(array_unique(array_filter(
+            array_map('intval', (array) $filters['scope_branch_ids']),
+            static fn (int $id): bool => $id > 0
+        )));
+        if ($ids === []) {
+            $where[] = '1 = 0';
+            return;
+        }
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $where[] = "EXISTS (SELECT 1 FROM user_branches ubs WHERE ubs.user_id = {$userColumn} AND ubs.branch_id IN ({$placeholders}))";
+        array_push($params, ...$ids);
     }
 }

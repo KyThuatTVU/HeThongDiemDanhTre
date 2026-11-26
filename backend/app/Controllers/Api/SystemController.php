@@ -13,7 +13,6 @@ final class SystemController extends Controller
         Response::json([
             'status' => 'ok',
             'app' => config('app.name'),
-            'env' => config('app.env'),
             'time' => now(),
         ]);
     }

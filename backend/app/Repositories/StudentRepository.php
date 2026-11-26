@@ -76,6 +76,14 @@ final class StudentRepository extends Repository
         return $row === null ? null : Student::from($row);
     }
 
+    public function findByAvatarPath(string $path): ?array
+    {
+        return $this->fetchOne(
+            'SELECT id, branch_id FROM students WHERE avatar_path = ? LIMIT 1',
+            [$path]
+        );
+    }
+
     public function find(int $id): ?Model
     {
         return $this->findDetail($id);

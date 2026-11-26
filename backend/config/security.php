@@ -14,6 +14,7 @@ return [
     ],
     'csrf' => [
         'check_origin' => Env::bool('CSRF_CHECK_ORIGIN', true),
+        'require_source' => Env::bool('CSRF_REQUIRE_SOURCE', true),
         'trusted_origins' => $trustedOrigins,
     ],
     'request' => [

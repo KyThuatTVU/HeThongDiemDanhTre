@@ -109,11 +109,12 @@ function openResetModal(staffId, staffName) {
         <div class="mb-3">
             <label class="form-label" for="reset-password">Mật khẩu mới <span class="text-danger">*</span></label>
             <input class="form-control" id="reset-password" name="new_password" type="password"
-                   minlength="8" maxlength="255" required autocomplete="new-password">
+                   minlength="10" maxlength="255" required autocomplete="new-password">
+            <div class="form-hint">Tối thiểu 10 ký tự, gồm chữ và số.</div>
         </div>
         <div class="mb-3">
             <label class="form-label" for="reset-password-confirm">Nhập lại mật khẩu <span class="text-danger">*</span></label>
-            <input class="form-control" id="reset-password-confirm" type="password" minlength="8" required>
+            <input class="form-control" id="reset-password-confirm" type="password" minlength="10" required>
         </div>`;
     modal.setBody(form);
 
@@ -135,6 +136,10 @@ function openResetModal(staffId, staffName) {
         const confirm = form.querySelector('#reset-password-confirm').value;
         if (password !== confirm) {
             showToast('Mật khẩu nhập lại không khớp', 'warning');
+            return;
+        }
+        if (password.length < 10 || !/\p{L}/u.test(password) || !/\p{N}/u.test(password)) {
+            showToast('Mật khẩu tối thiểu 10 ký tự, gồm chữ và số', 'warning');
             return;
         }
         setLoading(submit, true, 'Đang cập nhật...');

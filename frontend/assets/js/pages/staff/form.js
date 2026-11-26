@@ -340,8 +340,8 @@ async function submit(event) {
             setHint('Tên đăng nhập 3-50 ký tự, chỉ gồm chữ, số và . _ -', true);
             return;
         }
-        if (password.length < 8) {
-            setHint('Mật khẩu tối thiểu 8 ký tự.', true);
+        if (password.length < 10 || !/\p{L}/u.test(password) || !/\p{N}/u.test(password)) {
+            setHint('Mật khẩu tối thiểu 10 ký tự, gồm chữ và số.', true);
             return;
         }
     }

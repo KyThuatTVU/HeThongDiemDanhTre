@@ -4,9 +4,12 @@ declare(strict_types=1);
 namespace App\Infrastructure\Security;
 
 use App\Core\Config;
+use App\Infrastructure\Logging\Logger;
 
 final class RateLimiter
 {
+    private const STORAGE_FAILURE_RETRY = 60;
+
     /**
      * Ghi nhận một lần thử và trả về số giây phải chờ (0 = được phép tiếp tục).
      */
@@ -22,16 +25,16 @@ final class RateLimiter
         $file = self::file($bucket, $scope, $value);
         $directory = dirname($file);
         if (!is_dir($directory) && !@mkdir($directory, 0775, true) && !is_dir($directory)) {
-            return 0;
+            return self::storageFailure($bucket, $scope);
         }
         $handle = @fopen($file, 'c+');
         if ($handle === false) {
-            return 0;
+            return self::storageFailure($bucket, $scope);
         }
 
         try {
             if (!flock($handle, LOCK_EX)) {
-                return 0;
+                return self::storageFailure($bucket, $scope);
             }
             $now = time();
             $raw = stream_get_contents($handle);
@@ -58,12 +61,15 @@ final class RateLimiter
 
             rewind($handle);
             ftruncate($handle, 0);
-            fwrite($handle, (string) json_encode([
+            $written = fwrite($handle, (string) json_encode([
                 'count' => $count,
                 'reset_at' => $resetAt,
                 'blocked_until' => $blockedUntil,
             ]));
             fflush($handle);
+            if ($written === false) {
+                return self::storageFailure($bucket, $scope);
+            }
 
             return max(0, $blockedUntil - $now);
         } finally {
@@ -79,6 +85,12 @@ final class RateLimiter
         if (is_file($file)) {
             @unlink($file);
         }
+    }
+
+    private static function storageFailure(string $bucket, string $scope): int
+    {
+        Logger::error('Rate limit storage unavailable', ['bucket' => $bucket, 'scope' => $scope]);
+        return self::STORAGE_FAILURE_RETRY;
     }
 
     private static function file(string $bucket, string $scope, string $value): string
