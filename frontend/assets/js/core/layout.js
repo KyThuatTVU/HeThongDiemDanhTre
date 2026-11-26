@@ -33,7 +33,7 @@ async function mountComponent(placeholder) {
     for (const template of slotTemplates) {
         const target = fragment.querySelector(`[data-slot="${template.dataset.slot}"]`);
         if (target) {
-            target.replaceWith(template.content.cloneNode(true));
+            target.replaceChildren(template.content.cloneNode(true));
         }
     }
 

@@ -4,7 +4,7 @@ CSDL: `happykidsck` · MySQL/MariaDB (XAMPP) · InnoDB · utf8mb4 · utf8mb4_uni
 
 ## Cách nhanh nhất: import 1 file duy nhất
 
-Import file `happykidsck_full.sql` (đã gồm toàn bộ 18 bảng + seed, tự tạo database `happykidsck`).
+Import file `happykidsck_full.sql` (đã gồm toàn bộ 19 bảng + seed, tự tạo database `happykidsck`).
 Chỉ cần: phpMyAdmin → tab **Import** → chọn file → **Go**.
 
 Muốn chạy từng bước để kiểm soát (hoặc dùng cho migrate runner sau này) thì dùng bảng thứ tự bên dưới.
@@ -22,9 +22,11 @@ Muốn chạy từng bước để kiểm soát (hoặc dùng cho migrate runner
 | 7 | `migrations/006_create_tuition.sql` | Học phí, giảm trừ, thanh toán |
 | 8 | `migrations/007_create_logs_settings.sql` | Nhật ký hoạt động + cấu hình |
 | 9 | `migrations/008_alter_students_add_left_at.sql` | Thêm cột `students.left_at` (ngày nghỉ học, phục vụ báo cáo biến động) |
-| 10 | `seeds/001_seed_branches.sql` | 2 cơ sở: Tân Nhựt, Càng Long |
-| 11 | `seeds/002_seed_roles_permissions.sql` | 4 vai trò + 29 quyền + gán quyền |
-| 12 | `seeds/003_seed_super_admin.sql` | Tài khoản admin tạm (dev) |
+| 10 | `migrations/009_create_user_permissions.sql` | Quyền riêng của từng nhân viên (cấp thêm / thu hồi so với vai trò) |
+| 11 | `seeds/001_seed_branches.sql` | 2 cơ sở: Tân Nhựt, Càng Long |
+| 12 | `seeds/002_seed_roles_permissions.sql` | 4 vai trò + 29 quyền + gán quyền |
+| 13 | `seeds/003_seed_super_admin.sql` | Tài khoản Super Admin (chờ gán email Google) |
+| 14 | `seeds/004_seed_dev_admin_password.sql` | Mật khẩu dev `admin / Admin@123` cho Super Admin (dev-only) |
 
 ## Cách import bằng phpMyAdmin
 
@@ -42,7 +44,7 @@ Di chuyển vào thư mục này và chạy lần lượt theo bảng trên, ví
 
 ## Lưu ý
 
-- **Đã import CSDL trước bản cập nhật này?** Chỉ cần chạy thêm `migrations/008_alter_students_add_left_at.sql` (không cần import lại). File `happykidsck_full.sql` đã bao gồm thay đổi này cho lần import mới.
-- Tài khoản seed `admin / Admin@123` chỉ để phát triển; đổi email Google + mật khẩu trước khi vận hành thật.
+- **Đã import CSDL trước bản cập nhật này?** Chỉ cần chạy thêm `migrations/008_alter_students_add_left_at.sql` (nếu chưa có cột `left_at`) và `migrations/009_create_user_permissions.sql` (bảng quyền riêng từng nhân viên). Không cần import lại. File `happykidsck_full.sql` đã bao gồm cả hai thay đổi cho lần import mới.
+- Để đăng nhập khi phát triển, chạy thêm `seeds/004_seed_dev_admin_password.sql` — tạo tài khoản `admin / Admin@123` cho Super Admin (chỉ khi tài khoản còn trống). Trước khi vận hành thật hãy đổi mật khẩu và gán email Google.
 - Muốn làm lại từ đầu: `DROP DATABASE happykidsck;` rồi import lại (chỉ làm khi chưa có dữ liệu thật).
 - Nếu đổi tên database, cập nhật `backend/config/database.php` ở giai đoạn 3.

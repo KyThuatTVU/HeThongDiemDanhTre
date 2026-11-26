@@ -10,13 +10,11 @@ use App\Exceptions\HttpException;
 use App\Infrastructure\Auth\GoogleOAuthClient;
 use App\Models\User;
 use App\Repositories\BranchRepository;
-use App\Repositories\RoleRepository;
 use App\Repositories\UserRepository;
 
 final class AuthService
 {
     private UserRepository $users;
-    private RoleRepository $roles;
     private BranchRepository $branches;
     private ActivityLogService $logs;
     private GoogleOAuthClient $google;
@@ -24,7 +22,6 @@ final class AuthService
     public function __construct()
     {
         $this->users = new UserRepository();
-        $this->roles = new RoleRepository();
         $this->branches = new BranchRepository();
         $this->logs = new ActivityLogService();
         $this->google = new GoogleOAuthClient();
@@ -125,9 +122,7 @@ final class AuthService
             throw new HttpException(401, 'Chưa đăng nhập');
         }
         $roleKey = (string) $user->role_key;
-        $permissions = $roleKey === 'super_admin'
-            ? array_column($this->roles->permissionsAll(), 'permission_key')
-            : $this->roles->permissionKeys($roleKey);
+        $permissions = (new AuthorizationService())->effectivePermissions($userId, $roleKey);
         $branchIds = $roleKey === 'super_admin'
             ? $this->branches->ids()
             : $this->users->branchIds($userId);

@@ -11,7 +11,7 @@ final class UserRepository extends Repository
     protected string $table = 'users';
     protected string $model = User::class;
 
-    private const SELECT = 'SELECT u.*, r.role_key, r.role_name FROM users u JOIN roles r ON r.id = u.role_id';
+    private const SELECT = 'SELECT u.*, r.role_key, r.name AS role_name FROM users u JOIN roles r ON r.id = u.role_id';
 
     public function findByLogin(string $identifier): ?User
     {
@@ -151,7 +151,7 @@ final class UserRepository extends Repository
         $offset = ($page - 1) * $perPage;
         $rows = $this->fetchAll(
             'SELECT u.id, u.username, u.email, u.full_name, u.phone, u.avatar_path, u.status, u.last_login_at, u.created_at,
-                    r.role_key, r.role_name,
+                    r.role_key, r.name AS role_name,
                     GROUP_CONCAT(DISTINCT b.name ORDER BY b.name SEPARATOR ", ") AS branch_names,
                     GROUP_CONCAT(DISTINCT b.id ORDER BY b.id) AS branch_ids
              FROM users u
@@ -159,7 +159,7 @@ final class UserRepository extends Repository
              LEFT JOIN user_branches ub ON ub.user_id = u.id
              LEFT JOIN branches b ON b.id = ub.branch_id'
              . $whereSql .
-            ' GROUP BY u.id, u.username, u.email, u.full_name, u.phone, u.avatar_path, u.status, u.last_login_at, u.created_at, r.role_key, r.role_name
+            ' GROUP BY u.id, u.username, u.email, u.full_name, u.phone, u.avatar_path, u.status, u.last_login_at, u.created_at, r.role_key, r.name
               ORDER BY u.id DESC LIMIT ' . $perPage . ' OFFSET ' . $offset,
             $params
         );

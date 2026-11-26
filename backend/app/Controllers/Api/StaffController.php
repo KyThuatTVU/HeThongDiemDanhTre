@@ -50,6 +50,7 @@ final class StaffController extends Controller
             'phone' => 'nullable|string|max:30',
             'role_key' => 'required|in:super_admin,branch_manager,attendance_staff,profile_staff',
             'branch_ids' => 'required|array',
+            'permission_keys' => 'nullable|array',
         ], [
             'full_name' => 'Họ và tên',
             'username' => 'Tên đăng nhập',
@@ -69,6 +70,7 @@ final class StaffController extends Controller
             'phone' => 'nullable|string|max:30',
             'role_key' => 'nullable|in:super_admin,branch_manager,attendance_staff,profile_staff',
             'branch_ids' => 'nullable|array',
+            'permission_keys' => 'nullable|array',
         ]);
         $data = $this->nullableEmpties($data, ['email', 'phone']);
         if (array_key_exists('branch_ids', $data)) {
@@ -105,6 +107,27 @@ final class StaffController extends Controller
         ], ['branch_ids' => 'Cơ sở phân công']);
         $result = (new StaffService())->assignBranches((int) $id, array_map('intval', (array) $data['branch_ids']), $this->userId());
         $this->message('Phân công cơ sở thành công', $result);
+    }
+
+    public function permissionCatalog(): never
+    {
+        $this->ok((new StaffService())->permissionCatalog());
+    }
+
+    public function assignPermissions(string $id): never
+    {
+        $data = $this->validate($this->request->all(), [
+            'permission_keys' => 'nullable|array',
+        ], ['permission_keys' => 'Danh sách quyền']);
+        if (!array_key_exists('permission_keys', $data)) {
+            throw new HttpException(422, 'Vui lòng gửi danh sách quyền');
+        }
+        $detail = (new StaffService())->assignPermissions(
+            (int) $id,
+            array_values((array) $data['permission_keys']),
+            $this->userId()
+        );
+        $this->message('Cập nhật quyền thành công', $detail);
     }
 
     public function avatar(string $id): never

@@ -13,6 +13,22 @@ const idParam = queryParam('id');
 const editingId = idParam ? Number(idParam) : null;
 let branches = [];
 let avatarPath = null;
+let permissionMeta = null;
+let staffLoaded = !editingId;
+
+const MODULE_LABELS = {
+    students: 'Học viên',
+    classes: 'Lớp học',
+    attendance: 'Điểm danh',
+    tuition: 'Học phí',
+    staff: 'Nhân viên',
+    branches: 'Cơ sở',
+    reports: 'Báo cáo',
+    logs: 'Nhật ký',
+    settings: 'Cấu hình'
+};
+
+const MODULE_ORDER = ['students', 'classes', 'attendance', 'tuition', 'staff', 'branches', 'reports', 'logs', 'settings'];
 
 function setHint(text, isError = false) {
     const hint = qs('[data-form-hint]');
@@ -42,7 +58,137 @@ function updateBranchHint() {
     }
     hint.textContent = isSuperRole()
         ? 'Quản trị hệ thống làm việc toàn hệ thống. Có thể để trống hoặc chọn các cơ sở thường dùng.'
-        : 'Mỗi nhân viên được phân công tối đa 2 cơ sở.';
+        : 'Nhân viên chỉ truy cập được dữ liệu của cơ sở được chọn (tối đa 2 cơ sở).';
+}
+
+function isSuperActor() {
+    return session.role?.key === 'super_admin';
+}
+
+function roleDefaults(roleKey) {
+    const role = permissionMeta?.roles?.find((item) => item.key === roleKey);
+    return new Set(role?.permission_keys || []);
+}
+
+function permissionInputs() {
+    return Array.from(form.querySelectorAll('[name="permission_keys[]"]'));
+}
+
+function selectedPermissionKeys() {
+    return permissionInputs().filter((input) => input.checked).map((input) => input.value);
+}
+
+function updatePermissionSummary() {
+    const node = qs('[data-permission-summary]');
+    if (!node || !permissionMeta) {
+        return;
+    }
+    if (!selectedRole()) {
+        node.textContent = 'Chọn vai trò để áp dụng quyền mặc định.';
+        node.hidden = false;
+        return;
+    }
+    const defaults = roleDefaults(selectedRole());
+    const selected = new Set(selectedPermissionKeys());
+    let extra = 0;
+    selected.forEach((key) => {
+        if (!defaults.has(key)) {
+            extra += 1;
+        }
+    });
+    let removed = 0;
+    defaults.forEach((key) => {
+        if (!selected.has(key)) {
+            removed += 1;
+        }
+    });
+    let text = `Đang bật ${selected.size}/${permissionMeta.permissions.length} quyền`;
+    if (extra || removed) {
+        const bits = [];
+        if (extra) bits.push(`cấp thêm ${extra}`);
+        if (removed) bits.push(`thu hồi ${removed}`);
+        text += ` (${bits.join(', ')} so với vai trò)`;
+    } else {
+        text += ' — đúng mặc định của vai trò';
+    }
+    node.textContent = `${text}.`;
+    node.hidden = false;
+}
+
+function applyPermissionKeys(keys) {
+    const set = new Set(keys || []);
+    permissionInputs().forEach((input) => {
+        input.checked = set.has(input.value);
+    });
+    updatePermissionSummary();
+}
+
+function renderPermissionMatrix() {
+    const grid = qs('[data-permission-grid]');
+    if (!grid || !permissionMeta) {
+        return;
+    }
+    const groups = new Map();
+    permissionMeta.permissions.forEach((permission) => {
+        if (!groups.has(permission.module)) {
+            groups.set(permission.module, []);
+        }
+        groups.get(permission.module).push(permission);
+    });
+    const ordered = Array.from(groups.entries()).sort((a, b) => {
+        const aIndex = MODULE_ORDER.indexOf(a[0]);
+        const bIndex = MODULE_ORDER.indexOf(b[0]);
+        return (aIndex === -1 ? MODULE_ORDER.length : aIndex) - (bIndex === -1 ? MODULE_ORDER.length : bIndex);
+    });
+    grid.innerHTML = ordered.map(([module, items]) => `
+        <div class="permission-group">
+            <p class="permission-group__title">${escapeHtml(MODULE_LABELS[module] || module)}</p>
+            <div class="permission-group__items">
+                ${items.map((permission) => `
+                    <label class="permission-option">
+                        <input type="checkbox" name="permission_keys[]" value="${escapeHtml(permission.key)}">
+                        <span class="permission-option__label">${escapeHtml(permission.name)}</span>
+                        <code class="permission-option__key">${escapeHtml(permission.key)}</code>
+                    </label>`).join('')}
+            </div>
+        </div>`).join('');
+}
+
+function updatePermissionVisibility() {
+    const card = qs('[data-permission-card]');
+    if (!card) {
+        return;
+    }
+    const role = selectedRole();
+    const visible = isSuperActor() && Boolean(permissionMeta) && staffLoaded && Boolean(role) && role !== 'super_admin';
+    card.hidden = !visible;
+    if (visible) {
+        updatePermissionSummary();
+    }
+}
+
+function resetPermissionsToRole() {
+    applyPermissionKeys(Array.from(roleDefaults(selectedRole())));
+}
+
+function onRoleChange() {
+    updateBranchHint();
+    if (isSuperActor() && permissionMeta) {
+        resetPermissionsToRole();
+        updatePermissionVisibility();
+    }
+}
+
+async function loadPermissionMeta() {
+    try {
+        const payload = await api.get('/permissions');
+        permissionMeta = payload?.data || null;
+    } catch (error) {
+        permissionMeta = null;
+        showToast(error.message || 'Không tải được danh mục quyền', 'danger');
+    }
+    renderPermissionMatrix();
+    updatePermissionVisibility();
 }
 
 function renderAvatar() {
@@ -122,6 +268,10 @@ async function loadStaff() {
         form.elements.namedItem('role_key').value = user.role_key || '';
         avatarPath = user.avatar_path || null;
         applyBranches(payload?.data?.branch_ids || []);
+        if (isSuperActor()) {
+            applyPermissionKeys(payload?.data?.permission_keys || []);
+        }
+        updatePermissionVisibility();
         renderAvatar();
         qs('[data-avatar-row]')?.removeAttribute('hidden');
 
@@ -135,7 +285,9 @@ async function loadStaff() {
             form.elements.namedItem('role_key').disabled = true;
             setHint('Không thể tự thay đổi vai trò của chính mình.', false);
         }
+        staffLoaded = true;
         updateBranchHint();
+        updatePermissionVisibility();
     } catch (error) {
         showToast(error.message || 'Không tải được hồ sơ nhân viên', 'danger');
         setHint(error.message || 'Không tải được hồ sơ nhân viên', true);
@@ -221,6 +373,10 @@ async function submit(event) {
         role_key: roleKey,
         branch_ids: branchIds
     };
+    const permissionCard = qs('[data-permission-card]');
+    if (isSuperActor() && permissionCard && !permissionCard.hidden) {
+        payload.permission_keys = selectedPermissionKeys();
+    }
     if (!editingId) {
         payload.username = username;
         payload.password = password;
@@ -268,14 +424,24 @@ document.addEventListener('hk:ready', async () => {
     }
 
     form.addEventListener('submit', submit);
-    form.elements.namedItem('role_key').addEventListener('change', updateBranchHint);
+    form.elements.namedItem('role_key').addEventListener('change', onRoleChange);
     form.elements.namedItem('full_name').addEventListener('input', () => {
         if (!avatarPath) {
             renderAvatar();
         }
     });
 
+    qs('[data-permission-reset]')?.addEventListener('click', () => {
+        if (!isSuperActor() || !permissionMeta) {
+            return;
+        }
+        resetPermissionsToRole();
+    });
+
     form.addEventListener('change', (event) => {
+        if (event.target.matches('[name="permission_keys[]"]')) {
+            updatePermissionSummary();
+        }
         if (event.target.matches('[name="branch_ids[]"]') && !isSuperRole()) {
             if (selectedBranchIds().length > 2) {
                 event.target.checked = false;
@@ -291,6 +457,9 @@ document.addEventListener('hk:ready', async () => {
     });
 
     updateHeading();
+    if (isSuperActor()) {
+        await loadPermissionMeta();
+    }
     await loadBranches();
     if (editingId) {
         await loadStaff();

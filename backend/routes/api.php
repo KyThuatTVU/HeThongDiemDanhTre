@@ -38,10 +38,12 @@ $router->put('/api/branches/{id}', [BranchController::class, 'update'], ['csrf',
 $router->post('/api/branches/{id}/logo', [BranchController::class, 'logo'], ['csrf', 'auth', 'permission:branches.manage']);
 
 $router->get('/api/staff', [StaffController::class, 'index'], ['auth', 'branch', 'permission:staff.view']);
+$router->get('/api/permissions', [StaffController::class, 'permissionCatalog'], ['auth', 'permission:staff.manage']);
 $router->get('/api/staff/{id}/logins', [StaffController::class, 'logins'], ['auth', 'branch', 'permission:logs.view']);
 $router->get('/api/staff/{id}', [StaffController::class, 'show'], ['auth', 'branch', 'permission:staff.view']);
 $router->post('/api/staff', [StaffController::class, 'store'], ['csrf', 'auth', 'branch', 'permission:staff.manage']);
 $router->put('/api/staff/{id}', [StaffController::class, 'update'], ['csrf', 'auth', 'branch', 'permission:staff.manage']);
+$router->post('/api/staff/{id}/permissions', [StaffController::class, 'assignPermissions'], ['csrf', 'auth', 'branch', 'permission:staff.manage']);
 $router->post('/api/staff/{id}/lock', [StaffController::class, 'lock'], ['csrf', 'auth', 'branch', 'permission:staff.manage']);
 $router->post('/api/staff/{id}/unlock', [StaffController::class, 'unlock'], ['csrf', 'auth', 'branch', 'permission:staff.manage']);
 $router->post('/api/staff/{id}/reset-password', [StaffController::class, 'resetPassword'], ['csrf', 'auth', 'branch', 'permission:staff.manage']);

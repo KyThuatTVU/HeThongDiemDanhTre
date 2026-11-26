@@ -33,3 +33,15 @@
     background: var(--hk-brand-600);
     color: #fff;
 }
+
+@media (max-width: 575.98px) {
+    .report-tabs {
+        flex-wrap: wrap;
+        overflow-x: visible;
+    }
+
+    .report-tabs__link {
+        flex: 1 1 auto;
+        justify-content: center;
+    }
+}

@@ -34,6 +34,7 @@ final class Validator
             $rulesForField = is_array($ruleSet) ? $ruleSet : explode('|', (string) $ruleSet);
             $value = $data[$field] ?? null;
             $isNullable = in_array('nullable', $rulesForField, true);
+            $numericField = in_array('integer', $rulesForField, true) || in_array('numeric', $rulesForField, true);
             $fieldErrors = [];
 
             if ($isNullable && ($value === null || $value === '')) {
@@ -59,8 +60,8 @@ final class Validator
                     'integer' => !is_numeric($value) || (float) $value !== (float) (int) $value,
                     'numeric' => !is_numeric($value),
                     'array' => !is_array($value),
-                    'min' => is_int($value) || is_float($value) ? (float) $value < (float) $param : mb_strlen((string) $value) < (int) $param,
-                    'max' => is_int($value) || is_float($value) ? (float) $value > (float) $param : mb_strlen((string) $value) > (int) $param,
+                    'min' => self::isNumericValue($value, $numericField) ? (float) $value < (float) $param : mb_strlen((string) $value) < (int) $param,
+                    'max' => self::isNumericValue($value, $numericField) ? (float) $value > (float) $param : mb_strlen((string) $value) > (int) $param,
                     'in' => !in_array((string) $value, explode(',', (string) $param), true),
                     'date' => !self::isDate((string) $value),
                     'email' => filter_var($value, FILTER_VALIDATE_EMAIL) === false,
@@ -87,6 +88,11 @@ final class Validator
             throw new ValidationException('Dữ liệu không hợp lệ', $errors);
         }
         return $clean;
+    }
+
+    private static function isNumericValue(mixed $value, bool $numericField): bool
+    {
+        return is_int($value) || is_float($value) || ($numericField && is_numeric($value));
     }
 
     private static function isDate(string $value): bool

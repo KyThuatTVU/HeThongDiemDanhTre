@@ -9,6 +9,7 @@ use App\Infrastructure\Storage\FileStorage;
 use App\Models\User;
 use App\Repositories\BranchRepository;
 use App\Repositories\RoleRepository;
+use App\Repositories\UserPermissionRepository;
 use App\Repositories\UserRepository;
 
 final class StaffService
@@ -16,6 +17,7 @@ final class StaffService
     private UserRepository $users;
     private RoleRepository $roles;
     private BranchRepository $branches;
+    private UserPermissionRepository $userPermissions;
     private AuthorizationService $authz;
     private ActivityLogService $logs;
 
@@ -24,6 +26,7 @@ final class StaffService
         $this->users = new UserRepository();
         $this->roles = new RoleRepository();
         $this->branches = new BranchRepository();
+        $this->userPermissions = new UserPermissionRepository();
         $this->authz = new AuthorizationService();
         $this->logs = new ActivityLogService();
     }
@@ -42,9 +45,16 @@ final class StaffService
             throw new HttpException(404, 'Không tìm thấy nhân viên');
         }
         $this->assertStaffInScope($id);
+        $roleKey = (string) $user->role_key;
+        $isSuper = $roleKey === 'super_admin';
         return [
             'user' => $this->sanitize($user),
             'branch_ids' => $this->users->branchIds($id),
+            'role_permission_keys' => $isSuper
+                ? array_column($this->roles->permissionsAll(), 'permission_key')
+                : $this->roles->permissionKeys($roleKey),
+            'permission_keys' => $this->authz->effectivePermissions($id, $roleKey),
+            'permission_overrides' => $isSuper ? [] : $this->userPermissions->overridesForUser($id),
         ];
     }
 
@@ -75,6 +85,14 @@ final class StaffService
             throw new HttpException(422, 'Email đã tồn tại');
         }
         $branchIds = $this->validateBranchIds($data['branch_ids'] ?? [], (string) $data['role_key']);
+        $permissionKeys = null;
+        if (array_key_exists('permission_keys', $data)) {
+            $this->assertCanAssignPermissions();
+            $permissionKeys = $this->normalizePermissionKeys((array) $data['permission_keys']);
+            if ((string) $data['role_key'] === 'super_admin' && $permissionKeys !== []) {
+                throw new HttpException(422, 'Quản trị hệ thống luôn có toàn bộ quyền, không thể chỉnh riêng');
+            }
+        }
 
         $id = $this->users->create([
             'role_id' => (int) $role['id'],
@@ -86,6 +104,10 @@ final class StaffService
             'status' => 'active',
         ]);
         $this->users->setBranches($id, $branchIds);
+        if ($permissionKeys !== null) {
+            $this->applyPermissionOverrides($id, (string) $data['role_key'], $permissionKeys);
+            $this->logs->record('assign_permissions', 'staff', 'user', $id, 'Phân quyền chi tiết khi tạo tài khoản');
+        }
         $this->logs->record('create', 'staff', 'user', $id, 'Thêm nhân viên ' . $data['full_name']);
         return $this->detail($id);
     }
@@ -121,13 +143,25 @@ final class StaffService
             $payload['role_id'] = (int) $role['id'];
         }
 
+        $roleChanged = array_key_exists('role_id', $payload) && (int) $payload['role_id'] !== (int) $user->role_id;
+        $finalRoleKey = $roleChanged ? (string) $data['role_key'] : (string) $user->role_key;
+        $hasPermissionPayload = array_key_exists('permission_keys', $data);
+        $permissionKeys = null;
+        if ($hasPermissionPayload) {
+            $this->assertCanAssignPermissions();
+            $permissionKeys = $this->normalizePermissionKeys((array) $data['permission_keys']);
+            if ($finalRoleKey === 'super_admin' && $permissionKeys !== []) {
+                throw new HttpException(422, 'Quản trị hệ thống luôn có toàn bộ quyền, không thể chỉnh riêng');
+            }
+        }
+
         $branchIds = null;
         if (array_key_exists('branch_ids', $data)) {
             $roleKey = (string) ($data['role_key'] ?? $user->role_key);
             $branchIds = $this->validateBranchIds((array) $data['branch_ids'], $roleKey);
         }
 
-        if ($payload === [] && $branchIds === null) {
+        if ($payload === [] && $branchIds === null && !$hasPermissionPayload) {
             throw new HttpException(422, 'Không có dữ liệu cần cập nhật');
         }
         $old = $user->toArray();
@@ -137,8 +171,50 @@ final class StaffService
         if ($branchIds !== null) {
             $this->users->setBranches($id, $branchIds);
         }
+        if ($roleChanged) {
+            $this->userPermissions->clearForUser($id);
+        }
+        if ($hasPermissionPayload) {
+            $this->applyPermissionOverrides($id, $finalRoleKey, (array) $permissionKeys);
+            $this->logs->record('assign_permissions', 'staff', 'user', $id, 'Cập nhật quyền chi tiết cho ' . $user->full_name);
+        }
         $this->logs->record('update', 'staff', 'user', $id, 'Cập nhật nhân viên', $old, $payload);
         return $this->detail($id);
+    }
+
+    public function assignPermissions(int $id, array $permissionKeys, int $actorId): array
+    {
+        $user = $this->users->findWithRole($id);
+        if ($user === null) {
+            throw new HttpException(404, 'Không tìm thấy nhân viên');
+        }
+        $this->assertCanAssignPermissions();
+        $this->applyPermissionOverrides($id, (string) $user->role_key, $permissionKeys);
+        $this->logs->record('assign_permissions', 'staff', 'user', $id, 'Cập nhật quyền chi tiết cho ' . $user->full_name);
+        return $this->detail($id);
+    }
+
+    public function permissionCatalog(): array
+    {
+        $allPermissions = $this->roles->permissionsAll();
+        $permissions = array_map(static fn (array $row): array => [
+            'key' => (string) $row['permission_key'],
+            'name' => (string) $row['name'],
+            'module' => (string) $row['module'],
+        ], $allPermissions);
+
+        $roles = [];
+        foreach ($this->roles->all() as $role) {
+            $roleKey = (string) $role['role_key'];
+            $roles[] = [
+                'key' => $roleKey,
+                'name' => (string) $role['name'],
+                'permission_keys' => $roleKey === 'super_admin'
+                    ? array_column($allPermissions, 'permission_key')
+                    : $this->roles->permissionKeys($roleKey),
+            ];
+        }
+        return ['permissions' => $permissions, 'roles' => $roles];
     }
 
     public function lock(int $id, int $actorId): void
@@ -195,6 +271,48 @@ final class StaffService
         $this->users->update($id, ['avatar_path' => $path]);
         $this->logs->record('update_avatar', 'staff', 'user', $id, 'Cập nhật ảnh đại diện');
         return $path;
+    }
+
+    private function assertCanAssignPermissions(): void
+    {
+        if (!$this->authz->isSuperAdmin()) {
+            throw new HttpException(403, 'Chỉ quản trị hệ thống được phân quyền chi tiết cho nhân viên');
+        }
+    }
+
+    private function applyPermissionOverrides(int $userId, string $roleKey, array $permissionKeys): void
+    {
+        if ($roleKey === 'super_admin') {
+            if ($permissionKeys !== []) {
+                throw new HttpException(422, 'Quản trị hệ thống luôn có toàn bộ quyền, không thể chỉnh riêng');
+            }
+            $this->userPermissions->clearForUser($userId);
+            return;
+        }
+        $keys = $this->normalizePermissionKeys($permissionKeys);
+        $base = $this->roles->permissionKeys($roleKey);
+        $allow = array_values(array_diff($keys, $base));
+        $deny = array_values(array_diff($base, $keys));
+        $this->userPermissions->replaceForUser($userId, $allow, $deny);
+    }
+
+    private function normalizePermissionKeys(array $keys): array
+    {
+        $allowed = array_column($this->roles->permissionsAll(), 'permission_key');
+        $clean = [];
+        foreach ($keys as $key) {
+            $key = trim((string) $key);
+            if ($key === '') {
+                continue;
+            }
+            if (!in_array($key, $allowed, true)) {
+                throw new HttpException(422, 'Quyền không hợp lệ: ' . $key);
+            }
+            $clean[$key] = true;
+        }
+        $clean = array_keys($clean);
+        sort($clean);
+        return $clean;
     }
 
     private function validateBranchIds(array $branchIds, string $roleKey): array

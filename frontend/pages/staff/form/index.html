@@ -21,7 +21,7 @@
     <div class="page-stack">
         <div data-component="page-header"
              data-title="Thêm nhân viên"
-             data-subtitle="Tạo tài khoản và phân công cơ sở làm việc"
+             data-subtitle="Tạo tài khoản, phân quyền chức năng và cơ sở làm việc"
              data-breadcrumb='[{"label":"Nhân viên","href":"../../staff/list/"},{"label":"Hồ sơ"}]'></div>
 
         <form class="staff-form" data-staff-form novalidate>
@@ -82,13 +82,27 @@
                 <div class="section-head">
                     <div>
                         <h2 class="section-title">Phân công cơ sở</h2>
-                        <p class="section-subtitle" data-branch-hint>Mỗi nhân viên được phân công tối đa 2 cơ sở.</p>
+                        <p class="section-subtitle" data-branch-hint>Nhân viên chỉ truy cập được dữ liệu của cơ sở được chọn (tối đa 2 cơ sở).</p>
                     </div>
                 </div>
                 <div class="branch-picker" data-branch-picker>
                     <p class="text-muted-2 fs-13 mb-0">Đang tải cơ sở...</p>
                 </div>
                 <p class="form-hint form-hint--error mt-2 mb-0" data-branch-error hidden></p>
+            </section>
+
+            <section class="card card-pad" data-permission-card hidden>
+                <div class="section-head">
+                    <div>
+                        <h2 class="section-title">Quyền truy cập chức năng</h2>
+                        <p class="section-subtitle">Mặc định theo vai trò. Quản trị hệ thống có thể cấp thêm hoặc thu hồi quyền riêng cho nhân viên này.</p>
+                    </div>
+                    <button type="button" class="btn-hk-outline btn-sm" data-permission-reset>
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>Theo vai trò
+                    </button>
+                </div>
+                <div class="permission-grid" data-permission-grid></div>
+                <p class="permission-summary" data-permission-summary hidden></p>
             </section>
 
             <div class="form-actions">

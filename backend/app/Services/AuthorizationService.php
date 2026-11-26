@@ -8,6 +8,7 @@ use App\Exceptions\HttpException;
 use App\Models\Branch;
 use App\Repositories\BranchRepository;
 use App\Repositories\RoleRepository;
+use App\Repositories\UserPermissionRepository;
 use App\Repositories\UserRepository;
 
 final class AuthorizationService
@@ -17,12 +18,14 @@ final class AuthorizationService
     private UserRepository $users;
     private RoleRepository $roles;
     private BranchRepository $branches;
+    private UserPermissionRepository $userPermissions;
 
     public function __construct()
     {
         $this->users = new UserRepository();
         $this->roles = new RoleRepository();
         $this->branches = new BranchRepository();
+        $this->userPermissions = new UserPermissionRepository();
     }
 
     public function roleKey(): ?string
@@ -39,13 +42,33 @@ final class AuthorizationService
     public function permissions(): array
     {
         $roleKey = $this->roleKey();
-        if ($roleKey === null) {
+        $userId = (int) Session::get('user_id', 0);
+        if ($roleKey === null || $userId <= 0) {
             return [];
         }
-        if (!isset(self::$permissionCache[$roleKey])) {
-            self::$permissionCache[$roleKey] = $this->roles->permissionKeys($roleKey);
+        $cacheKey = $userId . ':' . $roleKey;
+        if (!isset(self::$permissionCache[$cacheKey])) {
+            self::$permissionCache[$cacheKey] = $this->effectivePermissions($userId, $roleKey);
         }
-        return self::$permissionCache[$roleKey];
+        return self::$permissionCache[$cacheKey];
+    }
+
+    public function effectivePermissions(int $userId, string $roleKey): array
+    {
+        if ($roleKey === 'super_admin') {
+            return array_column($this->roles->permissionsAll(), 'permission_key');
+        }
+        $granted = array_fill_keys($this->roles->permissionKeys($roleKey), true);
+        foreach ($this->userPermissions->overridesForUser($userId) as $key => $effect) {
+            if ($effect === 'deny') {
+                unset($granted[$key]);
+            } else {
+                $granted[$key] = true;
+            }
+        }
+        $keys = array_keys($granted);
+        sort($keys);
+        return $keys;
     }
 
     public function can(string $permission): bool

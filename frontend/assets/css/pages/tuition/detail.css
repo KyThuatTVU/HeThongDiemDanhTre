@@ -1,5 +1,6 @@
 .fee-hero {
     display: flex;
+    flex-direction: row;
     align-items: center;
     gap: 16px;
     padding: 18px 20px;

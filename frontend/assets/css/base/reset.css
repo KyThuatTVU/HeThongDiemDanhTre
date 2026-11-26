@@ -105,6 +105,7 @@ a:hover {
     font-weight: 600;
     border-radius: var(--hk-radius-sm);
     padding: 0.55rem 1.15rem;
+    white-space: nowrap;
 }
 
 .btn-hk:hover,
@@ -121,6 +122,7 @@ a:hover {
     font-weight: 600;
     border-radius: var(--hk-radius-sm);
     padding: 0.55rem 1.15rem;
+    white-space: nowrap;
 }
 
 .btn-hk-outline:hover {
@@ -136,6 +138,7 @@ a:hover {
     font-weight: 600;
     border-radius: var(--hk-radius-sm);
     padding: 0.55rem 1.15rem;
+    white-space: nowrap;
 }
 
 .btn-accent:hover {
@@ -150,11 +153,44 @@ a:hover {
     color: var(--hk-danger);
     font-weight: 600;
     border-radius: var(--hk-radius-sm);
+    white-space: nowrap;
 }
 
 .btn-soft-danger:hover {
     background-color: #fbdada;
     color: var(--hk-danger);
+}
+
+.btn-hk.btn-sm,
+.btn-hk-outline.btn-sm,
+.btn-accent.btn-sm,
+.btn-soft-danger.btn-sm {
+    padding: 0.35rem 0.8rem;
+    font-size: 13px;
+    border-radius: 8px;
+}
+
+.modal-footer .btn-danger {
+    font-weight: 600;
+    border-radius: var(--hk-radius-sm);
+    padding: 0.55rem 1.15rem;
+    white-space: nowrap;
+}
+
+/* Nút icon phụ trong bảng */
+.btn-light {
+    --bs-btn-color: var(--hk-text-soft);
+    --bs-btn-bg: var(--hk-surface);
+    --bs-btn-border-color: var(--hk-border);
+    --bs-btn-hover-color: var(--hk-brand-700);
+    --bs-btn-hover-bg: var(--hk-brand-50);
+    --bs-btn-hover-border-color: var(--hk-brand-200);
+    --bs-btn-active-color: var(--hk-brand-700);
+    --bs-btn-active-bg: var(--hk-brand-100);
+    --bs-btn-active-border-color: var(--hk-brand-200);
+    --bs-btn-disabled-color: var(--hk-muted);
+    --bs-btn-disabled-bg: var(--hk-surface-2);
+    --bs-btn-disabled-border-color: var(--hk-border);
 }
 
 /* Thẻ và bảng nền tảng */

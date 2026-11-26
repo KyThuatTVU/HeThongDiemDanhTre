@@ -1,6 +1,6 @@
 -- ============================================================
 -- HappyKidsCK — Toàn bộ cơ sở dữ liệu trong 1 file
--- Gồm: 18 bảng (schema, đã gồm cột students.left_at) + seed:
+-- Gồm: 19 bảng (schema, đã gồm cột students.left_at) + seed:
 --       2 cơ sở, 4 vai trò, 29 quyền, tài khoản Super Admin
 -- Cách dùng: phpMyAdmin → Import → chọn file này → Go
 -- (Nếu đổi tên database, sửa 2 dòng CREATE DATABASE / USE bên dưới)
@@ -105,6 +105,20 @@ CREATE TABLE `user_branches` (
   CONSTRAINT `fk_user_branches_branch` FOREIGN KEY (`branch_id`) REFERENCES `branches` (`id`)
     ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Phân công nhân viên theo cơ sở (tối đa 2 cơ sở)';
+
+CREATE TABLE `user_permissions` (
+  `user_id`       INT UNSIGNED      NOT NULL,
+  `permission_id` SMALLINT UNSIGNED NOT NULL,
+  `effect`        ENUM('allow','deny') NOT NULL DEFAULT 'allow'
+                  COMMENT 'allow: cấp thêm ngoài vai trò; deny: thu hồi quyền của vai trò',
+  `created_at`    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`user_id`, `permission_id`),
+  KEY `idx_user_permissions_permission` (`permission_id`),
+  CONSTRAINT `fk_user_permissions_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_user_permissions_permission` FOREIGN KEY (`permission_id`) REFERENCES `permissions` (`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Quyền riêng từng nhân viên (ghi đè vai trò)';
 
 CREATE TABLE `login_histories` (
   `id`                   BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -541,3 +555,20 @@ SELECT r.`id`, NULL, NULL, NULL,
        'Quản trị hệ thống', 'active'
 FROM `roles` r
 WHERE r.`role_key` = 'super_admin';
+
+-- ============================================================
+-- SECTION: seeds/004_seed_dev_admin_password.sql
+-- ============================================================
+
+-- ============================================================
+-- SEED 004 - Mật khẩu dev cho Super Admin (CHỈ DÙNG KHI PHÁT TRIỂN)
+-- Tên đăng nhập: admin · Mật khẩu: Admin@123
+-- ============================================================
+
+UPDATE `users` u
+JOIN `roles` r ON r.`id` = u.`role_id`
+SET u.`username` = 'admin',
+    u.`password_hash` = '$2y$10$S.bbKciw8gDMEr0/xKOc5ehPm10LblmSwaFrfSsAhqEseccbYmvSa'
+WHERE r.`role_key` = 'super_admin'
+  AND u.`username` IS NULL
+  AND u.`password_hash` IS NULL;

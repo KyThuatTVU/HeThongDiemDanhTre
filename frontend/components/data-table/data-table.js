@@ -29,6 +29,7 @@ export function createTable(container, options = {}) {
     container.replaceChildren(wrap);
 
     function renderEmpty() {
+        wrap.classList.add('hk-table-wrap--state');
         tbody.innerHTML = `<tr><td colspan="${columns.length}">
             <div class="hk-empty hk-empty--table">
                 <div class="hk-empty__icon"><i class="bi ${escapeHtml(options.emptyIcon || 'bi-inbox')}"></i></div>
@@ -43,6 +44,7 @@ export function createTable(container, options = {}) {
             renderEmpty();
             return;
         }
+        wrap.classList.remove('hk-table-wrap--state');
         tbody.innerHTML = rows.map((row, index) => {
             const rowClass = typeof options.rowClass === 'function' ? options.rowClass(row) : '';
             const cells = columns.map((column) => {
@@ -57,12 +59,14 @@ export function createTable(container, options = {}) {
     }
 
     function setLoading(message = 'Đang tải dữ liệu...') {
+        wrap.classList.add('hk-table-wrap--state');
         tbody.innerHTML = `<tr><td colspan="${columns.length}" class="hk-table__loading">
             <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>${escapeHtml(message)}
         </td></tr>`;
     }
 
     function setError(message = 'Không tải được dữ liệu') {
+        wrap.classList.add('hk-table-wrap--state');
         tbody.innerHTML = `<tr><td colspan="${columns.length}" class="hk-table__error">
             <i class="bi bi-exclamation-triangle me-1"></i>${escapeHtml(message)}
         </td></tr>`;

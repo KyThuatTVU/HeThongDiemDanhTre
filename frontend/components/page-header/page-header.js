@@ -32,16 +32,38 @@ export function init(root) {
             return;
         }
         const arrow = '<i class="bi bi-chevron-right"></i>';
-        const parts = ['<a href="../../../pages/dashboard/overview/">Tổng quan</a>'];
-        items.forEach((item) => {
+        const homeLink = '<a href="../../../pages/dashboard/overview/">Tổng quan</a>';
+        const parts = items.length ? [homeLink] : ['<span aria-current="page">Tổng quan</span>'];
+        const currentLabel = title || 'Trang';
+        const lastItem = items[items.length - 1];
+        const lastIsCurrent = !lastItem || lastItem.label === currentLabel;
+
+        items.forEach((item, index) => {
             parts.push(arrow);
-            if (item.href) {
+            const isCurrent = index === items.length - 1 && lastIsCurrent;
+            if (isCurrent) {
+                parts.push(`<span aria-current="page">${escapeHtml(item.label)}</span>`);
+            } else if (item.href) {
                 parts.push(`<a href="${escapeHtml(item.href)}">${escapeHtml(item.label)}</a>`);
             } else {
                 parts.push(`<span>${escapeHtml(item.label)}</span>`);
             }
         });
-        parts.push(arrow, `<span aria-current="page">${escapeHtml(title || 'Trang')}</span>`);
+
+        if (!lastIsCurrent) {
+            parts.push(arrow, `<span aria-current="page">${escapeHtml(currentLabel)}</span>`);
+        }
         crumbNode.innerHTML = parts.join('');
+
+        const current = crumbNode.querySelector('[aria-current="page"]');
+        if (current && titleNode) {
+            const syncCurrent = () => {
+                const next = titleNode.textContent.trim();
+                if (next && current.textContent !== next) {
+                    current.textContent = next;
+                }
+            };
+            new MutationObserver(syncCurrent).observe(titleNode, { childList: true, characterData: true, subtree: true });
+        }
     }
 }

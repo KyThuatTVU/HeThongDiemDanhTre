@@ -75,3 +75,17 @@
 .hk-table td .hk-badge {
     font-size: 11.5px;
 }
+
+@media (max-width: 767.98px) {
+    .hk-table {
+        min-width: 720px;
+    }
+
+    .hk-table-wrap--state thead {
+        display: none;
+    }
+
+    .hk-table-wrap--state .hk-table {
+        min-width: 0;
+    }
+}

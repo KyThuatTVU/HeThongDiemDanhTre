@@ -1,5 +1,6 @@
 .hk-toolbar {
     display: flex;
+    flex-direction: row;
     flex-wrap: wrap;
     align-items: flex-end;
     gap: 12px;
