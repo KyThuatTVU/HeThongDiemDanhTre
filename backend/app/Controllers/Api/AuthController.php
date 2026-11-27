@@ -37,6 +37,17 @@ final class AuthController extends Controller
         Response::json(['data' => $payload]);
     }
 
+    public function ping(): never
+    {
+        Response::json([
+            'data' => [
+                'ok' => true,
+                'idle_timeout_minutes' => max(5, (int) config('auth.session.idle_minutes', 30)),
+                'server_time' => time(),
+            ],
+        ]);
+    }
+
     public function logout(): never
     {
         (new AuthService())->logout();

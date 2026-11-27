@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Controllers\Api;
 
 use App\Core\Controller;
+use App\Core\Session;
 use App\Exceptions\HttpException;
 use App\Infrastructure\Storage\FileStorage;
 use App\Repositories\StudentRepository;
@@ -63,6 +64,7 @@ final class FileController extends Controller
         if ($mime === null) {
             throw new HttpException(404, 'Tệp không tồn tại');
         }
+        Session::release();
         header('Content-Type: ' . $mime);
         header('Content-Length: ' . (string) filesize($absolute));
         header('Cache-Control: private, max-age=3600');

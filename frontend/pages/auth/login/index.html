@@ -25,17 +25,18 @@
         </div>
 
         <h1 class="auth-title">Đăng nhập</h1>
-        <p class="auth-subtitle">Dùng tài khoản nội bộ được quản trị viên cấp.</p>
+        <p class="auth-subtitle">Nhập tài khoản do trung tâm cấp. Nếu không thao tác sau 30 phút, hệ thống tự đăng xuất để nhẹ máy và an toàn dữ liệu.</p>
 
+        <div class="alert alert-info login-notice" data-login-notice hidden role="status"></div>
         <div class="alert alert-danger login-alert" data-login-alert hidden role="alert"></div>
 
         <form data-login-form novalidate>
             <div class="mb-3">
-                <label class="form-label" for="login-identifier">Tên đăng nhập hoặc email</label>
-                <input type="text" class="form-control" id="login-identifier" name="identifier" autocomplete="username" required maxlength="150" placeholder="vd: admin hoặc email Google">
+                <label class="form-label" for="login-identifier">Tên đăng nhập</label>
+                <input type="text" class="form-control" id="login-identifier" name="identifier" autocomplete="username" required maxlength="150" placeholder="Nhập tên đăng nhập hoặc email">
                 <div class="invalid-feedback" data-error-for="identifier"></div>
             </div>
-            <div class="mb-3">
+            <div class="mb-2">
                 <label class="form-label" for="login-password">Mật khẩu</label>
                 <div class="login-password">
                     <input type="password" class="form-control" id="login-password" name="password" autocomplete="current-password" required maxlength="255" placeholder="Nhập mật khẩu">
@@ -43,7 +44,15 @@
                         <i class="bi bi-eye"></i>
                     </button>
                 </div>
+                <div class="login-capslock" data-capslock-hint hidden>
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span>Đang bật phím <strong>Caps Lock</strong> (chữ IN HOA) — hãy kiểm tra để tránh nhập sai mật khẩu.</span>
+                </div>
                 <div class="invalid-feedback" data-error-for="password"></div>
+            </div>
+            <div class="form-check login-remember mb-3">
+                <input class="form-check-input" type="checkbox" id="login-remember-username" data-remember-username>
+                <label class="form-check-label" for="login-remember-username">Ghi nhớ tên đăng nhập trên máy này</label>
             </div>
             <button type="submit" class="btn btn-hk w-100 login-submit" data-login-submit>Đăng nhập</button>
         </form>

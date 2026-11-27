@@ -1,0 +1,698 @@
+.sheet-class-tabs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 2px 2px 4px;
+    scrollbar-width: thin;
+}
+
+.sheet-class-tabs[hidden] {
+    display: none;
+}
+
+.sheet-class-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex: 0 0 auto;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--hk-border);
+    background: var(--hk-surface);
+    color: var(--hk-text-soft);
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sheet-class-tab:hover {
+    border-color: var(--hk-brand-500);
+    color: var(--hk-brand-700);
+}
+
+.sheet-class-tab.is-active {
+    background: var(--hk-brand-700);
+    border-color: var(--hk-brand-700);
+    color: #fff;
+    box-shadow: 0 3px 10px rgba(18, 102, 90, 0.22);
+}
+
+.sheet-class-tab__count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.08);
+    font-size: 11.5px;
+    font-weight: 700;
+}
+
+.sheet-class-tab.is-active .sheet-class-tab__count {
+    background: rgba(255, 255, 255, 0.22);
+    color: #fff;
+}
+
+.sheet-controls__grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 12px;
+    align-items: end;
+}
+
+/* Chế độ Xem gọn 1 màn hình cho Phiếu điểm danh tháng */
+body.sheet-fit-screen .sheet-controls {
+    display: none;
+}
+
+body.sheet-fit-screen .app-content {
+    max-width: 100%;
+    padding-top: 12px;
+}
+
+body.sheet-fit-screen .page-header {
+    margin-bottom: 10px;
+}
+
+body.sheet-fit-screen .page-header__subtitle,
+body.sheet-fit-screen .page-header__crumbs {
+    display: none;
+}
+
+body.sheet-fit-screen .sheet-paper {
+    padding: 10px 12px;
+}
+
+body.sheet-fit-screen .sheet-paper__head {
+    margin-bottom: 6px;
+}
+
+body.sheet-fit-screen .sheet-paper__title {
+    font-size: 15px;
+}
+
+body.sheet-fit-screen .sheet-meta {
+    font-size: 11.5px;
+}
+
+body.sheet-fit-screen .sheet-meta__cell {
+    padding: 4px 8px;
+}
+
+body.sheet-fit-screen .sheet-table {
+    font-size: 11px;
+}
+
+body.sheet-fit-screen .sheet-table th,
+body.sheet-fit-screen .sheet-table td {
+    padding: 2px 1.5px;
+}
+
+body.sheet-fit-screen .sheet-table thead th {
+    font-size: 10.5px;
+    padding: 4px 1.5px;
+}
+
+body.sheet-fit-screen .sheet-mark {
+    font-size: 11.5px;
+}
+
+body.sheet-fit-screen .sheet-legend {
+    margin-top: 6px;
+    font-size: 11.5px;
+}
+
+@media (min-width: 992px) {
+    body.sheet-fit-screen .sheet-table {
+        table-layout: fixed;
+    }
+
+    body.sheet-fit-screen .sheet-table th.col-stt,
+    body.sheet-fit-screen .sheet-table td.col-stt {
+        width: 26px;
+        min-width: 0;
+    }
+
+    body.sheet-fit-screen .sheet-table th.col-name,
+    body.sheet-fit-screen .sheet-table td.col-name {
+        width: 138px;
+        min-width: 0;
+        padding: 2px 5px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    body.sheet-fit-screen .sheet-table th.col-phone,
+    body.sheet-fit-screen .sheet-table td.col-phone {
+        width: 78px;
+        min-width: 0;
+        padding: 2px 3px;
+        font-size: 10.5px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    body.sheet-fit-screen .sheet-table th.col-day,
+    body.sheet-fit-screen .sheet-table td.col-day {
+        width: auto;
+        min-width: 0;
+        padding: 2px 0;
+    }
+
+    body.sheet-fit-screen .sheet-table th.col-total,
+    body.sheet-fit-screen .sheet-table td.col-total {
+        width: 44px;
+        min-width: 0;
+    }
+
+    body.sheet-fit-screen .sheet-table th.col-fee,
+    body.sheet-fit-screen .sheet-table td.col-fee {
+        width: 58px;
+        min-width: 0;
+        font-size: 10.5px;
+    }
+
+    body.sheet-fit-screen .sheet-table th.col-amount,
+    body.sheet-fit-screen .sheet-table td.col-amount {
+        width: 72px;
+        min-width: 0;
+        font-size: 10.5px;
+    }
+}
+
+[data-sheet-fit].is-active {
+    background: var(--hk-brand-700);
+    border-color: var(--hk-brand-700);
+    color: #fff;
+}
+
+.sheet-controls .form-label {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--hk-text-soft);
+    margin-bottom: 4px;
+}
+
+.sheet-paper {
+    background: #fff;
+    padding: 18px 20px;
+    overflow: hidden;
+}
+
+.sheet-paper__head {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.sheet-paper__org {
+    margin: 0 0 2px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--hk-brand-700);
+}
+
+.sheet-paper__title {
+    font-family: var(--font-heading);
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin: 0;
+    color: #111827;
+}
+
+.sheet-meta {
+    display: grid;
+    grid-template-columns: 1.5fr 0.7fr 1.1fr 1.1fr;
+    border: 1px solid #374151;
+    border-bottom: none;
+    background: #f9fafb;
+    font-size: 13px;
+}
+
+.sheet-meta__cell {
+    padding: 6px 10px;
+    border-right: 1px solid #374151;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+}
+
+.sheet-meta__cell:last-child {
+    border-right: none;
+}
+
+.sheet-meta__label {
+    color: #374151;
+    white-space: nowrap;
+}
+
+.sheet-meta__cell strong {
+    color: #111827;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sheet-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid #374151;
+}
+
+.sheet-swipe-hint {
+    display: none;
+}
+
+.sheet-state {
+    padding: 36px 16px;
+    text-align: center;
+    color: var(--hk-muted);
+    font-size: 14px;
+}
+
+.sheet-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+    background: #fff;
+    color: #111827;
+}
+
+.sheet-table th,
+.sheet-table td {
+    border: 1px solid #6b7280;
+    padding: 4px 3px;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 1.2;
+}
+
+.sheet-table thead th {
+    background: #f3f4f6;
+    font-weight: 700;
+    font-size: 11.5px;
+    color: #111827;
+    padding: 6px 3px;
+}
+
+.sheet-table th.col-stt,
+.sheet-table td.col-stt {
+    width: 30px;
+    min-width: 30px;
+    font-weight: 600;
+    color: #4b5563;
+}
+
+.sheet-table th.col-name,
+.sheet-table td.col-name {
+    min-width: 148px;
+    text-align: left;
+    padding: 5px 8px;
+    white-space: nowrap;
+}
+
+.sheet-student-name {
+    font-weight: 600;
+    color: #111827;
+}
+
+.sheet-student-sub {
+    display: inline-block;
+    margin-left: 5px;
+    font-size: 10.5px;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.sheet-table th.col-phone,
+.sheet-table td.col-phone {
+    min-width: 88px;
+    padding: 4px 6px;
+    font-size: 11.5px;
+    color: #374151;
+    white-space: nowrap;
+}
+
+.sheet-table th.col-day,
+.sheet-table td.col-day {
+    width: 24px;
+    min-width: 24px;
+    padding: 4px 1px;
+    font-weight: 700;
+}
+
+.sheet-table th.col-day.is-sunday,
+.sheet-table td.col-day.is-sunday {
+    background: #f3f4f6;
+}
+
+.sheet-table th.col-day.is-today {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.sheet-table th.col-total,
+.sheet-table td.col-total {
+    min-width: 56px;
+    font-weight: 700;
+    padding: 4px 5px;
+    background: #fafafa;
+}
+
+.sheet-table th.col-fee,
+.sheet-table td.col-fee {
+    min-width: 72px;
+    padding: 4px 6px;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.sheet-table th.col-amount,
+.sheet-table td.col-amount {
+    min-width: 88px;
+    padding: 4px 6px;
+    text-align: right;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.sheet-table tbody tr:hover td {
+    background: #f8fafc;
+}
+
+.sheet-mark {
+    display: inline-block;
+    font-weight: 800;
+    font-size: 13px;
+    line-height: 1;
+}
+
+.sheet-mark--present { color: #15803d; }
+.sheet-mark--excused { color: #0369a1; }
+.sheet-mark--unexcused { color: #dc2626; }
+.sheet-mark--late { color: #d97706; }
+.sheet-mark--planned { color: #6b7280; }
+
+.sheet-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+    font-size: 12.5px;
+    color: #374151;
+}
+
+.sheet-legend__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.sheet-legend__spacer {
+    flex: 1 1 auto;
+}
+
+.sheet-legend__summary {
+    font-weight: 600;
+    color: #111827;
+}
+
+@media (max-width: 1199.98px) {
+    .sheet-controls__grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 767.98px) {
+    .sheet-controls {
+        padding: 12px;
+    }
+
+    .sheet-controls__grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px 10px;
+    }
+
+    .sheet-paper {
+        padding: 12px 10px;
+    }
+
+    .sheet-paper__title {
+        font-size: 16px;
+    }
+
+    .sheet-meta {
+        grid-template-columns: 1fr 1fr;
+        font-size: 12px;
+    }
+
+    .sheet-meta__cell {
+        padding: 5px 7px;
+        border-bottom: 1px solid #374151;
+    }
+
+    .sheet-swipe-hint {
+        display: block;
+        font-size: 11.5px;
+        color: var(--hk-muted);
+        padding: 6px 2px 4px;
+    }
+
+    /* Cố định cột STT + Họ tên bên trái khi vuốt ngang ngày 1..31 */
+    .sheet-table th.col-stt,
+    .sheet-table td.col-stt {
+        position: sticky;
+        left: 0;
+        z-index: 2;
+        width: 28px;
+        min-width: 28px;
+        background: #fff;
+    }
+
+    .sheet-table thead th.col-stt {
+        z-index: 4;
+        background: #f3f4f6;
+    }
+
+    .sheet-table th.col-name,
+    .sheet-table td.col-name {
+        position: sticky;
+        left: 28px;
+        z-index: 2;
+        min-width: 118px;
+        max-width: 138px;
+        background: #fff;
+        box-shadow: 2px 0 6px rgba(15, 23, 42, 0.08);
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .sheet-table thead th.col-name {
+        z-index: 4;
+        background: #f3f4f6;
+    }
+
+    .sheet-table th.col-day,
+    .sheet-table td.col-day {
+        width: 26px;
+        min-width: 26px;
+    }
+}
+
+@media print {
+    @page {
+        size: A4 landscape;
+        margin: 6mm;
+    }
+
+    html,
+    body {
+        background: #fff !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    .sidebar,
+    .topbar,
+    .app-footer,
+    .no-print,
+    .toast-container {
+        display: none !important;
+    }
+
+    .app-shell,
+    .app-main,
+    .app-content,
+    .page-stack {
+        display: block !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        max-width: none !important;
+        width: 100% !important;
+        min-height: auto !important;
+        overflow: visible !important;
+    }
+
+    .sheet-paper {
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        overflow: visible !important;
+    }
+
+    .sheet-paper__head {
+        margin-bottom: 6px;
+    }
+
+    .sheet-paper__org {
+        font-size: 8.5pt;
+        color: #111827 !important;
+    }
+
+    .sheet-paper__title {
+        font-size: 13pt;
+    }
+
+    .sheet-meta {
+        font-size: 8.5pt;
+        border-color: #111827 !important;
+        background: #f9fafb !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .sheet-meta__cell {
+        padding: 4px 6px;
+        border-color: #111827 !important;
+    }
+
+    .sheet-table-wrap {
+        overflow: visible !important;
+        border-color: #111827 !important;
+    }
+
+    .sheet-table {
+        width: 100%;
+        table-layout: fixed;
+        font-size: 8pt;
+    }
+
+    .sheet-table thead {
+        display: table-header-group;
+    }
+
+    .sheet-table tbody tr {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .sheet-table th,
+    .sheet-table td {
+        padding: 2.5px 1.5px;
+        border-color: #111827 !important;
+    }
+
+    .sheet-table thead th {
+        font-size: 7.5pt;
+        padding: 4px 1.5px;
+        background: #f3f4f6 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .sheet-table th.col-stt,
+    .sheet-table td.col-stt {
+        position: static !important;
+        width: 6mm;
+        min-width: 0;
+    }
+
+    .sheet-table th.col-name,
+    .sheet-table td.col-name {
+        position: static !important;
+        box-shadow: none !important;
+        width: 38mm;
+        min-width: 0;
+        max-width: none;
+        padding: 2.5px 4px;
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    .sheet-student-sub {
+        font-size: 6.5pt;
+    }
+
+    .sheet-table th.col-phone,
+    .sheet-table td.col-phone {
+        width: 21mm;
+        min-width: 0;
+        padding: 2.5px 2px;
+        font-size: 7pt;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .sheet-table th.col-day,
+    .sheet-table td.col-day {
+        width: auto;
+        min-width: 0;
+        padding: 2.5px 0;
+    }
+
+    .sheet-table th.col-total,
+    .sheet-table td.col-total {
+        width: 14mm;
+        min-width: 0;
+    }
+
+    .sheet-table th.col-fee,
+    .sheet-table td.col-fee {
+        width: 18mm;
+        min-width: 0;
+        font-size: 7.2pt;
+    }
+
+    .sheet-table th.col-amount,
+    .sheet-table td.col-amount {
+        width: 22mm;
+        min-width: 0;
+        font-size: 7.2pt;
+    }
+
+    .sheet-table th.col-day.is-sunday,
+    .sheet-table td.col-day.is-sunday {
+        background: #f3f4f6 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .sheet-table th.col-day.is-today {
+        background: #f3f4f6 !important;
+        color: #111827 !important;
+    }
+
+    .sheet-mark {
+        font-size: 8.5pt;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .sheet-legend {
+        margin-top: 6px;
+        font-size: 8pt;
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+}

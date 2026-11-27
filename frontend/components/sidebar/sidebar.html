@@ -57,3 +57,26 @@
         </div>
     </div>
 </aside>
+
+<nav class="mobile-nav no-print" aria-label="Điều hướng nhanh trên điện thoại">
+    <a class="mobile-nav__item" data-mobile-nav="dashboard" href="../../../pages/dashboard/overview/">
+        <i class="bi bi-grid-1x2-fill"></i>
+        <span>Tổng quan</span>
+    </a>
+    <a class="mobile-nav__item" data-mobile-nav="attendance" data-permission="attendance.view" href="../../../pages/attendance/today/">
+        <i class="bi bi-check2-square"></i>
+        <span>Điểm danh</span>
+    </a>
+    <a class="mobile-nav__item" data-mobile-nav="attendance-sheet" data-permission="attendance.view" href="../../../pages/attendance/sheet/">
+        <i class="bi bi-table"></i>
+        <span>Phiếu tháng</span>
+    </a>
+    <a class="mobile-nav__item" data-mobile-nav="students" data-permission="students.view" href="../../../pages/students/list/">
+        <i class="bi bi-people-fill"></i>
+        <span>Học viên</span>
+    </a>
+    <button type="button" class="mobile-nav__item" data-action="open-sidebar" aria-label="Mở menu đầy đủ">
+        <i class="bi bi-list"></i>
+        <span>Menu</span>
+    </button>
+</nav>

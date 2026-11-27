@@ -1,6 +1,7 @@
 // Bootstrap chung cho các trang nội bộ
 import { bootLayout } from './core/layout.js';
 import { requireAuth, redirectToLogin, applyPermissionGuards } from './core/auth.js';
+import { startIdleGuard } from './core/idle-guard.js';
 import { consumeFlash } from './core/flash.js';
 import { initFriendlyLinks } from './core/links.js';
 import { showToast } from '../../components/toast/toast.js';
@@ -9,16 +10,16 @@ let redirecting = false;
 
 initFriendlyLinks();
 
-window.addEventListener('hk:session-expired', () => {
+window.addEventListener('hk:session-expired', (event) => {
     if (redirecting || (document.body.dataset.auth || 'required') !== 'required') {
         return;
     }
     redirecting = true;
-    sessionStorage.setItem('hk_flash', JSON.stringify({
-        message: 'Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.',
-        type: 'warning'
-    }));
-    redirectToLogin();
+    const serverMsg = event?.detail?.message;
+    const notice = serverMsg
+        ? `${serverMsg} (Nếu cô đang tích điểm danh, bản nháp vẫn được giữ trên máy.)`
+        : 'Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại. Các mục điểm danh chưa lưu vẫn được giữ nháp trên máy.';
+    redirectToLogin({ rememberNext: true, notice, tone: 'warning' });
 });
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -33,6 +34,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         await bootLayout();
         if (mode === 'required') {
             applyPermissionGuards();
+            startIdleGuard();
         }
         document.dispatchEvent(new Event('hk:ready'));
 

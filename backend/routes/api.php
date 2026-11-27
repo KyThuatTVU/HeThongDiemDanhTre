@@ -21,10 +21,11 @@ use App\Core\Router;
 
 $router->get('/api/health', [SystemController::class, 'health']);
 $router->get('/api/auth/csrf', [AuthController::class, 'csrf']);
-$router->post('/api/auth/login', [AuthController::class, 'login'], ['throttle:login', 'csrf']);
+$router->post('/api/auth/login', [AuthController::class, 'login'], ['csrf', 'throttle:login']);
 $router->get('/api/auth/google-url', [AuthController::class, 'googleUrl']);
 
 $router->get('/api/auth/me', [AuthController::class, 'me'], ['auth']);
+$router->get('/api/auth/ping', [AuthController::class, 'ping'], ['auth']);
 $router->post('/api/auth/logout', [AuthController::class, 'logout'], ['csrf', 'auth']);
 $router->post('/api/auth/select-branch', [AuthController::class, 'selectBranch'], ['csrf', 'auth', 'branch']);
 
@@ -71,7 +72,10 @@ $router->get('/api/attendance/board', [AttendanceController::class, 'board'], ['
 $router->post('/api/attendance/save', [AttendanceController::class, 'save'], ['csrf', 'auth', 'branch', 'permission:attendance.save']);
 $router->post('/api/attendance/sessions/{id}/lock', [AttendanceController::class, 'lock'], ['csrf', 'auth', 'branch', 'permission:attendance.lock']);
 $router->post('/api/attendance/sessions/{id}/unlock', [AttendanceController::class, 'unlock'], ['csrf', 'auth', 'branch', 'permission:attendance.lock']);
+$router->post('/api/attendance/lock-day', [AttendanceController::class, 'lockDay'], ['csrf', 'auth', 'branch', 'permission:attendance.lock']);
+$router->post('/api/attendance/unlock-day', [AttendanceController::class, 'unlockDay'], ['csrf', 'auth', 'branch', 'permission:attendance.lock']);
 $router->get('/api/attendance/history', [AttendanceController::class, 'history'], ['auth', 'branch', 'permission:attendance.view']);
+$router->get('/api/attendance/monthly-sheet', [AttendanceController::class, 'monthlySheet'], ['auth', 'branch', 'permission:attendance.view']);
 
 $router->get('/api/tuition', [TuitionController::class, 'index'], ['auth', 'branch', 'permission:tuition.view']);
 $router->post('/api/tuition/generate', [TuitionController::class, 'generate'], ['csrf', 'auth', 'branch', 'permission:tuition.generate']);

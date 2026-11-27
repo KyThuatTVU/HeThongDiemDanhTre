@@ -92,3 +92,13 @@
         transform: translateY(0);
     }
 }
+
+@media (max-width: 991.98px) {
+    .hk-toast-host {
+        top: calc(var(--hk-topbar-h, 72px) + 8px);
+        bottom: auto;
+        left: 12px;
+        right: 12px;
+        max-width: none;
+    }
+}

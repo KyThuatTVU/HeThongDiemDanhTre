@@ -10,17 +10,42 @@ final class AttendanceRepository extends Repository
 {
     protected string $table = 'attendance';
 
-    public function findSession(int $classId, string $sessionDate, string $slotName): ?AttendanceSession
+    public function findSession(int $branchId, ?int $classId, string $sessionDate, string $slotName): ?AttendanceSession
     {
-        $row = $this->fetchOne(
+        if ($classId === null) {
+            $row = $this->fetchOne(
+                'SELECT s.*, c.name AS class_name, b.name AS branch_name
+                 FROM attendance_sessions s
+                 LEFT JOIN classes c ON c.id = s.class_id
+                 JOIN branches b ON b.id = s.branch_id
+                 WHERE s.branch_id = ? AND s.class_id IS NULL AND s.session_date = ? AND s.slot_name = ? LIMIT 1',
+                [$branchId, $sessionDate, $slotName]
+            );
+        } else {
+            $row = $this->fetchOne(
+                'SELECT s.*, c.name AS class_name, b.name AS branch_name
+                 FROM attendance_sessions s
+                 LEFT JOIN classes c ON c.id = s.class_id
+                 JOIN branches b ON b.id = s.branch_id
+                 WHERE s.branch_id = ? AND s.class_id = ? AND s.session_date = ? AND s.slot_name = ? LIMIT 1',
+                [$branchId, $classId, $sessionDate, $slotName]
+            );
+        }
+        return $row === null ? null : AttendanceSession::from($row);
+    }
+
+    public function sessionsForBranchDate(int $branchId, string $sessionDate, string $slotName): array
+    {
+        $rows = $this->fetchAll(
             'SELECT s.*, c.name AS class_name, b.name AS branch_name
              FROM attendance_sessions s
-             JOIN classes c ON c.id = s.class_id
+             LEFT JOIN classes c ON c.id = s.class_id
              JOIN branches b ON b.id = s.branch_id
-             WHERE s.class_id = ? AND s.session_date = ? AND s.slot_name = ? LIMIT 1',
-            [$classId, $sessionDate, $slotName]
+             WHERE s.branch_id = ? AND s.session_date = ? AND s.slot_name = ?
+             ORDER BY (s.class_id IS NULL) ASC, c.name ASC, s.id ASC',
+            [$branchId, $sessionDate, $slotName]
         );
-        return $row === null ? null : AttendanceSession::from($row);
+        return array_map(static fn (array $row): AttendanceSession => AttendanceSession::from($row), $rows);
     }
 
     public function sessionById(int $id): ?AttendanceSession
@@ -28,7 +53,7 @@ final class AttendanceRepository extends Repository
         $row = $this->fetchOne(
             'SELECT s.*, c.name AS class_name, b.name AS branch_name
              FROM attendance_sessions s
-             JOIN classes c ON c.id = s.class_id
+             LEFT JOIN classes c ON c.id = s.class_id
              JOIN branches b ON b.id = s.branch_id
              WHERE s.id = ? LIMIT 1',
             [$id]
@@ -36,15 +61,17 @@ final class AttendanceRepository extends Repository
         return $row === null ? null : AttendanceSession::from($row);
     }
 
-    public function createSession(int $branchId, int $classId, string $sessionDate, string $slotName, int $userId): int
+    public function createSession(int $branchId, ?int $classId, string $sessionDate, string $slotName, int $userId): int
     {
-        return $this->insert([
-            'branch_id' => $branchId,
-            'class_id' => $classId,
-            'session_date' => $sessionDate,
-            'slot_name' => $slotName,
-            'created_by' => $userId,
-        ]);
+        // An toàn khi 2 cô bấm Lưu điểm danh cùng lúc cho cùng lớp/ngày:
+        // nếu phiên đã vừa được tạo song song thì tái sử dụng ID thay vì báo lỗi trùng khoá (500).
+        $this->execute(
+            'INSERT INTO attendance_sessions (branch_id, class_id, session_date, slot_name, created_by)
+             VALUES (?, ?, ?, ?, ?)
+             ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id)',
+            [$branchId, $classId, $sessionDate, $slotName, $userId]
+        );
+        return (int) $this->db()->lastInsertId();
     }
 
     public function recordsForSession(int $sessionId): array
@@ -57,6 +84,57 @@ final class AttendanceRepository extends Repository
             [$sessionId]
         );
         return array_map(static fn (array $row): Attendance => Attendance::from($row), $rows);
+    }
+
+    public function recordsForBranchDate(int $branchId, string $sessionDate, string $slotName): array
+    {
+        $rows = $this->fetchAll(
+            'SELECT a.*, st.student_code, st.full_name, s.is_locked AS session_is_locked, s.class_id AS session_class_id
+             FROM attendance a
+             JOIN attendance_sessions s ON s.id = a.attendance_session_id
+             JOIN students st ON st.id = a.student_id
+             WHERE s.branch_id = ? AND s.session_date = ? AND s.slot_name = ?
+             ORDER BY a.updated_at ASC, a.id ASC',
+            [$branchId, $sessionDate, $slotName]
+        );
+        return array_map(static fn (array $row): Attendance => Attendance::from($row), $rows);
+    }
+
+    public function deleteForStudentOnDate(int $branchId, int $studentId, string $sessionDate, string $slotName): void
+    {
+        $this->execute(
+            'DELETE a FROM attendance a
+             JOIN attendance_sessions s ON s.id = a.attendance_session_id
+             WHERE s.branch_id = ? AND a.student_id = ? AND s.session_date = ? AND s.slot_name = ?',
+            [$branchId, $studentId, $sessionDate, $slotName]
+        );
+    }
+
+    public function monthlyRecordsForBranch(int $branchId, string $dateFrom, string $dateTo): array
+    {
+        return $this->fetchAll(
+            'SELECT a.student_id, a.status, a.note, s.session_date, s.slot_name
+             FROM attendance a
+             JOIN attendance_sessions s ON s.id = a.attendance_session_id
+             WHERE s.branch_id = ? AND s.session_date BETWEEN ? AND ?
+             ORDER BY s.session_date ASC, a.updated_at ASC, a.id ASC',
+            [$branchId, $dateFrom, $dateTo]
+        );
+    }
+
+    public function monthlyTuitionByBranch(int $branchId, int $year, int $month): array
+    {
+        $rows = $this->fetchAll(
+            'SELECT student_id, base_amount, final_amount, paid_amount, status
+             FROM tuition_records
+             WHERE branch_id = ? AND period_year = ? AND period_month = ?',
+            [$branchId, $year, $month]
+        );
+        $map = [];
+        foreach ($rows as $row) {
+            $map[(int) $row['student_id']] = $row;
+        }
+        return $map;
     }
 
     public function upsert(int $sessionId, int $studentId, string $status, ?string $note, int $userId): void
@@ -80,11 +158,23 @@ final class AttendanceRepository extends Repository
         );
     }
 
+    public function setLockForBranchDate(int $branchId, string $sessionDate, string $slotName, bool $locked, int $userId): int
+    {
+        return $this->execute(
+            'UPDATE attendance_sessions
+             SET is_locked = ?, locked_at = ' . ($locked ? 'NOW()' : 'NULL') . ', locked_by = ?
+             WHERE branch_id = ? AND session_date = ? AND slot_name = ?',
+            [$locked ? 1 : 0, $userId, $branchId, $sessionDate, $slotName]
+        );
+    }
+
     public function history(array $filters, int $page, int $perPage): array
     {
         $where = ['s.branch_id = ?'];
         $params = [(int) $filters['branch_id']];
-        if (!empty($filters['class_id'])) {
+        if (($filters['class_id'] ?? null) === 'unassigned') {
+            $where[] = 's.class_id IS NULL';
+        } elseif (!empty($filters['class_id'])) {
             $where[] = 's.class_id = ?';
             $params[] = (int) $filters['class_id'];
         }
@@ -115,11 +205,11 @@ final class AttendanceRepository extends Repository
                     u.full_name AS recorded_by_name
              FROM attendance a
              JOIN attendance_sessions s ON s.id = a.attendance_session_id
-             JOIN classes c ON c.id = s.class_id
+             LEFT JOIN classes c ON c.id = s.class_id
              JOIN students st ON st.id = a.student_id
              LEFT JOIN users u ON u.id = a.recorded_by'
              . $whereSql .
-            ' ORDER BY s.session_date DESC, c.name, st.full_name LIMIT ' . $perPage . ' OFFSET ' . $offset,
+            " ORDER BY s.session_date DESC, COALESCE(c.name, 'Chưa xếp lớp'), st.full_name LIMIT " . $perPage . ' OFFSET ' . $offset,
             $params
         );
         return ['items' => $rows, 'total' => $total];

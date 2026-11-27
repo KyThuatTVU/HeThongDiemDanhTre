@@ -57,6 +57,7 @@
     /* Chrome */
     --hk-sidebar-w: 264px;
     --hk-topbar-h: 72px;
+    --hk-mobile-nav-h: 62px;
     --hk-content-max: 1280px;
 
     /* Bootstrap bindings */

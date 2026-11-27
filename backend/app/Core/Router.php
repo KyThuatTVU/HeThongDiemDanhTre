@@ -89,10 +89,22 @@ final class Router
         }
     }
 
+    private const SESSION_WRITING_GET_PATHS = [
+        '/api/auth/csrf',
+        '/api/auth/google-url',
+        '/auth/google/redirect',
+        '/auth/google/callback',
+    ];
+
     private function run(array $route, Request $request): void
     {
         [$class, $method] = $route['handler'];
         $core = function () use ($class, $method, $request): void {
+            // Giải phóng khoá file session sớm trên các request GET chỉ đọc
+            // để tránh nghẽn cổ chai Apache/PHP khi tải đồng thời nhiều API và ảnh.
+            if ($request->method() === 'GET' && !in_array($request->path(), self::SESSION_WRITING_GET_PATHS, true)) {
+                Session::release();
+            }
             if (!class_exists($class)) {
                 throw new HttpException(500, 'Controller không tồn tại: ' . $class);
             }

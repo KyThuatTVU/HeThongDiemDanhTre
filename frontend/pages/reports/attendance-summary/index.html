@@ -21,7 +21,13 @@
         <div data-component="page-header"
              data-title="Tổng hợp điểm danh tháng"
              data-subtitle="Thống kê số buổi có mặt, vắng và tỉ lệ điểm danh từng học viên"
-             data-breadcrumb='[{"label":"Báo cáo"},{"label":"Tổng hợp tháng"}]'></div>
+             data-breadcrumb='[{"label":"Báo cáo"},{"label":"Tổng hợp tháng"}]'>
+            <template data-slot="actions">
+                <a class="btn-hk" href="../../attendance/sheet/" data-permission="attendance.view">
+                    <i class="bi bi-table me-1"></i>Xem phiếu điểm danh (1–31)
+                </a>
+            </template>
+        </div>
 
         <div data-component="report-tabs" data-active="attendance-summary"></div>
 

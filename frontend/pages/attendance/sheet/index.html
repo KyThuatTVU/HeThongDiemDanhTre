@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Phiếu điểm danh tháng · HappyKidsCK</title>
+    <link rel="icon" href="../../../assets/img/brand/logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap-icons/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../../../assets/css/base/typography.css">
+    <link rel="stylesheet" href="../../../assets/css/base/tokens.css">
+    <link rel="stylesheet" href="../../../assets/css/base/reset.css">
+    <link rel="stylesheet" href="../../../assets/css/base/ui.css">
+    <link rel="stylesheet" href="../../../assets/css/layout/app.css">
+    <link rel="stylesheet" href="../../../assets/css/pages/attendance/sheet.css?v=20261127-10">
+    <script src="../../../assets/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
+    <script type="module" src="../../../assets/js/app.js?v=20261127-10"></script>
+    <script type="module" src="../../../assets/js/pages/attendance/sheet.js?v=20261127-10"></script>
+</head>
+<body data-auth="required" data-layout="dashboard" data-page="attendance">
+    <div class="page-stack">
+        <div class="no-print"
+             data-component="page-header"
+             data-title="Phiếu điểm danh tháng"
+             data-subtitle="Bảng điểm danh tổng hợp theo ngày (1–31), sẵn sàng tải ảnh nguyên bảng hoặc in PDF A4 ngang"
+             data-breadcrumb='[{"label":"Điểm danh","href":"../today/"},{"label":"Phiếu điểm danh tháng"}]'>
+            <template data-slot="actions">
+                <a class="btn-hk-outline" href="../today/" data-permission="attendance.view">
+                    <i class="bi bi-check2-square me-1"></i>Điểm danh
+                </a>
+                <button type="button" class="btn-hk-outline" data-sheet-fit aria-pressed="false"
+                        title="Thu gọn để xem trọn phiếu điểm danh trên 1 màn hình">
+                    <i class="bi bi-arrows-angle-contract me-1"></i><span>Xem gọn</span>
+                </button>
+                <button type="button" class="btn-hk-outline" data-sheet-png>
+                    <i class="bi bi-image me-1"></i>Tải ảnh PNG
+                </button>
+                <button type="button" class="btn-hk" data-sheet-print>
+                    <i class="bi bi-printer me-1"></i>In / Lưu PDF
+                </button>
+            </template>
+        </div>
+
+        <div class="sheet-class-tabs no-print" data-sheet-class-tabs hidden></div>
+
+        <div class="card card-pad sheet-controls no-print">
+            <div class="sheet-controls__grid">
+                <div class="hk-field">
+                    <label class="form-label" for="sheet-month">Tháng</label>
+                    <select class="form-select" id="sheet-month" data-sheet-month></select>
+                </div>
+                <div class="hk-field">
+                    <label class="form-label" for="sheet-year">Năm</label>
+                    <select class="form-select" id="sheet-year" data-sheet-year></select>
+                </div>
+                <div class="hk-field">
+                    <label class="form-label" for="sheet-class">Lọc lớp</label>
+                    <select class="form-select" id="sheet-class" data-sheet-class>
+                        <option value="">Tất cả học viên</option>
+                    </select>
+                </div>
+                <div class="hk-field">
+                    <label class="form-label" for="sheet-teacher">Giáo viên (ghi lên phiếu)</label>
+                    <input class="form-control" id="sheet-teacher" type="text" placeholder="Nhập tên giáo viên..."
+                           data-sheet-teacher autocomplete="off">
+                </div>
+                <div class="hk-field">
+                    <label class="form-label" for="sheet-assistant">Trợ giảng (ghi lên phiếu)</label>
+                    <input class="form-control" id="sheet-assistant" type="text" placeholder="Nhập tên trợ giảng..."
+                           data-sheet-assistant autocomplete="off">
+                </div>
+                <div class="hk-field">
+                    <label class="form-label" for="sheet-fee-per-day">Học phí / buổi (đ)</label>
+                    <input class="form-control" id="sheet-fee-per-day" type="number" min="0" step="1000"
+                           placeholder="Tuỳ chọn..." data-sheet-fee-per-day>
+                </div>
+            </div>
+        </div>
+
+        <section class="sheet-paper card" data-sheet-paper>
+            <div class="sheet-paper__head">
+                <p class="sheet-paper__org" data-sheet-org>TRUNG TÂM HAPPYKIDSCK</p>
+                <h2 class="sheet-paper__title" data-sheet-title>BẢNG ĐIỂM DANH HỌC VIÊN</h2>
+            </div>
+
+            <div class="sheet-meta">
+                <div class="sheet-meta__cell sheet-meta__cell--wide">
+                    <span class="sheet-meta__label">Lớp / Cơ sở:</span>
+                    <strong data-meta-class>—</strong>
+                </div>
+                <div class="sheet-meta__cell">
+                    <span class="sheet-meta__label">Tháng:</span>
+                    <strong data-meta-month>—</strong>
+                </div>
+                <div class="sheet-meta__cell">
+                    <span class="sheet-meta__label">Giáo viên:</span>
+                    <strong data-meta-teacher>&nbsp;</strong>
+                </div>
+                <div class="sheet-meta__cell">
+                    <span class="sheet-meta__label">Trợ giảng:</span>
+                    <strong data-meta-assistant>&nbsp;</strong>
+                </div>
+            </div>
+
+            <div class="sheet-swipe-hint no-print">
+                <i class="bi bi-arrows-expand-vertical me-1" style="transform:rotate(90deg);display:inline-block"></i>Vuốt ngang bảng để xem các ngày 1–31 (tên học sinh tự giữ cố định bên trái)
+            </div>
+
+            <div class="sheet-table-wrap" data-sheet-table-wrap>
+                <div class="sheet-state">
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Đang tải phiếu điểm danh tháng...
+                </div>
+            </div>
+
+            <div class="sheet-legend">
+                <strong>Ghi chú:</strong>
+                <span class="sheet-legend__item"><span class="sheet-mark sheet-mark--present">✓</span> Có mặt</span>
+                <span class="sheet-legend__item"><span class="sheet-mark sheet-mark--excused">P</span> Có phép</span>
+                <span class="sheet-legend__item"><span class="sheet-mark sheet-mark--unexcused">K</span> Không phép</span>
+                <span class="sheet-legend__item"><span class="sheet-mark sheet-mark--late">M</span> Muộn</span>
+                <span class="sheet-legend__item"><span class="sheet-mark sheet-mark--planned">N</span> Nghỉ báo trước</span>
+                <span class="sheet-legend__spacer"></span>
+                <span class="sheet-legend__summary" data-sheet-summary></span>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

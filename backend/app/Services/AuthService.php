@@ -132,6 +132,7 @@ final class AuthService
         Session::set('user_id', (int) $user->id);
         Session::set('role_key', (string) $user->role_key);
         Session::set('password_fingerprint', hash('sha256', (string) $user->password_hash));
+        Session::set('last_activity', time());
 
         $branchIds = (string) $user->role_key === 'super_admin'
             ? $this->branches->ids()
@@ -185,6 +186,7 @@ final class AuthService
                 'logo_path' => $branch->logo_path,
             ], $branches),
             'current_branch_id' => Session::get('current_branch_id'),
+            'idle_timeout_minutes' => max(5, (int) Config::get('auth.session.idle_minutes', 30)),
             'google_login_enabled' => $this->googleLoginEnabled(),
             'csrf_token' => Session::csrfToken(),
         ];

@@ -1,7 +1,7 @@
 import { session, logout, selectBranch, currentBranch } from '../../assets/js/core/auth.js';
 import { fileUrl } from '../../assets/js/core/config.js';
 import { labels, initials, weekdayLabel, todayIso } from '../../assets/js/core/format.js';
-import { qs, escapeHtml } from '../../assets/js/core/dom.js';
+import { qs, qsa, escapeHtml } from '../../assets/js/core/dom.js';
 import { showToast } from '../toast/toast.js';
 
 function greetingText() {
@@ -69,11 +69,52 @@ export function init(root) {
         });
     }
 
-    qs('[data-action="toggle-sidebar"]', root)?.addEventListener('click', () => {
-        document.querySelector('.app-shell')?.classList.toggle('sidebar-open');
+    const shell = document.querySelector('.app-shell');
+    const toggleBtn = qs('[data-action="toggle-sidebar"]', root);
+    const toggleIcon = qs('[data-sidebar-toggle-icon]', root);
+    const SIDEBAR_KEY = 'hk_sidebar_collapsed';
+
+    function syncSidebarToggleUi() {
+        const isDesktop = window.innerWidth >= 992;
+        const collapsed = Boolean(shell?.classList.contains('sidebar-collapsed'));
+        if (toggleIcon) {
+            toggleIcon.className = isDesktop
+                ? (collapsed ? 'bi bi-layout-sidebar' : 'bi bi-layout-sidebar-inset')
+                : 'bi bi-list';
+        }
+        if (toggleBtn) {
+            const label = isDesktop
+                ? (collapsed ? 'Mở thanh menu' : 'Thu gọn thanh menu để xem rộng hơn')
+                : 'Mở menu';
+            toggleBtn.title = label;
+            toggleBtn.setAttribute('aria-label', label);
+            toggleBtn.setAttribute('aria-expanded', isDesktop ? String(!collapsed) : String(Boolean(shell?.classList.contains('sidebar-open'))));
+        }
+    }
+
+    if (shell && localStorage.getItem(SIDEBAR_KEY) === '1') {
+        shell.classList.add('sidebar-collapsed');
+    }
+    syncSidebarToggleUi();
+
+    toggleBtn?.addEventListener('click', () => {
+        if (!shell) {
+            return;
+        }
+        if (window.innerWidth >= 992) {
+            const collapsed = shell.classList.toggle('sidebar-collapsed');
+            localStorage.setItem(SIDEBAR_KEY, collapsed ? '1' : '0');
+        } else {
+            shell.classList.toggle('sidebar-open');
+        }
+        syncSidebarToggleUi();
     });
 
-    qs('[data-action="logout"]', root)?.addEventListener('click', () => {
-        logout();
+    window.addEventListener('resize', syncSidebarToggleUi);
+
+    qsa('[data-action="logout"]', root).forEach((btn) => {
+        btn.addEventListener('click', () => {
+            logout();
+        });
     });
 }

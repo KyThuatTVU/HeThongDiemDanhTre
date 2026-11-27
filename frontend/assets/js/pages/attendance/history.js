@@ -39,7 +39,12 @@ const table = createTable(qs('[data-history-table]'), {
             render: (row) => `<span class="d-block">${escapeHtml(date(row.session_date))}</span>
                 <span class="fs-13 text-muted-2">${escapeHtml(weekdayLabel(row.session_date))}</span>`
         },
-        { label: 'Lớp', render: (row) => escapeHtml(row.class_name) },
+        {
+            label: 'Lớp',
+            render: (row) => row.class_name
+                ? escapeHtml(row.class_name)
+                : '<span class="text-muted-2">Chưa xếp lớp</span>'
+        },
         {
             label: 'Học viên',
             render: (row) => `<span class="d-block">${escapeHtml(row.full_name)}</span>
@@ -71,6 +76,7 @@ async function loadClasses() {
             select.insertAdjacentHTML('beforeend',
                 `<option value="${item.id}">${escapeHtml(item.name)}${item.status === 'inactive' ? ' (ngừng)' : ''}</option>`);
         });
+        select.insertAdjacentHTML('beforeend', '<option value="unassigned">Chưa xếp lớp</option>');
     } catch {
         select.innerHTML = '<option value="">Tất cả lớp</option>';
     }

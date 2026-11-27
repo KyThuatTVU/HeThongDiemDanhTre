@@ -12,6 +12,7 @@ return [
     'session' => [
         'name' => Env::get('SESSION_NAME', 'happykidsck_session'),
         'lifetime' => Env::int('SESSION_LIFETIME', 120),
+        'idle_minutes' => Env::int('SESSION_IDLE_MINUTES', 30),
         'secure' => Env::bool('SESSION_SECURE', false),
         'http_only' => Env::bool('SESSION_HTTP_ONLY', true),
         'same_site' => Env::get('SESSION_SAME_SITE', 'Lax'),

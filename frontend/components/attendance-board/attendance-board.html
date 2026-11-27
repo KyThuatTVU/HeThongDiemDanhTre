@@ -1,10 +1,26 @@
-<section class="att-board">
+<section class="att-board" data-att-board>
+    <div class="att-class-tabs" data-att-class-tabs hidden></div>
+
     <div class="card card-pad att-filters">
-        <div class="att-filters__grid">
+        <div class="att-filters__top">
+            <div class="att-field att-field--search">
+                <label class="form-label" for="att-search">Tìm nhanh học viên</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent"><i class="bi bi-search"></i></span>
+                    <input class="form-control" id="att-search" type="search"
+                           placeholder="Nhập tên hoặc mã học viên..." data-att-search autocomplete="off">
+                </div>
+            </div>
+            <button type="button" class="btn-hk-outline att-filter-toggle" data-att-filter-toggle aria-expanded="false">
+                <i class="bi bi-sliders2 me-1"></i>Lọc
+            </button>
+        </div>
+
+        <div class="att-filters__extras" data-att-filter-extras>
             <div class="att-field att-field--class">
-                <label class="form-label" for="att-class">Lớp học</label>
+                <label class="form-label" for="att-class">Lọc theo lớp</label>
                 <select class="form-select" id="att-class" data-att-class>
-                    <option value="">Đang tải lớp...</option>
+                    <option value="">Tất cả học viên</option>
                 </select>
             </div>
             <div class="att-field">
@@ -17,14 +33,18 @@
                        placeholder="Chính" data-att-slot>
             </div>
             <div class="att-filters__actions">
-                <button type="button" class="btn-hk" data-att-load>
-                    <i class="bi bi-arrow-repeat me-1"></i>Xem sổ
+                <button type="button" class="btn-hk-outline" data-att-load title="Tải lại dữ liệu">
+                    <i class="bi bi-arrow-repeat"></i>
                 </button>
             </div>
         </div>
     </div>
 
     <div class="att-summary">
+        <div class="att-summary__item att-summary__item--total">
+            <span class="att-summary__label">Tổng</span>
+            <strong class="att-summary__value" data-att-total>0</strong>
+        </div>
         <div class="att-summary__item att-summary__item--present">
             <span class="att-summary__label">Có mặt</span>
             <strong class="att-summary__value" data-att-present>0</strong>
@@ -38,6 +58,10 @@
             <strong class="att-summary__value" data-att-unrecorded>0</strong>
         </div>
         <div class="att-summary__spacer"></div>
+        <button type="button" class="btn-hk-outline btn-sm att-compact-btn" data-att-compact aria-pressed="false"
+                title="Thu gọn để xem nhiều học viên trên 1 màn hình">
+            <i class="bi bi-arrows-angle-contract me-1"></i><span>Xem gọn</span>
+        </button>
         <div class="att-summary__status" data-att-lock-status></div>
         <div class="att-summary__buttons" data-att-lock-actions></div>
     </div>
@@ -47,7 +71,7 @@
     <div class="card table-card">
         <div class="table-card__head">
             <div>
-                <h2 class="table-card__title" data-att-title>Chọn lớp để xem sổ điểm danh</h2>
+                <h2 class="table-card__title" data-att-title>Đang tải danh sách điểm danh...</h2>
                 <p class="section-subtitle" data-att-subtitle hidden></p>
             </div>
             <div class="att-savebar" data-att-savebar>
@@ -60,5 +84,21 @@
             </div>
         </div>
         <div data-att-table></div>
+    </div>
+
+    <div class="att-mobile-bar" data-att-savebar>
+        <div class="att-mobile-bar__stats">
+            <span class="text-success">✓ <strong data-att-present>0</strong></span>
+            <span class="text-danger">Vắng <strong data-att-absent>0</strong></span>
+            <span class="text-muted-2">Chưa <strong data-att-unrecorded>0</strong></span>
+        </div>
+        <div class="att-mobile-bar__actions">
+            <button type="button" class="btn-hk-outline btn-sm" data-att-mark-all>
+                <i class="bi bi-check2-all me-1"></i>Đủ mặt
+            </button>
+            <button type="button" class="btn-hk btn-sm" data-att-save>
+                <i class="bi bi-save me-1"></i>Lưu
+            </button>
+        </div>
     </div>
 </section>

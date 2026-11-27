@@ -27,7 +27,9 @@ const table = createTable(qs('[data-report-table]'), {
         },
         {
             label: 'Lớp',
-            render: (row) => escapeHtml(row.class_name || '—')
+            render: (row) => row.class_name
+                ? escapeHtml(row.class_name)
+                : '<span class="text-muted-2">Chưa xếp lớp</span>'
         },
         {
             label: 'Học viên',

@@ -18,6 +18,7 @@ const PAGE_ROUTES = [
     'attendance' => 'attendance/today',
     'attendance-board' => 'attendance/board',
     'attendance-history' => 'attendance/history',
+    'attendance-sheet' => 'attendance/sheet',
     'tuition' => 'tuition/list',
     'tuition-board' => 'tuition/board',
     'tuition-detail' => 'tuition/detail',

@@ -158,6 +158,28 @@ final class StudentRepository extends Repository
         );
     }
 
+    public function activeForAttendance(int $branchId, int|string|null $classFilter = null): array
+    {
+        $where = ['s.branch_id = ?', "s.status = 'active'", 's.deleted_at IS NULL'];
+        $params = [$branchId];
+        if ($classFilter === 'unassigned') {
+            $where[] = 's.current_class_id IS NULL';
+        } elseif (is_int($classFilter) && $classFilter > 0) {
+            $where[] = 's.current_class_id = ?';
+            $params[] = $classFilter;
+        }
+        return $this->fetchAll(
+            'SELECT s.id, s.student_code, s.full_name, s.dob, s.gender, s.status,
+                    s.guardian_name, s.guardian_phone, s.monthly_fee, s.current_class_id,
+                    c.name AS class_name
+             FROM students s
+             LEFT JOIN classes c ON c.id = s.current_class_id
+             WHERE ' . implode(' AND ', $where) . '
+             ORDER BY (s.current_class_id IS NULL) ASC, c.name ASC, s.student_code ASC, s.full_name ASC',
+            $params
+        );
+    }
+
     public function autocomplete(int $branchId, string $keyword, int $limit = 10): array
     {
         $like = '%' . $keyword . '%';

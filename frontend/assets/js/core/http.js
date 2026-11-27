@@ -3,6 +3,15 @@ import { API_BASE } from './config.js';
 
 let csrfToken = null;
 let csrfPromise = null;
+let lastServerTouchAt = Date.now();
+
+export function getLastServerTouch() {
+    return lastServerTouchAt;
+}
+
+export function markServerTouched(ts = Date.now()) {
+    lastServerTouchAt = ts;
+}
 
 export class ApiError extends Error {
     constructor(message, status, errors = {}) {
@@ -86,15 +95,26 @@ async function request(method, path, options = {}) {
     }
 
     let response;
+    const controller = typeof AbortController === 'function' ? new AbortController() : null;
+    const timeoutMs = Number(options.timeoutMs || 20000);
+    const timer = controller ? window.setTimeout(() => controller.abort(), timeoutMs) : null;
     try {
         response = await fetch(url, {
             method,
             credentials: 'same-origin',
             headers,
-            body: payloadBody
+            body: payloadBody,
+            signal: controller?.signal
         });
-    } catch {
-        throw new ApiError('Không kết nối được máy chủ. Kiểm tra Apache/MySQL rồi thử lại.', 0);
+    } catch (error) {
+        if (error?.name === 'AbortError') {
+            throw new ApiError('Kết nối máy chủ quá chậm. Vui lòng kiểm tra mạng rồi thử lại.', 0);
+        }
+        throw new ApiError('Không kết nối được máy chủ. Kiểm tra mạng hoặc Apache/MySQL rồi thử lại.', 0);
+    } finally {
+        if (timer !== null) {
+            window.clearTimeout(timer);
+        }
     }
 
     if (response.status === 419 && !retried) {
@@ -106,7 +126,9 @@ async function request(method, path, options = {}) {
 
     if (!response.ok) {
         if (response.status === 401) {
-            window.dispatchEvent(new CustomEvent('hk:session-expired'));
+            window.dispatchEvent(new CustomEvent('hk:session-expired', {
+                detail: { message: payload?.message || '' }
+            }));
         }
         throw new ApiError(
             payload?.message || `Yêu cầu thất bại (HTTP ${response.status})`,
@@ -115,6 +137,7 @@ async function request(method, path, options = {}) {
         );
     }
 
+    lastServerTouchAt = Date.now();
     return payload;
 }
 

@@ -34,6 +34,7 @@ export const PAGE_ROUTES = {
     attendanceToday: { slug: 'attendance', dir: 'attendance/today' },
     attendanceBoard: { slug: 'attendance-board', dir: 'attendance/board' },
     attendanceHistory: { slug: 'attendance-history', dir: 'attendance/history' },
+    attendanceSheet: { slug: 'attendance-sheet', dir: 'attendance/sheet' },
     tuitionList: { slug: 'tuition', dir: 'tuition/list' },
     tuitionBoard: { slug: 'tuition-board', dir: 'tuition/board' },
     tuitionDetail: { slug: 'tuition-detail', dir: 'tuition/detail' },

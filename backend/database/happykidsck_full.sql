@@ -266,7 +266,8 @@ CREATE TABLE `student_branch_histories` (
 CREATE TABLE `attendance_sessions` (
   `id`           INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `branch_id`    INT UNSIGNED NOT NULL,
-  `class_id`     INT UNSIGNED NOT NULL,
+  `class_id`     INT UNSIGNED NULL COMMENT 'NULL = học viên chưa xếp lớp trong cơ sở',
+  `class_scope`  INT UNSIGNED AS (IFNULL(`class_id`, 0)) STORED,
   `session_date` DATE NOT NULL,
   `slot_name`    VARCHAR(50) NOT NULL DEFAULT 'Chính' COMMENT 'Tên ca/buổi (Chính, Sáng, Chiều, Tối...)',
   `is_locked`    TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1 = đã khoá sổ, không cho sửa',
@@ -276,7 +277,7 @@ CREATE TABLE `attendance_sessions` (
   `created_at`   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at`   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_sessions_class_date_slot` (`class_id`, `session_date`, `slot_name`),
+  UNIQUE KEY `uq_sessions_branch_class_date_slot` (`branch_id`, `class_scope`, `session_date`, `slot_name`),
   KEY `idx_sessions_branch_date` (`branch_id`, `session_date`),
   CONSTRAINT `fk_sessions_branch` FOREIGN KEY (`branch_id`) REFERENCES `branches` (`id`)
     ON DELETE RESTRICT ON UPDATE CASCADE,

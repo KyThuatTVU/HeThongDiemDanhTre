@@ -14,12 +14,13 @@ final class Session
         if (is_dir($savePath) && is_writable($savePath)) {
             session_save_path($savePath);
         }
+        $lifetimeSec = max(5, (int) ($config['lifetime'] ?? 120)) * 60;
         ini_set('session.use_strict_mode', '1');
         ini_set('session.use_only_cookies', '1');
-        ini_set('session.gc_maxlifetime', (string) max(1, (int) ($config['lifetime'] ?? 120) * 60));
+        ini_set('session.gc_maxlifetime', (string) $lifetimeSec);
         session_name((string) ($config['name'] ?? 'app_session'));
         session_set_cookie_params([
-            'lifetime' => max(0, (int) ($config['lifetime'] ?? 120)) * 60,
+            'lifetime' => $lifetimeSec,
             'path' => '/',
             'domain' => '',
             'secure' => (bool) ($config['secure'] ?? false),
@@ -27,6 +28,47 @@ final class Session
             'samesite' => (string) ($config['same_site'] ?? 'Lax'),
         ]);
         session_start();
+        if (is_dir($savePath)) {
+            self::maybeGc($savePath, $lifetimeSec);
+        }
+    }
+
+    public static function touchCookie(array $config): void
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE || headers_sent()) {
+            return;
+        }
+        $lifetimeSec = max(5, (int) ($config['lifetime'] ?? 120)) * 60;
+        setcookie(session_name(), session_id(), [
+            'expires' => time() + $lifetimeSec,
+            'path' => '/',
+            'domain' => '',
+            'secure' => (bool) ($config['secure'] ?? false),
+            'httponly' => (bool) ($config['http_only'] ?? true),
+            'samesite' => (string) ($config['same_site'] ?? 'Lax'),
+        ]);
+    }
+
+    private static function maybeGc(string $savePath, int $maxLifetimeSec): void
+    {
+        try {
+            if (random_int(1, 50) !== 1) {
+                return;
+            }
+        } catch (\Throwable) {
+            return;
+        }
+        $deadline = time() - max(1800, $maxLifetimeSec);
+        $files = glob(rtrim($savePath, '/\\') . '/sess_*') ?: [];
+        foreach (array_slice($files, 0, 120) as $file) {
+            if (!is_file($file)) {
+                continue;
+            }
+            $modified = @filemtime($file);
+            if ($modified !== false && $modified < $deadline) {
+                @unlink($file);
+            }
+        }
     }
 
     public static function get(string $key, mixed $default = null): mixed
@@ -53,6 +95,13 @@ final class Session
     {
         if (session_status() === PHP_SESSION_ACTIVE) {
             session_regenerate_id(true);
+        }
+    }
+
+    public static function release(): void
+    {
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
         }
     }
 

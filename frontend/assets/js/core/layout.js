@@ -2,11 +2,18 @@
 import { ROOT } from './config.js';
 import { qsa, injectCss } from './dom.js';
 
+const ASSET_VERSION = '20261127-12';
 const htmlCache = new Map();
+
+function versioned(path) {
+    const url = new URL(path, ROOT);
+    url.searchParams.set('v', ASSET_VERSION);
+    return url.href;
+}
 
 async function fetchText(url) {
     if (!htmlCache.has(url)) {
-        const response = await fetch(url, { credentials: 'same-origin' });
+        const response = await fetch(url, { credentials: 'same-origin', cache: 'no-cache' });
         if (!response.ok) {
             throw new Error(`Không tải được ${url} (HTTP ${response.status})`);
         }
@@ -24,7 +31,7 @@ async function mountComponent(placeholder) {
     const slotTemplates = Array.from(placeholder.children)
         .filter((child) => child.tagName === 'TEMPLATE' && child.dataset.slot);
 
-    const html = await fetchText(new URL(`components/${name}/${name}.html`, ROOT).href);
+    const html = await fetchText(versioned(`components/${name}/${name}.html`));
     const holder = document.createElement('div');
     holder.innerHTML = html.trim();
     const fragment = document.createDocumentFragment();
@@ -41,10 +48,10 @@ async function mountComponent(placeholder) {
     placeholder.dataset.mounted = 'true';
     placeholder.classList.add('hk-component-slot');
 
-    injectCss(new URL(`components/${name}/${name}.css`, ROOT).href, `component-${name}`);
+    injectCss(versioned(`components/${name}/${name}.css`), `component-${name}`);
 
     try {
-        const module = await import(new URL(`components/${name}/${name}.js`, ROOT).href);
+        const module = await import(versioned(`components/${name}/${name}.js`));
         if (typeof module.init === 'function') {
             await module.init(placeholder);
         }

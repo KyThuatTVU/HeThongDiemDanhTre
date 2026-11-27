@@ -17,6 +17,7 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    transition: margin-left 0.25s ease;
 }
 
 .app-content {
@@ -25,6 +26,17 @@
     max-width: var(--hk-content-max);
     margin: 0 auto;
     padding: 24px 28px 40px;
+    transition: max-width 0.25s ease;
+}
+
+@media (min-width: 992px) {
+    .app-shell.sidebar-collapsed .app-main {
+        margin-left: 0;
+    }
+
+    .app-shell.sidebar-collapsed .app-content {
+        max-width: 100%;
+    }
 }
 
 .app-backdrop {
@@ -41,10 +53,80 @@
     }
 
     .app-content {
-        padding: 18px 16px 32px;
+        padding: 16px 12px calc(var(--hk-mobile-nav-h, 62px) + 28px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .app-footer {
+        display: none;
     }
 
     .app-shell.sidebar-open .app-backdrop {
         display: block;
+    }
+
+    .table-responsive {
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+@media (max-width: 767.98px) {
+    /* Chống tự phóng to màn hình khi chạm ô nhập trên iOS Safari */
+    .form-control,
+    .form-select {
+        font-size: 16px;
+    }
+
+    .btn-hk,
+    .btn-hk-outline,
+    .btn-accent {
+        min-height: 40px;
+    }
+}
+
+/* Thanh cảnh báo tự đăng xuất khi để trang web lâu không thao tác */
+.hk-idle-banner {
+    position: fixed;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1095;
+    width: min(680px, calc(100vw - 24px));
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 14px;
+    padding: 12px 16px;
+    border-radius: 14px;
+    background: #fffbeb;
+    border: 1px solid #f59e0b;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.16);
+    color: #78350f;
+    font-size: 13.5px;
+}
+
+.hk-idle-banner__body {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1 1 260px;
+}
+
+.hk-idle-banner__body i {
+    font-size: 18px;
+    color: #d97706;
+    flex: 0 0 auto;
+}
+
+.hk-idle-banner__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 0 0 auto;
+}
+
+@media print {
+    .hk-idle-banner {
+        display: none !important;
     }
 }

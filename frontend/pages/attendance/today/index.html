@@ -13,15 +13,18 @@
     <link rel="stylesheet" href="../../../assets/css/base/ui.css">
     <link rel="stylesheet" href="../../../assets/css/layout/app.css">
     <script src="../../../assets/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
-    <script type="module" src="../../../assets/js/app.js"></script>
+    <script type="module" src="../../../assets/js/app.js?v=20261127-9"></script>
 </head>
 <body data-auth="required" data-layout="dashboard" data-page="attendance">
     <div class="page-stack">
         <div data-component="page-header"
              data-title="Điểm danh hôm nay"
-             data-subtitle="Ghi nhận nhanh tình trạng học viên theo lớp"
+             data-subtitle="Hiển thị đầy đủ danh sách học viên để tích chọn nhanh, có thể lọc theo lớp khi cần"
              data-breadcrumb='[{"label":"Điểm danh"}]'>
             <template data-slot="actions">
+                <a class="btn-hk-outline" href="../sheet/" data-permission="attendance.view">
+                    <i class="bi bi-table me-1"></i>Phiếu điểm danh tháng
+                </a>
                 <a class="btn-hk-outline" href="../history/" data-permission="attendance.view">
                     <i class="bi bi-clock-history me-1"></i>Lịch sử điểm danh
                 </a>
