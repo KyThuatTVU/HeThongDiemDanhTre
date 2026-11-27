@@ -1,8 +1,31 @@
 # Database HappyKidsCK — hướng dẫn import
 
-CSDL: `happykidsck` · MySQL/MariaDB (XAMPP) · InnoDB · utf8mb4 · utf8mb4_unicode_ci
+CSDL: `happykidsck` · MySQL/MariaDB · InnoDB · utf8mb4 · utf8mb4_unicode_ci
 
-## Cách nhanh nhất: import 1 file duy nhất
+## Đưa lên Hosting (ByetHost / cPanel / DirectAdmin) — 1 lần bấm là vào
+
+Không cần xóa CSDL hay xóa bảng cũ thủ công. Trên phpMyAdmin của hosting: **bấm chọn database của bạn ở cột trái** → tab **Import** → chọn 1 trong 2 tệp dưới đây → **Go**:
+
+1. **`happykidsck_hosting_deploy.sql` (Khuyên dùng lần đầu đưa lên host / đồng bộ đè toàn bộ)**
+   - Không chứa `CREATE DATABASE`, `USE`, `LOCK TABLES` (tránh lỗi phân quyền hosting).
+   - Tự chuẩn hóa tương thích cả **MariaDB 10.2+** lẫn **MySQL 5.7 / 8.0+**.
+   - Tự `DROP TABLE IF EXISTS` + tạo lại đủ 19 bảng + nạp toàn bộ dữ liệu thật (2 cơ sở, 7 lớp, 4 tài khoản, phân quyền, 87 học viên) và bỏ qua nhật ký test trên máy local.
+   - ⚠️ **Lưu ý**: Chỉ dùng lần đầu hoặc khi muốn ghi đè toàn bộ từ máy lên host (không dùng sau khi giáo viên đã bắt đầu chấm điểm danh thật trên host).
+
+2. **`happykidsck_hosting_safe_sync.sql` (Đồng bộ an toàn — KHÔNG mất dữ liệu cũ trên host)**
+   - Dùng `CREATE TABLE IF NOT EXISTS` + `INSERT ... ON DUPLICATE KEY UPDATE` cho danh mục/hồ sơ (cơ sở, lớp, tài khoản, phân quyền, học viên).
+   - **Không đụng tới** điểm danh (`attendance*`), học phí (`tuition_*`) và nhật ký đang có trên host.
+   - Có thể import lặp lại nhiều lần trên host đang chạy thật mà không báo lỗi trùng khóa hay mất dữ liệu điểm danh.
+
+### Xuất lại 2 tệp SQL hosting sau khi chỉnh sửa dữ liệu trên máy local
+```bash
+D:\xampp\php\php.exe backend/bin/export-hosting-sql.php
+```
+(Thêm `--include-logs` nếu muốn chép kèm cả nhật ký hoạt động & lịch sử đăng nhập.)
+
+---
+
+## Cách nhanh cho máy local (XAMPP): import 1 file duy nhất
 
 Import file `happykidsck_full.sql` (đã gồm toàn bộ 19 bảng + seed, tự tạo database `happykidsck`).
 Chỉ cần: phpMyAdmin → tab **Import** → chọn file → **Go**.

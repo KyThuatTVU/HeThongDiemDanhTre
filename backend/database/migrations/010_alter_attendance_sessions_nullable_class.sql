@@ -10,7 +10,9 @@ ALTER TABLE `attendance_sessions`
 
 ALTER TABLE `attendance_sessions`
   MODIFY COLUMN `class_id` INT UNSIGNED NULL COMMENT 'NULL = học viên chưa xếp lớp trong cơ sở',
-  ADD COLUMN `class_scope` INT UNSIGNED AS (IFNULL(`class_id`, 0)) STORED AFTER `class_id`,
+  ADD COLUMN `class_scope` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT '0 = chưa xếp lớp; ngược lại = class_id (phục vụ khoá duy nhất)' AFTER `class_id`,
   ADD UNIQUE KEY `uq_sessions_branch_class_date_slot` (`branch_id`, `class_scope`, `session_date`, `slot_name`),
   ADD CONSTRAINT `fk_sessions_class` FOREIGN KEY (`class_id`) REFERENCES `classes` (`id`)
     ON DELETE RESTRICT ON UPDATE CASCADE;
+
+UPDATE `attendance_sessions` SET `class_scope` = IFNULL(`class_id`, 0);

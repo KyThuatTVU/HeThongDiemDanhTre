@@ -14,8 +14,8 @@ if ((string) Config::get('app.env', 'production') === 'production') {
     if ((bool) Config::get('app.debug', false)) {
         $issues[] = 'APP_DEBUG phải là false';
     }
-    if (!(bool) Config::get('auth.session.secure', false)) {
-        $issues[] = 'SESSION_SECURE phải là true';
+    if (\App\Core\Env::isHttpsRequest() && !(bool) Config::get('auth.session.secure', false)) {
+        $issues[] = 'SESSION_SECURE phải là true khi chạy HTTPS';
     }
     if (trim((string) Config::get('database.password', '')) === '') {
         $issues[] = 'DB_PASSWORD không được để trống';

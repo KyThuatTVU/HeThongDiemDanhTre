@@ -65,11 +65,13 @@ final class AttendanceRepository extends Repository
     {
         // An toàn khi 2 cô bấm Lưu điểm danh cùng lúc cho cùng lớp/ngày:
         // nếu phiên đã vừa được tạo song song thì tái sử dụng ID thay vì báo lỗi trùng khoá (500).
+        // class_scope = 0 đại diện cho học viên chưa xếp lớp (tránh lỗi #1901 GENERATED + FK trên MySQL/MariaDB).
+        $classScope = $classId ?? 0;
         $this->execute(
-            'INSERT INTO attendance_sessions (branch_id, class_id, session_date, slot_name, created_by)
-             VALUES (?, ?, ?, ?, ?)
+            'INSERT INTO attendance_sessions (branch_id, class_id, class_scope, session_date, slot_name, created_by)
+             VALUES (?, ?, ?, ?, ?, ?)
              ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id)',
-            [$branchId, $classId, $sessionDate, $slotName, $userId]
+            [$branchId, $classId, $classScope, $sessionDate, $slotName, $userId]
         );
         return (int) $this->db()->lastInsertId();
     }
