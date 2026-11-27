@@ -173,21 +173,27 @@
 }
 
 @media (max-width: 767.98px) {
-    .topbar__logout-btn {
-        padding: 0 10px;
-    }
-
-    .topbar__logout-label {
-        display: none;
-    }
-
     .topbar {
-        padding: 0 14px;
-        gap: 10px;
+        height: 56px;
+        padding: 0 10px;
+        gap: 8px;
     }
 
-    .topbar__date {
-        display: none;
+    .topbar__icon-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        font-size: 17px;
+    }
+
+    .topbar__actions {
+        gap: 8px;
+    }
+
+    .topbar__branch {
+        padding: 3px 6px 3px 9px;
+        gap: 4px;
+        max-width: 190px;
     }
 
     .topbar__branch-label {
@@ -195,8 +201,31 @@
     }
 
     .topbar__branch .form-select {
-        min-width: 96px;
-        max-width: 128px;
+        min-width: 82px;
+        max-width: 158px;
+        font-size: 13px;
+        padding-right: 1.25rem;
+        text-overflow: ellipsis;
+    }
+
+    .topbar__user {
+        padding: 3px;
+        gap: 0;
+    }
+
+    .topbar__logout-btn {
+        height: 36px;
+        width: 36px;
+        padding: 0;
+        justify-content: center;
+    }
+
+    .topbar__logout-label {
+        display: none;
+    }
+
+    .topbar__date {
+        display: none;
     }
 
     .topbar__user-text {
@@ -208,7 +237,7 @@
     }
 }
 
-@media (max-width: 479.98px) {
+@media (max-width: 575.98px) {
     .topbar__context {
         display: none;
     }

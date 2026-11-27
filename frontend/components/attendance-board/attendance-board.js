@@ -7,11 +7,11 @@ import { date, datetime, number, todayIso } from '../../assets/js/core/format.js
 import { escapeHtml, qs, qsa, setLoading } from '../../assets/js/core/dom.js';
 
 const STATUS_PILLS = [
-    { value: 'present', label: 'Có mặt', short: '✓', icon: 'bi-check-lg', tone: 'success' },
-    { value: 'late', label: 'Đi trễ', short: 'M', icon: 'bi-clock', tone: 'warning' },
-    { value: 'excused_absent', label: 'Vắng phép', short: 'P', icon: '', tone: 'info' },
-    { value: 'unexcused_absent', label: 'Vắng KP', short: 'K', icon: '', tone: 'danger' },
-    { value: 'planned_leave', label: 'Nghỉ báo', short: 'N', icon: '', tone: 'neutral' }
+    { value: 'present', label: 'Có mặt', mobileLabel: 'Có mặt', short: '✓', icon: 'bi-check-lg', tone: 'success' },
+    { value: 'late', label: 'Đi trễ', mobileLabel: 'Trễ', short: 'M', icon: 'bi-clock', tone: 'warning' },
+    { value: 'excused_absent', label: 'Vắng phép', mobileLabel: 'Phép', short: 'P', icon: '', tone: 'info' },
+    { value: 'unexcused_absent', label: 'Vắng KP', mobileLabel: 'KP', short: 'K', icon: '', tone: 'danger' },
+    { value: 'planned_leave', label: 'Nghỉ báo', mobileLabel: 'Báo', short: 'N', icon: '', tone: 'neutral' }
 ];
 
 function normalizeText(value) {
@@ -56,6 +56,7 @@ export function init(root) {
     const state = {
         classes: [],
         classFilter: '', // '' = tất cả, 'unassigned' = chưa xếp lớp, '<id>' = lớp cụ thể
+        statusFilter: 'all', // 'all' | 'present' | 'absent' | 'unrecorded'
         search: '',
         date: todayIso(),
         slot: 'Chính',
@@ -86,13 +87,14 @@ export function init(root) {
     const saveBars = qsa('[data-att-savebar]', root);
     const saveButtons = qsa('[data-att-save]', root);
     const markAllButtons = qsa('[data-att-mark-all]', root);
+    const statusFilterButtons = qsa('[data-status-filter]', root);
     const tableHost = qs('[data-att-table]', root);
 
     function canEditRow(row) {
         return can('attendance.save') && (!row.is_locked || can('attendance.edit'));
     }
 
-    function visibleRows() {
+    function scopedRows() {
         const keyword = normalizeText(state.search);
         return state.allRows.filter((row) => {
             if (state.classFilter === 'unassigned') {
@@ -106,6 +108,20 @@ export function init(root) {
             }
             return true;
         });
+    }
+
+    function visibleRows() {
+        const rows = scopedRows();
+        if (state.statusFilter === 'present') {
+            return rows.filter((row) => row.status === 'present' || row.status === 'late');
+        }
+        if (state.statusFilter === 'absent') {
+            return rows.filter((row) => row.status && row.status !== 'present' && row.status !== 'late');
+        }
+        if (state.statusFilter === 'unrecorded') {
+            return rows.filter((row) => !row.status);
+        }
+        return rows;
     }
 
     function currentFilterLabel() {
@@ -131,9 +147,15 @@ export function init(root) {
 
     const table = createTable(tableHost, {
         emptyTitle: 'Không có học viên phù hợp',
-        emptyHint: 'Thử chọn "Tất cả học viên" hoặc xoá từ khoá tìm kiếm.',
+        emptyHint: 'Thử chọn "Tổng" hoặc "Tất cả học viên" hoặc xoá từ khoá tìm kiếm.',
         emptyIcon: 'bi-people',
-        rowClass: (row) => rowToneClass(row.status),
+        rowClass: (row) => {
+            const parts = [rowToneClass(row.status)];
+            if ((row.note || '').trim() !== '') {
+                parts.push('has-note');
+            }
+            return parts.filter(Boolean).join(' ');
+        },
         columns: [
             {
                 label: 'STT',
@@ -149,9 +171,16 @@ export function init(root) {
             },
             {
                 label: 'Lớp',
-                render: (row) => row.class_name
-                    ? `<span class="att-class-tag">${escapeHtml(row.class_name)}</span>`
-                    : '<span class="att-class-tag att-class-tag--empty">Chưa xếp lớp</span>'
+                render: (row) => {
+                    const tag = row.class_name
+                        ? `<span class="att-class-tag">${escapeHtml(row.class_name)}</span>`
+                        : '<span class="att-class-tag att-class-tag--empty">Chưa xếp lớp</span>';
+                    const hasNote = (row.note || '').trim() !== '';
+                    const noteBtn = canEditRow(row)
+                        ? `<button type="button" class="att-note-toggle${hasNote ? ' has-note' : ''}" data-toggle-note="${row.student_id}" title="Thêm hoặc sửa ghi chú" aria-label="Ghi chú"><i class="bi bi-chat-left-text"></i></button>`
+                        : '';
+                    return `<div class="att-meta-right">${tag}${noteBtn}</div>`;
+                }
             },
             {
                 label: 'Điểm danh (bấm để tích chọn)',
@@ -159,14 +188,14 @@ export function init(root) {
                     const editable = canEditRow(row);
                     const buttons = STATUS_PILLS.map((pill) => {
                         const active = row.status === pill.value;
-                        const icon = pill.icon ? `<i class="bi ${pill.icon} att-pill__full"></i>` : '';
+                        const icon = pill.icon ? `<i class="bi ${pill.icon} att-pill__icon"></i>` : '';
                         return `<button type="button"
                             class="att-pill att-pill--${pill.tone}${active ? ' is-active' : ''}"
                             data-pick-student="${row.student_id}"
                             data-pick-status="${pill.value}"
                             title="${pill.label}"
                             aria-pressed="${active ? 'true' : 'false'}"${editable ? '' : ' disabled'}>
-                            ${icon}<span class="att-pill__full">${pill.label}</span><span class="att-pill__short">${pill.short}</span>
+                            ${icon}<span class="att-pill__full">${pill.label}</span><span class="att-pill__mobile">${pill.mobileLabel}</span><span class="att-pill__short">${pill.short}</span>
                         </button>`;
                     }).join('');
                     return `<div class="att-pills" data-pills-for="${row.student_id}">${buttons}</div>`;
@@ -182,7 +211,7 @@ export function init(root) {
     });
 
     function updateSummary() {
-        const rows = visibleRows();
+        const rows = scopedRows();
         let present = 0;
         let absent = 0;
         let unrecorded = 0;
@@ -323,6 +352,7 @@ export function init(root) {
     }
 
     function renderView() {
+        boardSection?.classList.toggle('is-single-class', state.classFilter !== '');
         table.render(visibleRows());
         renderHeaderAndLock();
         updateSummary();
@@ -351,6 +381,7 @@ export function init(root) {
     function syncSaveButtonBadge() {
         const count = dirtyCount();
         saveButtons.forEach((btn) => {
+            btn.classList.toggle('is-dirty', count > 0);
             if (btn.dataset.loading === 'true') return;
             const isMobileCompact = Boolean(btn.closest('.att-mobile-bar'));
             const baseLabel = isMobileCompact ? 'Lưu' : 'Lưu điểm danh';
@@ -550,13 +581,13 @@ export function init(root) {
             const payload = await api.get('/attendance/board', {
                 session_date: state.date,
                 slot_name: state.slot
-            });
+            }, { cancelKey: 'attendance:board' });
             if (seq !== requestSeq) {
                 return;
             }
             applyBoard(payload?.data || {});
         } catch (error) {
-            if (seq !== requestSeq) {
+            if (error?.superseded || seq !== requestSeq) {
                 return;
             }
             table.setError(error.message || 'Không tải được sổ điểm danh');
@@ -682,7 +713,13 @@ export function init(root) {
 
     function syncRowUi(tr, row) {
         if (!tr) return;
-        tr.className = rowToneClass(row.status);
+        const keepNoteOpen = tr.classList.contains('is-note-open');
+        const hasNote = (row.note || '').trim() !== '';
+        tr.className = [
+            rowToneClass(row.status),
+            hasNote ? 'has-note' : '',
+            keepNoteOpen ? 'is-note-open' : ''
+        ].filter(Boolean).join(' ');
         tr.querySelectorAll('[data-pick-status]').forEach((btn) => {
             const active = btn.dataset.pickStatus === row.status;
             btn.classList.toggle('is-active', active);
@@ -690,7 +727,49 @@ export function init(root) {
         });
     }
 
+    statusFilterButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const target = btn.dataset.statusFilter || 'all';
+            state.statusFilter = (state.statusFilter === target && target !== 'all') ? 'all' : target;
+            statusFilterButtons.forEach((item) => {
+                const active = (item.dataset.statusFilter || 'all') === state.statusFilter;
+                item.classList.toggle('is-active', active);
+                item.setAttribute('aria-pressed', active ? 'true' : 'false');
+            });
+            renderView();
+        });
+    });
+
+    // Ẩn thanh lưu nổi khi cô đang mở bàn phím ảo gõ ghi chú / tìm kiếm trên điện thoại
+    boardSection?.addEventListener('focusin', (event) => {
+        if (event.target.matches('input[type="text"], input[type="search"], textarea')) {
+            boardSection.classList.add('is-typing');
+        }
+    });
+    boardSection?.addEventListener('focusout', () => {
+        window.setTimeout(() => {
+            const active = document.activeElement;
+            if (!active || !boardSection.contains(active) || !active.matches('input[type="text"], input[type="search"], textarea')) {
+                boardSection.classList.remove('is-typing');
+            }
+        }, 120);
+    });
+
     tableHost?.addEventListener('click', (event) => {
+        const noteToggle = event.target.closest('[data-toggle-note]');
+        if (noteToggle) {
+            const tr = noteToggle.closest('tr');
+            if (!tr) return;
+            const opened = tr.classList.toggle('is-note-open');
+            if (opened) {
+                const input = tr.querySelector('[data-note-for]');
+                if (input) {
+                    input.focus();
+                }
+            }
+            return;
+        }
+
         const button = event.target.closest('[data-pick-student]');
         if (!button || button.disabled) {
             return;
@@ -713,6 +792,10 @@ export function init(root) {
             const row = state.allRows.find((item) => item.student_id === Number(note.dataset.noteFor));
             if (row) {
                 row.note = note.value;
+                const hasNote = row.note.trim() !== '';
+                const tr = note.closest('tr');
+                tr?.classList.toggle('has-note', hasNote);
+                tr?.querySelector('[data-toggle-note]')?.classList.toggle('has-note', hasNote);
                 persistDraft();
             }
         }

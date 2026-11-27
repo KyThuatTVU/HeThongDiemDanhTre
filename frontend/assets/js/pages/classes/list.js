@@ -26,6 +26,7 @@ const table = createTable(qs('[data-classes-table]'), {
         },
         {
             label: 'Trạng thái',
+            mobileHide: true,
             render: (row) => row.status === 'active'
                 ? '<span class="hk-badge hk-badge--success">Đang hoạt động</span>'
                 : '<span class="hk-badge hk-badge--neutral">Đã ngừng</span>'
@@ -33,10 +34,11 @@ const table = createTable(qs('[data-classes-table]'), {
         {
             label: 'Thao tác',
             headerClass: 'text-end',
+            className: 'text-end',
             render: (row) => {
-                const buttons = [`<a class="btn btn-sm btn-light" href="../detail/?id=${row.id}" title="Xem lớp"><i class="bi bi-eye"></i></a>`];
+                const buttons = [`<a class="btn btn-sm btn-light" href="../detail/?id=${row.id}" title="Xem lớp"><i class="bi bi-eye"></i><span class="hk-mobile-only ms-1">Chi tiết</span></a>`];
                 if (can('classes.update')) {
-                    buttons.push(`<a class="btn btn-sm btn-light" href="../form/?id=${row.id}" title="Chỉnh sửa"><i class="bi bi-pencil"></i></a>`);
+                    buttons.push(`<a class="btn btn-sm btn-light hk-desktop-only" href="../form/?id=${row.id}" title="Chỉnh sửa"><i class="bi bi-pencil"></i></a>`);
                 }
                 return `<div class="d-inline-flex gap-1">${buttons.join('')}</div>`;
             }

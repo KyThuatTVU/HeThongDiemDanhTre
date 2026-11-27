@@ -76,9 +76,38 @@
     font-size: 11.5px;
 }
 
+.hk-mobile-only,
+.hk-col-mobile-only {
+    display: none;
+}
+
 @media (max-width: 767.98px) {
     .hk-table {
         min-width: 720px;
+    }
+
+    /* Các bảng đã lược cột phụ trên di động: bỏ cuộn ngang, vừa khít màn hình điện thoại */
+    .hk-table-wrap--mobile-compact .hk-table {
+        min-width: 0;
+        width: 100%;
+    }
+
+    .hk-table-wrap--mobile-compact .hk-table th,
+    .hk-table-wrap--mobile-compact .hk-table td {
+        padding: 9px 8px;
+    }
+
+    .hk-col-mobile-hide,
+    .hk-desktop-only {
+        display: none !important;
+    }
+
+    .hk-mobile-only {
+        display: inline-flex;
+    }
+
+    .hk-col-mobile-only {
+        display: table-cell;
     }
 
     .hk-table-wrap--state thead {

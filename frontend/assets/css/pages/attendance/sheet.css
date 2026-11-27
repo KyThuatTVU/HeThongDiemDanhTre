@@ -326,6 +326,16 @@ body.sheet-fit-screen .sheet-legend {
     color: #111827;
 }
 
+.sheet-student-link {
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.sheet-student-link:hover {
+    color: var(--hk-primary, #1f7a6d);
+    text-decoration: underline;
+}
+
 .sheet-student-sub {
     display: inline-block;
     margin-left: 5px;
@@ -435,8 +445,29 @@ body.sheet-fit-screen .sheet-legend {
 }
 
 @media (max-width: 767.98px) {
+    .sheet-class-tabs {
+        position: sticky;
+        top: var(--hk-topbar-h, 56px);
+        z-index: 1015;
+        margin: 0 -10px;
+        padding: 6px 10px;
+        background: rgba(247, 245, 239, 0.94);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid var(--hk-border);
+        scrollbar-width: none;
+    }
+
+    .sheet-class-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .sheet-class-tab {
+        padding: 6px 12px;
+        font-size: 13px;
+    }
+
     .sheet-controls {
-        padding: 12px;
+        padding: 10px;
     }
 
     .sheet-controls__grid {
@@ -507,6 +538,14 @@ body.sheet-fit-screen .sheet-legend {
     .sheet-table td.col-day {
         width: 26px;
         min-width: 26px;
+    }
+
+    /* Ẩn cột phụ trên màn hình điện thoại (khi Tải ảnh PNG hoặc In vẫn xuất đủ 100% cột) */
+    .sheet-table th.col-phone,
+    .sheet-table td.col-phone,
+    .sheet-table th.col-fee,
+    .sheet-table td.col-fee {
+        display: none;
     }
 }
 

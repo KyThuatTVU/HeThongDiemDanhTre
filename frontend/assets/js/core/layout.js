@@ -2,8 +2,24 @@
 import { ROOT } from './config.js';
 import { qsa, injectCss } from './dom.js';
 
-const ASSET_VERSION = '20261127-12';
+const ASSET_VERSION = '20261127-20';
+const TPL_CACHE_PREFIX = `hk_tpl:${ASSET_VERSION}:`;
 const htmlCache = new Map();
+
+function pruneOldTemplateCache() {
+    try {
+        for (let i = sessionStorage.length - 1; i >= 0; i -= 1) {
+            const key = sessionStorage.key(i);
+            if (key && key.startsWith('hk_tpl:') && !key.startsWith(TPL_CACHE_PREFIX)) {
+                sessionStorage.removeItem(key);
+            }
+        }
+    } catch {
+        // Bỏ qua nếu trình duyệt chặn storage
+    }
+}
+
+pruneOldTemplateCache();
 
 function versioned(path) {
     const url = new URL(path, ROOT);
@@ -12,14 +28,31 @@ function versioned(path) {
 }
 
 async function fetchText(url) {
-    if (!htmlCache.has(url)) {
-        const response = await fetch(url, { credentials: 'same-origin', cache: 'no-cache' });
-        if (!response.ok) {
-            throw new Error(`Không tải được ${url} (HTTP ${response.status})`);
-        }
-        htmlCache.set(url, await response.text());
+    if (htmlCache.has(url)) {
+        return htmlCache.get(url);
     }
-    return htmlCache.get(url);
+    const cacheKey = TPL_CACHE_PREFIX + url;
+    try {
+        const cached = sessionStorage.getItem(cacheKey);
+        if (cached !== null) {
+            htmlCache.set(url, cached);
+            return cached;
+        }
+    } catch {
+        // Bỏ qua
+    }
+    const response = await fetch(url, { credentials: 'same-origin', cache: 'default' });
+    if (!response.ok) {
+        throw new Error(`Không tải được ${url} (HTTP ${response.status})`);
+    }
+    const text = await response.text();
+    htmlCache.set(url, text);
+    try {
+        sessionStorage.setItem(cacheKey, text);
+    } catch {
+        // Bỏ qua nếu đầy sessionStorage
+    }
+    return text;
 }
 
 async function mountComponent(placeholder) {
@@ -73,7 +106,7 @@ export async function bootLayout() {
     const host = document.querySelector('[data-layout]');
     if (host) {
         const layoutName = host.dataset.layout;
-        const html = await fetchText(new URL(`layouts/${layoutName}.html`, ROOT).href);
+        const html = await fetchText(versioned(`layouts/${layoutName}.html`));
         const holder = document.createElement('div');
         holder.innerHTML = html.trim();
         const fragment = document.createDocumentFragment();

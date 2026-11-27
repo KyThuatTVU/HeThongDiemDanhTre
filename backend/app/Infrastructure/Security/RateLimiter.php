@@ -108,17 +108,31 @@ final class RateLimiter
         return rtrim($path, '/');
     }
 
-    private static function maybeGc(): void
+    public static function gc(): int
     {
-        if (random_int(1, 100) !== 1) {
-            return;
-        }
-        $deadline = time() - 172800;
+        $deadline = time() - 7200; // Cửa sổ khoá tối đa 15 phút -> dọn sau 2 giờ
+        $removed = 0;
         foreach (glob(self::directory() . '/*.json') ?: [] as $file) {
+            if (!is_file($file)) {
+                continue;
+            }
             $modified = @filemtime($file);
-            if ($modified !== false && $modified < $deadline) {
-                @unlink($file);
+            if ($modified !== false && $modified < $deadline && @unlink($file)) {
+                $removed++;
             }
         }
+        return $removed;
+    }
+
+    private static function maybeGc(): void
+    {
+        try {
+            if (random_int(1, 40) !== 1) {
+                return;
+            }
+        } catch (\Throwable) {
+            return;
+        }
+        self::gc();
     }
 }

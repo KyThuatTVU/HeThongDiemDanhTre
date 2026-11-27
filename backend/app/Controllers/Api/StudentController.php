@@ -46,6 +46,20 @@ final class StudentController extends Controller
         $this->ok($detail);
     }
 
+    public function parentSlip(string $id): never
+    {
+        if (!$this->can('students.view') && !$this->can('attendance.view')) {
+            throw new HttpException(403, 'Bạn không có quyền xem phiếu thống kê học viên');
+        }
+        $year = (int) $this->request->input('year', (int) date('Y'));
+        $month = (int) $this->request->input('month', (int) date('n'));
+        if ($year < 2000 || $year > 2100 || $month < 1 || $month > 12) {
+            throw new HttpException(422, 'Tháng hoặc năm không hợp lệ');
+        }
+        $includeTuition = $this->can('tuition.view') || $this->can('students.view');
+        $this->ok((new StudentService())->parentSlip((int) $id, $year, $month, $includeTuition));
+    }
+
     public function store(): never
     {
         $data = $this->validate($this->request->all(), [

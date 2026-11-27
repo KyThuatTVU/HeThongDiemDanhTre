@@ -43,3 +43,50 @@
 .settings-note i {
     margin-top: 1px;
 }
+
+.settings-maint__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.settings-maint__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+    gap: 12px;
+}
+
+.settings-maint__item {
+    padding: 12px 14px;
+    border: 1px solid var(--hk-border);
+    border-radius: 12px;
+    background: var(--hk-surface-2);
+}
+
+.settings-maint__label {
+    display: block;
+    font-size: 12px;
+    color: var(--hk-muted);
+    margin-bottom: 4px;
+}
+
+.settings-maint__value {
+    display: block;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--hk-text);
+}
+
+.settings-maint__sub {
+    display: block;
+    font-size: 12px;
+    color: var(--hk-muted);
+    margin-top: 2px;
+}
+
+.settings-maint__loading,
+.settings-maint__footnote {
+    font-size: 12.5px;
+    color: var(--hk-muted);
+    margin: 12px 0 0;
+}

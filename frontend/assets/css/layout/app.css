@@ -70,6 +70,47 @@
 }
 
 @media (max-width: 767.98px) {
+    :root {
+        --hk-topbar-h: 56px;
+        --hk-mobile-nav-h: 58px;
+    }
+
+    /* Chống trễ 300ms & zoom nhầm khi chạm liên tiếp trên điện thoại */
+    button,
+    a,
+    select,
+    input,
+    label {
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: rgba(18, 102, 90, 0.12);
+    }
+
+    .app-content {
+        padding: 10px 10px calc(var(--hk-mobile-nav-h, 58px) + 24px + env(safe-area-inset-bottom, 0px));
+    }
+
+    /* Trên trang điểm danh di động: thu gọn tiêu đề để vào là thấy ngay danh sách bé */
+    body[data-page="attendance"] .page-header {
+        margin-bottom: 8px;
+        gap: 6px;
+    }
+
+    body[data-page="attendance"] .page-header__crumbs,
+    body[data-page="attendance"] .page-header__subtitle {
+        display: none;
+    }
+
+    body[data-page="attendance"] .page-header__title {
+        font-size: 18px;
+    }
+
+    body[data-page="attendance"] .page-header__actions .btn-hk,
+    body[data-page="attendance"] .page-header__actions .btn-hk-outline {
+        min-height: 34px;
+        padding: 4px 10px;
+        font-size: 12.5px;
+    }
+
     /* Chống tự phóng to màn hình khi chạm ô nhập trên iOS Safari */
     .form-control,
     .form-select {
@@ -80,6 +121,21 @@
     .btn-hk-outline,
     .btn-accent {
         min-height: 40px;
+    }
+
+    .hk-idle-banner {
+        top: 8px;
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+
+    .hk-idle-banner__actions {
+        width: 100%;
+    }
+
+    .hk-idle-banner__actions button {
+        flex: 1 1 0;
+        min-height: 42px;
     }
 }
 

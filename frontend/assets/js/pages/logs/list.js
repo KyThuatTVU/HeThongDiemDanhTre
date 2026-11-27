@@ -41,30 +41,34 @@ const MODULE_LABELS = {
 };
 
 const activityRows = new Map();
+const loginRows = [];
 
 const activityTable = createTable(qs('[data-activity-table]'), {
     emptyTitle: 'Chưa có nhật ký',
     emptyHint: 'Chưa có hoạt động phù hợp với bộ lọc hiện tại.',
     emptyIcon: 'bi-activity',
     columns: [
-        { label: 'Thời gian', render: (row) => escapeHtml(datetime(row.created_at)) },
-        { label: 'Người thực hiện', render: (row) => escapeHtml(row.user_name || 'Hệ thống') },
+        { label: 'Thời gian', mobileHide: true, render: (row) => escapeHtml(datetime(row.created_at)) },
+        { label: 'Người thực hiện', mobileHide: true, render: (row) => escapeHtml(row.user_name || 'Hệ thống') },
         {
             label: 'Thao tác',
             render: (row) => {
                 const meta = ACTION_META[row.action] || { label: row.action || '—', tone: 'neutral' };
                 return `<span class="hk-badge hk-badge--${meta.tone}">${escapeHtml(meta.label)}</span>
-                    <span class="cell-meta">${escapeHtml(MODULE_LABELS[row.module] || row.module || '')}</span>`;
+                    <span class="cell-meta">${escapeHtml(MODULE_LABELS[row.module] || row.module || '')}<span class="hk-mobile-only"> · ${escapeHtml(row.user_name || 'Hệ thống')}</span></span>
+                    <span class="cell-meta hk-mobile-only">${escapeHtml(datetime(row.created_at))}</span>`;
             }
         },
         {
             label: 'Nội dung',
+            mobileHide: true,
             render: (row) => row.description
                 ? escapeHtml(row.description)
                 : '<span class="text-muted-2">—</span>'
         },
         {
             label: 'Đối tượng',
+            mobileHide: true,
             render: (row) => {
                 if (!row.target_type) {
                     return '<span class="text-muted-2">—</span>';
@@ -73,11 +77,12 @@ const activityTable = createTable(qs('[data-activity-table]'), {
                 return `<span class="cell-meta">${escapeHtml(target)}</span>`;
             }
         },
-        { label: 'IP', render: (row) => escapeHtml(row.ip_address || '—') },
+        { label: 'IP', mobileHide: true, render: (row) => escapeHtml(row.ip_address || '—') },
         {
             label: '',
             headerClass: 'text-end',
-            render: (row) => `<button type="button" class="btn btn-sm btn-light" data-action="detail" data-id="${row.id}" title="Chi tiết"><i class="bi bi-eye"></i></button>`
+            className: 'text-end',
+            render: (row) => `<button type="button" class="btn btn-sm btn-light" data-action="detail" data-id="${row.id}" title="Chi tiết"><i class="bi bi-eye"></i><span class="hk-mobile-only ms-1">Chi tiết</span></button>`
         }
     ]
 });
@@ -87,28 +92,32 @@ const loginTable = createTable(qs('[data-login-table]'), {
     emptyHint: 'Chưa có lần đăng nhập nào phù hợp với bộ lọc hiện tại.',
     emptyIcon: 'bi-box-arrow-in-right',
     columns: [
-        { label: 'Thời gian', render: (row) => escapeHtml(datetime(row.created_at)) },
+        { label: 'Thời gian', mobileHide: true, render: (row) => escapeHtml(datetime(row.created_at)) },
         {
             label: 'Người dùng',
             render: (row) => {
-                if (row.user_name) {
-                    return `<span class="cell-title">${escapeHtml(row.user_name)}</span>
-                        <span class="cell-meta">${escapeHtml(row.attempted_identifier || '')}</span>`;
-                }
-                return `<span class="cell-title">${escapeHtml(row.attempted_identifier || 'Không xác định')}</span>
-                    <span class="cell-meta">Tài khoản không tồn tại hoặc bị khoá</span>`;
+                const title = row.user_name
+                    ? escapeHtml(row.user_name)
+                    : escapeHtml(row.attempted_identifier || 'Không xác định');
+                const sub = row.user_name
+                    ? escapeHtml(row.attempted_identifier || '')
+                    : 'Tài khoản không tồn tại hoặc bị khoá';
+                return `<span class="cell-title">${title}</span>
+                    <span class="cell-meta hk-desktop-only">${sub}</span>
+                    <span class="cell-meta hk-mobile-only">${escapeHtml(datetime(row.created_at))}</span>`;
             }
         },
-        { label: 'Phương thức', render: (row) => escapeHtml(labels.loginMethod(row.login_method)) },
+        { label: 'Phương thức', mobileHide: true, render: (row) => escapeHtml(labels.loginMethod(row.login_method)) },
         {
             label: 'Kết quả',
             render: (row) => row.status === 'success'
                 ? '<span class="hk-badge hk-badge--success">Thành công</span>'
                 : '<span class="hk-badge hk-badge--danger">Thất bại</span>'
         },
-        { label: 'IP', render: (row) => escapeHtml(row.ip_address || '—') },
+        { label: 'IP', mobileHide: true, render: (row) => escapeHtml(row.ip_address || '—') },
         {
             label: 'Thiết bị',
+            mobileHide: true,
             render: (row) => {
                 if (!row.user_agent) {
                     return '<span class="text-muted-2">—</span>';
@@ -117,6 +126,12 @@ const loginTable = createTable(qs('[data-login-table]'), {
                 const short = agent.length > 46 ? `${agent.slice(0, 46)}…` : agent;
                 return `<span class="cell-meta" title="${escapeHtml(agent)}">${escapeHtml(short)}</span>`;
             }
+        },
+        {
+            label: '',
+            headerClass: 'text-end hk-col-mobile-only',
+            className: 'text-end hk-col-mobile-only',
+            render: (_row, index) => `<button type="button" class="btn btn-sm btn-light" data-login-detail="${index}">Chi tiết</button>`
         }
     ]
 });
@@ -201,6 +216,7 @@ async function loadLogins() {
     try {
         const payload = await api.get(`/logs/logins?${loginQuery()}`);
         const rows = payload?.data || [];
+        loginRows.splice(0, loginRows.length, ...rows);
         loginTable.render(rows);
         if (loginTotal) {
             loginTotal.textContent = `${number(payload?.meta?.total ?? rows.length)} lượt`;
@@ -289,6 +305,40 @@ function switchTab(tab) {
         loadLogins();
     }
 }
+
+function openLoginDetail(row) {
+    const modal = createModal({
+        title: 'Chi tiết đăng nhập',
+        size: 'sm',
+        onHidden: () => window.setTimeout(() => modal.destroy(), 150)
+    });
+    modal.setBody(`
+        <dl class="info-list">
+            <dt>Thời gian</dt><dd>${escapeHtml(datetime(row.created_at))}</dd>
+            <dt>Người dùng</dt><dd>${escapeHtml(row.user_name || row.attempted_identifier || 'Không xác định')}</dd>
+            <dt>Tài khoản nhập</dt><dd>${escapeHtml(row.attempted_identifier || '—')}</dd>
+            <dt>Phương thức</dt><dd>${escapeHtml(labels.loginMethod(row.login_method))}</dd>
+            <dt>Kết quả</dt><dd>${row.status === 'success' ? '<span class="hk-badge hk-badge--success">Thành công</span>' : '<span class="hk-badge hk-badge--danger">Thất bại</span>'}</dd>
+            <dt>IP</dt><dd>${escapeHtml(row.ip_address || '—')}</dd>
+            <dt>Thiết bị</dt><dd class="fs-13">${escapeHtml(row.user_agent || '—')}</dd>
+        </dl>`);
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'btn-hk-outline btn-sm';
+    close.dataset.bsDismiss = 'modal';
+    close.textContent = 'Đóng';
+    modal.setFooter([close]);
+    modal.show();
+}
+
+qs('[data-login-table]')?.addEventListener('click', (event) => {
+    const btn = event.target.closest('[data-login-detail]');
+    if (!btn) return;
+    const row = loginRows[Number(btn.dataset.loginDetail)];
+    if (row) {
+        openLoginDetail(row);
+    }
+});
 
 qs('[data-activity-table]')?.addEventListener('click', (event) => {
     const button = event.target.closest('[data-action="detail"]');

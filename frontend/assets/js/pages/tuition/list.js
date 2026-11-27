@@ -25,12 +25,12 @@ const table = createTable(qs('[data-tuition-table]'), {
         {
             label: 'Học viên',
             render: (row) => `
-                <a class="tuition-name" href="../../students/detail/?id=${row.student_id}">${escapeHtml(row.student_name)}</a>
-                <span class="fs-13 text-muted-2">${escapeHtml(row.student_code)}</span>`
+                <a class="tuition-name" href="../detail/?id=${row.id}">${escapeHtml(row.student_name)}</a>
+                <span class="fs-13 text-muted-2">${escapeHtml(row.class_name || row.student_code)}</span>`
         },
-        { label: 'Lớp', render: (row) => row.class_name ? escapeHtml(row.class_name) : '<span class="text-muted-2">—</span>' },
-        { label: 'Phải thu', className: 'text-end', render: (row) => escapeHtml(money(row.final_amount)) },
-        { label: 'Đã thu', className: 'text-end', render: (row) => `<span class="amount-paid">${escapeHtml(money(row.paid_amount))}</span>` },
+        { label: 'Lớp', mobileHide: true, render: (row) => row.class_name ? escapeHtml(row.class_name) : '<span class="text-muted-2">—</span>' },
+        { label: 'Phải thu', mobileHide: true, className: 'text-end', render: (row) => escapeHtml(money(row.final_amount)) },
+        { label: 'Đã thu', mobileHide: true, className: 'text-end', render: (row) => `<span class="amount-paid">${escapeHtml(money(row.paid_amount))}</span>` },
         {
             label: 'Còn lại',
             className: 'text-end',
@@ -40,6 +40,7 @@ const table = createTable(qs('[data-tuition-table]'), {
         },
         {
             label: 'Trạng thái',
+            mobileHide: true,
             render: (row) => {
                 const meta = statusMeta('tuition', row.status);
                 return `<span class="hk-badge hk-badge--${meta.tone}">${escapeHtml(meta.label)}</span>`;
@@ -48,7 +49,8 @@ const table = createTable(qs('[data-tuition-table]'), {
         {
             label: 'Thao tác',
             headerClass: 'text-end',
-            render: (row) => `<a class="btn btn-sm btn-light" href="../detail/?id=${row.id}" title="Xem phiếu thu"><i class="bi bi-arrow-right"></i></a>`
+            className: 'text-end',
+            render: (row) => `<a class="btn btn-sm btn-light" href="../detail/?id=${row.id}" title="Xem phiếu thu"><span class="hk-mobile-only me-1">Chi tiết</span><i class="bi bi-arrow-right"></i></a>`
         }
     ]
 });

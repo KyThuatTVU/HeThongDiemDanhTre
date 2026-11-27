@@ -13,6 +13,7 @@ const state = {
     q: '',
     role: '',
     status: '',
+    rows: [],
     loading: false
 };
 
@@ -25,21 +26,22 @@ const table = createTable(qs('[data-staff-table]'), {
             label: 'Nhân viên',
             render: (row) => `
                 <div class="staff-cell">
-                    <span class="hk-avatar hk-avatar--sm${row.avatar_path ? '' : ' hk-avatar--fallback'}">
+                    <span class="hk-avatar hk-avatar--sm hk-desktop-only${row.avatar_path ? '' : ' hk-avatar--fallback'}">
                         ${row.avatar_path
                             ? `<img src="${escapeHtml(fileUrl(row.avatar_path))}" alt="${escapeHtml(row.full_name)}">`
                             : escapeHtml(initials(row.full_name))}
                     </span>
-                    <span>
+                    <span class="min-w-0">
                         <span class="staff-cell__name">${escapeHtml(row.full_name)}</span>
-                        <span class="staff-cell__username">@${escapeHtml(row.username)}</span>
+                        <span class="staff-cell__username">@${escapeHtml(row.username)}<span class="hk-mobile-only"> · ${escapeHtml(row.role_name || row.role_key)}</span></span>
                     </span>
                 </div>`
         },
-        { label: 'Vai trò', render: (row) => escapeHtml(row.role_name || row.role_key) },
-        { label: 'Cơ sở', render: (row) => `<span class="staff-branches">${escapeHtml(row.branch_names || 'Chưa phân công')}</span>` },
+        { label: 'Vai trò', mobileHide: true, render: (row) => escapeHtml(row.role_name || row.role_key) },
+        { label: 'Cơ sở', mobileHide: true, render: (row) => `<span class="staff-branches">${escapeHtml(row.branch_names || 'Chưa phân công')}</span>` },
         {
             label: 'Liên hệ',
+            mobileHide: true,
             render: (row) => {
                 const parts = [];
                 if (row.email) parts.push(`<span class="d-block fs-13">${escapeHtml(row.email)}</span>`);
@@ -54,22 +56,25 @@ const table = createTable(qs('[data-staff-table]'), {
                 return `<span class="hk-badge hk-badge--${meta.tone}">${escapeHtml(meta.label)}</span>`;
             }
         },
-        { label: 'Đăng nhập cuối', render: (row) => `<span class="fs-13">${escapeHtml(datetime(row.last_login_at))}</span>` },
+        { label: 'Đăng nhập cuối', mobileHide: true, render: (row) => `<span class="fs-13">${escapeHtml(datetime(row.last_login_at))}</span>` },
         {
             label: 'Thao tác',
             headerClass: 'text-end',
-            render: (row) => {
-                const actions = [];
+            className: 'text-end',
+            render: (row, index) => {
+                const actions = [
+                    `<button type="button" class="btn btn-sm btn-light hk-mobile-only" data-action="detail" data-index="${index}">Chi tiết</button>`
+                ];
                 if (can('staff.manage')) {
-                    actions.push(`<a class="btn btn-sm btn-light" href="../form/?id=${row.id}" title="Chỉnh sửa"><i class="bi bi-pencil"></i></a>`);
-                    actions.push(`<button type="button" class="btn btn-sm btn-light" data-action="reset" data-id="${row.id}" data-name="${escapeHtml(row.full_name)}" title="Đặt lại mật khẩu"><i class="bi bi-key"></i></button>`);
+                    actions.push(`<a class="btn btn-sm btn-light hk-desktop-only" href="../form/?id=${row.id}" title="Chỉnh sửa"><i class="bi bi-pencil"></i></a>`);
+                    actions.push(`<button type="button" class="btn btn-sm btn-light hk-desktop-only" data-action="reset" data-id="${row.id}" data-name="${escapeHtml(row.full_name)}" title="Đặt lại mật khẩu"><i class="bi bi-key"></i></button>`);
                     if (Number(row.id) !== Number(session.user?.id)) {
                         actions.push(row.status === 'locked'
-                            ? `<button type="button" class="btn btn-sm btn-light text-success" data-action="unlock" data-id="${row.id}" data-name="${escapeHtml(row.full_name)}" title="Mở khoá"><i class="bi bi-unlock"></i></button>`
-                            : `<button type="button" class="btn btn-sm btn-light text-danger" data-action="lock" data-id="${row.id}" data-name="${escapeHtml(row.full_name)}" title="Khoá tài khoản"><i class="bi bi-lock"></i></button>`);
+                            ? `<button type="button" class="btn btn-sm btn-light text-success hk-desktop-only" data-action="unlock" data-id="${row.id}" data-name="${escapeHtml(row.full_name)}" title="Mở khoá"><i class="bi bi-unlock"></i></button>`
+                            : `<button type="button" class="btn btn-sm btn-light text-danger hk-desktop-only" data-action="lock" data-id="${row.id}" data-name="${escapeHtml(row.full_name)}" title="Khoá tài khoản"><i class="bi bi-lock"></i></button>`);
                     }
                 }
-                return actions.length ? `<div class="staff-actions">${actions.join('')}</div>` : '<span class="text-muted-2">—</span>';
+                return `<div class="staff-actions">${actions.join('')}</div>`;
             }
         }
     ]
@@ -88,7 +93,8 @@ async function load() {
             role_key: state.role,
             status: state.status
         });
-        table.render(payload?.data || []);
+        state.rows = payload?.data || [];
+        table.render(state.rows);
         renderPagination(qs('[data-staff-pagination]'), payload?.meta || {}, (page) => {
             state.page = page;
             load();
@@ -161,9 +167,59 @@ function openResetModal(staffId, staffName) {
     modal.show();
 }
 
+function openStaffDetail(row) {
+    const meta = statusMeta('user', row.status);
+    const modal = createModal({ title: row.full_name || 'Chi tiết nhân viên', size: 'sm' });
+    const body = document.createElement('dl');
+    body.className = 'info-list';
+    body.innerHTML = `
+        <dt>Tên đăng nhập</dt><dd>@${escapeHtml(row.username || '—')}</dd>
+        <dt>Vai trò</dt><dd>${escapeHtml(row.role_name || row.role_key || '—')}</dd>
+        <dt>Cơ sở</dt><dd>${escapeHtml(row.branch_names || 'Chưa phân công')}</dd>
+        <dt>Email</dt><dd>${escapeHtml(row.email || '—')}</dd>
+        <dt>Điện thoại</dt><dd>${escapeHtml(row.phone || '—')}</dd>
+        <dt>Trạng thái</dt><dd><span class="hk-badge hk-badge--${meta.tone}">${escapeHtml(meta.label)}</span></dd>
+        <dt>Đăng nhập cuối</dt><dd>${escapeHtml(datetime(row.last_login_at))}</dd>`;
+    modal.setBody(body);
+
+    const footer = [];
+    if (can('staff.manage')) {
+        const editLink = document.createElement('a');
+        editLink.className = 'btn-hk-outline btn-sm';
+        editLink.href = `../form/?id=${row.id}`;
+        editLink.innerHTML = '<i class="bi bi-pencil me-1"></i>Sửa';
+        footer.push(editLink);
+
+        const resetBtn = document.createElement('button');
+        resetBtn.type = 'button';
+        resetBtn.className = 'btn-hk-outline btn-sm';
+        resetBtn.innerHTML = '<i class="bi bi-key me-1"></i>Đổi MK';
+        resetBtn.addEventListener('click', () => {
+            modal.hide();
+            openResetModal(Number(row.id), row.full_name || '');
+        });
+        footer.push(resetBtn);
+    }
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'btn-hk btn-sm';
+    closeBtn.textContent = 'Đóng';
+    closeBtn.dataset.bsDismiss = 'modal';
+    footer.push(closeBtn);
+    modal.setFooter(footer);
+    modal.show();
+}
+
 qs('[data-staff-table]')?.addEventListener('click', async (event) => {
     const button = event.target.closest('[data-action]');
     if (!button) {
+        return;
+    }
+    if (button.dataset.action === 'detail') {
+        const row = state.rows[Number(button.dataset.index)];
+        if (row) {
+            openStaffDetail(row);
+        }
         return;
     }
     const id = Number(button.dataset.id);

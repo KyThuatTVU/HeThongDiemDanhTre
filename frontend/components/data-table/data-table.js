@@ -1,15 +1,17 @@
 import { injectCss, escapeHtml } from '../../assets/js/core/dom.js';
 
-injectCss(new URL('./data-table.css', import.meta.url).href, 'component-data-table');
-injectCss(new URL('../empty-state/empty-state.css', import.meta.url).href, 'component-empty-state');
+const TABLE_CSS_VERSION = '20261127-19';
+injectCss(`${new URL('./data-table.css', import.meta.url).href}?v=${TABLE_CSS_VERSION}`, 'component-data-table');
+injectCss(`${new URL('../empty-state/empty-state.css', import.meta.url).href}?v=${TABLE_CSS_VERSION}`, 'component-empty-state');
 
 export function createTable(container, options = {}) {
     const columns = options.columns || [];
     const emptyTitle = options.emptyTitle || 'Chưa có dữ liệu';
     const emptyHint = options.emptyHint || '';
 
+    const hasMobileHide = Boolean(options.mobileCompact) || columns.some((column) => Boolean(column.mobileHide));
     const wrap = document.createElement('div');
-    wrap.className = 'hk-table-wrap';
+    wrap.className = hasMobileHide ? 'hk-table-wrap hk-table-wrap--mobile-compact' : 'hk-table-wrap';
     wrap.innerHTML = `
         <div class="table-responsive">
             <table class="table hk-table align-middle">
@@ -21,7 +23,8 @@ export function createTable(container, options = {}) {
     const theadRow = wrap.querySelector('thead tr');
     theadRow.innerHTML = columns.map((column) => {
         const width = column.width ? ` style="width:${escapeHtml(column.width)}"` : '';
-        const className = column.headerClass ? ` class="${escapeHtml(column.headerClass)}"` : '';
+        const classes = [column.headerClass, column.mobileHide ? 'hk-col-mobile-hide' : ''].filter(Boolean).join(' ');
+        const className = classes ? ` class="${escapeHtml(classes)}"` : '';
         return `<th${className}${width}>${escapeHtml(column.label || '')}</th>`;
     }).join('');
 
@@ -51,7 +54,8 @@ export function createTable(container, options = {}) {
                 const value = typeof column.render === 'function'
                     ? column.render(row, index)
                     : escapeHtml(row[column.key] ?? '—');
-                const className = column.className ? ` class="${escapeHtml(column.className)}"` : '';
+                const classes = [column.className, column.mobileHide ? 'hk-col-mobile-hide' : ''].filter(Boolean).join(' ');
+                const className = classes ? ` class="${escapeHtml(classes)}"` : '';
                 return `<td${className}>${value ?? ''}</td>`;
             }).join('');
             return `<tr${rowClass ? ` class="${escapeHtml(rowClass)}"` : ''}>${cells}</tr>`;

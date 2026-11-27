@@ -71,10 +71,57 @@ final class FileCache
     public static function flush(): int
     {
         $removed = 0;
-        foreach (glob(self::directory() . '/*/*.json') ?: [] as $file) {
-            if (is_file($file) && @unlink($file)) {
-                $removed++;
+        $patterns = [
+            self::directory() . '/*.json',
+            self::directory() . '/*/*.json',
+        ];
+        foreach ($patterns as $pattern) {
+            foreach (glob($pattern) ?: [] as $file) {
+                if (is_file($file) && @unlink($file)) {
+                    $removed++;
+                }
             }
+        }
+        // Dọn thư mục con rỗng cũ để tiết kiệm inode trên host miễn phí
+        foreach (glob(self::directory() . '/*', GLOB_ONLYDIR) ?: [] as $subdir) {
+            @rmdir($subdir);
+        }
+        return $removed;
+    }
+
+    public static function gc(): int
+    {
+        $now = time();
+        $staleDeadline = $now - 3600; // TTL tối đa của cache là 10 phút
+        $removed = 0;
+        $files = array_merge(
+            glob(self::directory() . '/*.json') ?: [],
+            glob(self::directory() . '/*/*.json') ?: []
+        );
+        foreach (array_slice($files, 0, 200) as $file) {
+            if (!is_file($file)) {
+                continue;
+            }
+            $modified = @filemtime($file);
+            if ($modified !== false && $modified < $staleDeadline) {
+                if (@unlink($file)) {
+                    $removed++;
+                }
+                continue;
+            }
+            $raw = @file_get_contents($file);
+            if ($raw === false) {
+                continue;
+            }
+            $payload = json_decode($raw, true);
+            if (!is_array($payload) || (int) ($payload['expires_at'] ?? 0) < $now) {
+                if (@unlink($file)) {
+                    $removed++;
+                }
+            }
+        }
+        foreach (glob(self::directory() . '/*', GLOB_ONLYDIR) ?: [] as $subdir) {
+            @rmdir($subdir);
         }
         return $removed;
     }
@@ -106,8 +153,9 @@ final class FileCache
 
     private static function file(string $key): string
     {
+        // Lưu phẳng trong 1 thư mục (không tạo 256 thư mục con) để tiết kiệm inode trên host miễn phí
         $hash = hash('sha256', $key);
-        return self::directory() . '/' . substr($hash, 0, 2) . '/' . $hash . '.json';
+        return self::directory() . '/' . $hash . '.json';
     }
 
     private static function directory(): string
@@ -126,16 +174,13 @@ final class FileCache
 
     private static function maybeGc(): void
     {
-        if (random_int(1, 100) !== 1) {
+        try {
+            if (random_int(1, 30) !== 1) {
+                return;
+            }
+        } catch (\Throwable) {
             return;
         }
-        $deadline = time() - 172800;
-        $files = glob(self::directory() . '/*/*.json') ?: [];
-        foreach (array_slice($files, 0, 200) as $file) {
-            $modified = @filemtime($file);
-            if ($modified !== false && $modified < $deadline) {
-                @unlink($file);
-            }
-        }
+        self::gc();
     }
 }

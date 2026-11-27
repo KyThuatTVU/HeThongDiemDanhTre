@@ -102,6 +102,9 @@ function renderHero(student) {
         return;
     }
     const buttons = [];
+    if (!student.deleted_at) {
+        buttons.push(`<a class="btn-hk-outline" href="../slip/?id=${student.id}"><i class="bi bi-file-earmark-image me-1"></i>Phiếu gửi PH</a>`);
+    }
     if (!student.deleted_at && can('students.update')) {
         buttons.push(`<a class="btn-hk" href="../form/?id=${student.id}"><i class="bi bi-pencil me-1"></i>Sửa hồ sơ</a>`);
     }

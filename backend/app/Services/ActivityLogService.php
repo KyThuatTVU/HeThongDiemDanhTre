@@ -3,12 +3,16 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Core\Env;
 use App\Core\Request;
 use App\Core\Session;
 use App\Repositories\ActivityLogRepository;
 
 final class ActivityLogService
 {
+    private const PRUNE_MARKER_FILE = '/storage/cache/last_db_log_prune.txt';
+    private const PRUNE_INTERVAL_SEC = 86400; // Tối đa 1 lần/ngày
+
     private ActivityLogRepository $repository;
 
     public function __construct()
@@ -40,6 +44,32 @@ final class ActivityLogService
             'ip_address' => $request?->ip(),
             'user_agent' => $request?->userAgent(),
         ]);
+        $this->maybeAutoPrune();
+    }
+
+    public function pruneOldLogs(?int $keepDays = null, int $batchLimit = 2000): array
+    {
+        $days = max(7, $keepDays ?? Env::int('DB_LOG_KEEP_DAYS', 90));
+        return $this->repository->pruneOldLogs($days, $batchLimit);
+    }
+
+    private function maybeAutoPrune(): void
+    {
+        $marker = BASE_PATH . self::PRUNE_MARKER_FILE;
+        $lastRun = is_file($marker) ? (int) @filemtime($marker) : 0;
+        if ($lastRun > 0 && (time() - $lastRun) < self::PRUNE_INTERVAL_SEC) {
+            return;
+        }
+        $dir = dirname($marker);
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0775, true);
+        }
+        @file_put_contents($marker, (string) time(), LOCK_EX);
+        try {
+            $this->pruneOldLogs(null, 500);
+        } catch (\Throwable) {
+            // Không làm gián đoạn thao tác chính nếu dọn log nền lỗi
+        }
     }
 
     public function recordLogin(?int $userId, ?string $identifier, string $method, string $status): void
@@ -53,6 +83,7 @@ final class ActivityLogService
             'ip_address' => $request?->ip(),
             'user_agent' => $request?->userAgent(),
         ]);
+        $this->maybeAutoPrune();
     }
 
     public function activityList(array $filters, int $page, int $perPage): array

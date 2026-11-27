@@ -5,6 +5,7 @@
 
 .auth-shell {
     min-height: 100vh;
+    min-height: 100dvh;
     display: grid;
     grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
     background-color: var(--hk-bg);
@@ -177,7 +178,20 @@
     }
 
     .auth-panel {
-        padding: 32px 18px;
+        padding: 24px 16px 32px;
         align-items: flex-start;
+    }
+
+    .auth-card__logo-mobile {
+        margin-bottom: 18px;
+    }
+
+    .auth-title {
+        font-size: 22px;
+    }
+
+    .auth-subtitle {
+        font-size: 13.5px;
+        margin-bottom: 18px;
     }
 }

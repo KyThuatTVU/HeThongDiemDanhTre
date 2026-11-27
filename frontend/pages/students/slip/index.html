@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Phiếu thống kê học viên · HappyKidsCK</title>
+    <link rel="icon" href="../../../assets/img/brand/logo.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="../../../assets/vendor/bootstrap-icons/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../../../assets/css/base/typography.css">
+    <link rel="stylesheet" href="../../../assets/css/base/tokens.css">
+    <link rel="stylesheet" href="../../../assets/css/base/reset.css">
+    <link rel="stylesheet" href="../../../assets/css/base/ui.css">
+    <link rel="stylesheet" href="../../../assets/css/layout/app.css">
+    <link rel="stylesheet" href="../../../assets/css/pages/students/slip.css?v=20261127-20">
+    <script src="../../../assets/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
+    <script type="module" src="../../../assets/js/app.js?v=20261127-20"></script>
+    <script type="module" src="../../../assets/js/pages/students/slip.js?v=20261127-20"></script>
+</head>
+<body data-auth="required" data-layout="dashboard" data-page="student-slip">
+    <div class="page-stack">
+        <div class="no-print"
+             data-component="page-header"
+             data-title="Phiếu thống kê gửi phụ huynh"
+             data-subtitle="Xuất ảnh phiếu chuyên cần & học phí theo tháng của từng bé để gửi nhanh qua Zalo"
+             data-breadcrumb='[{"label":"Học viên","href":"../list/"},{"label":"Phiếu gửi phụ huynh"}]'>
+            <template data-slot="actions">
+                <button type="button" class="btn-hk-outline" data-slip-share hidden>
+                    <i class="bi bi-share me-1"></i>Chia sẻ ảnh
+                </button>
+                <button type="button" class="btn-hk" data-slip-png>
+                    <i class="bi bi-image me-1"></i>Tải ảnh PNG
+                </button>
+                <button type="button" class="btn-hk-outline" data-slip-print>
+                    <i class="bi bi-printer me-1"></i>In / PDF
+                </button>
+            </template>
+        </div>
+
+        <section class="card card-pad slip-controls no-print">
+            <div class="slip-controls__grid">
+                <div class="hk-field slip-controls__student">
+                    <label class="form-label" for="slip-student">Chọn học viên</label>
+                    <div class="slip-student-nav">
+                        <button type="button" class="btn-hk-outline btn-sm" data-slip-prev title="Học viên trước" aria-label="Học viên trước">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                        <select class="form-select" id="slip-student" data-slip-student>
+                            <option value="">Đang tải danh sách học viên...</option>
+                        </select>
+                        <button type="button" class="btn-hk-outline btn-sm" data-slip-next title="Học viên tiếp theo" aria-label="Học viên tiếp theo">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="hk-field">
+                    <label class="form-label" for="slip-month">Tháng</label>
+                    <select class="form-select" id="slip-month" data-slip-month></select>
+                </div>
+                <div class="hk-field">
+                    <label class="form-label" for="slip-year">Năm</label>
+                    <select class="form-select" id="slip-year" data-slip-year></select>
+                </div>
+                <div class="hk-field">
+                    <label class="form-label" for="slip-teacher">Giáo viên / Người lập</label>
+                    <input class="form-control" id="slip-teacher" type="text" maxlength="100"
+                           placeholder="VD: Cô Thi..." data-slip-teacher autocomplete="off">
+                </div>
+            </div>
+
+            <div class="slip-controls__extras">
+                <div class="slip-controls__toggles">
+                    <label class="slip-check" data-slip-tuition-wrap>
+                        <input type="checkbox" id="slip-show-tuition" data-slip-show-tuition checked>
+                        <span>Hiện thông tin học phí</span>
+                    </label>
+                    <label class="slip-check">
+                        <input type="checkbox" id="slip-show-notes" data-slip-show-notes checked>
+                        <span>Hiện ghi chú ngày nghỉ</span>
+                    </label>
+                </div>
+                <div class="hk-field">
+                    <label class="form-label" for="slip-comment">Nhận xét gửi phụ huynh (tuỳ chọn)</label>
+                    <textarea class="form-control" id="slip-comment" rows="2" maxlength="320"
+                              placeholder="VD: Bé đi học ngoan, hợp tác tốt trong giờ can thiệp..." data-slip-comment></textarea>
+                </div>
+            </div>
+        </section>
+
+        <div class="slip-stage">
+            <article class="slip-card" data-slip-preview>
+                <div class="slip-state">
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Đang tải phiếu thống kê học viên...
+                </div>
+            </article>
+        </div>
+    </div>
+</body>
+</html>

@@ -21,14 +21,18 @@ final class ErrorHandler
 
     public static function render(\Throwable $exception): void
     {
-        Logger::error($exception->getMessage(), [
-            'exception' => $exception::class,
-            'file' => $exception->getFile(),
-            'line' => $exception->getLine(),
-            'trace' => self::$debug ? $exception->getTraceAsString() : null,
-        ]);
-
         $status = $exception instanceof HttpException ? $exception->getStatusCode() : 500;
+        // Chỉ ghi log lỗi hệ thống (>=500) để tránh phình file log từ lỗi thao tác thông thường (401/404/419/422)
+        // và không ghi tham số hàm vào trace để tránh lộ mật khẩu.
+        if ($status >= 500) {
+            Logger::error($exception->getMessage(), [
+                'exception' => $exception::class,
+                'file' => $exception->getFile(),
+                'line' => $exception->getLine(),
+                'trace' => self::$debug ? self::safeTrace($exception) : null,
+            ]);
+        }
+
         $databaseError = $exception instanceof \PDOException;
         $message = $exception instanceof HttpException
             ? $exception->getMessage()
@@ -57,5 +61,16 @@ final class ErrorHandler
         echo '<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>' . $status . ' - HappyKidsCK</title></head>'
             . '<body style="font-family:sans-serif;padding:40px"><h1>' . $status . '</h1><p>' . $safeMessage . '</p></body></html>';
         exit;
+    }
+
+    private static function safeTrace(\Throwable $exception): string
+    {
+        $lines = [];
+        foreach (array_slice($exception->getTrace(), 0, 10) as $idx => $frame) {
+            $location = isset($frame['file']) ? ($frame['file'] . '(' . ($frame['line'] ?? 0) . ')') : '[internal]';
+            $call = ($frame['class'] ?? '') . ($frame['type'] ?? '') . ($frame['function'] ?? '');
+            $lines[] = '#' . $idx . ' ' . $location . ': ' . $call . '()';
+        }
+        return implode("\n", $lines);
     }
 }

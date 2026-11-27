@@ -28,6 +28,7 @@ export const PAGE_ROUTES = {
     students: { slug: 'students', dir: 'students/list' },
     studentForm: { slug: 'student-form', dir: 'students/form' },
     studentDetail: { slug: 'student', dir: 'students/detail' },
+    studentSlip: { slug: 'student-slip', dir: 'students/slip' },
     classes: { slug: 'classes', dir: 'classes/list' },
     classForm: { slug: 'class-form', dir: 'classes/form' },
     classDetail: { slug: 'class', dir: 'classes/detail' },

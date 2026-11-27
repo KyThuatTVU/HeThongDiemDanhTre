@@ -10,4 +10,6 @@ return [
         explode(',', (string) Env::get('UPLOAD_ALLOWED_EXT', 'jpg,jpeg,png,webp'))
     ))),
     'dir' => Env::get('UPLOAD_DIR', 'storage/uploads'),
+    'max_dimension' => Env::int('UPLOAD_MAX_DIMENSION', 480),
+    'quality' => Env::int('UPLOAD_JPEG_QUALITY', 78),
 ];

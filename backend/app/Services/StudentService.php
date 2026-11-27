@@ -7,7 +7,9 @@ use App\Exceptions\HttpException;
 use App\Infrastructure\Storage\FileStorage;
 use App\Models\Student;
 use App\Repositories\AttendanceRepository;
+use App\Repositories\BranchRepository;
 use App\Repositories\ClassRepository;
+use App\Repositories\SettingRepository;
 use App\Repositories\StudentClassHistoryRepository;
 use App\Repositories\StudentRepository;
 use App\Repositories\TuitionRepository;
@@ -273,6 +275,140 @@ final class StudentService
             'branch_histories' => $this->students->branchHistories($id),
             'recent_attendance' => $attendance['items'],
             'recent_tuition' => $this->tuition->recentByStudent($id),
+        ];
+    }
+
+    public function parentSlip(int $id, int $year, int $month, bool $includeTuition = true): array
+    {
+        $student = $this->students->findDetail($id);
+        if ($student === null) {
+            throw new HttpException(404, 'Không tìm thấy học viên');
+        }
+        $branchId = (int) $student->branch_id;
+        $this->authz->assertBranch($branchId);
+
+        $branch = (new BranchRepository())->find($branchId);
+        $settings = new SettingRepository();
+
+        $daysInMonth = (int) cal_days_in_month(CAL_GREGORIAN, $month, $year);
+        $dateFrom = sprintf('%04d-%02d-01', $year, $month);
+        $dateTo = sprintf('%04d-%02d-%02d', $year, $month, $daysInMonth);
+        $firstTs = mktime(0, 0, 0, $month, 1, $year);
+        $firstIsoDow = $firstTs !== false ? (int) date('N', $firstTs) : 1; // 1 = T2 .. 7 = CN
+
+        $sundays = [];
+        for ($d = 1; $d <= $daysInMonth; $d++) {
+            $ts = mktime(0, 0, 0, $month, $d, $year);
+            if ($ts !== false && (int) date('w', $ts) === 0) {
+                $sundays[] = $d;
+            }
+        }
+
+        $records = $this->attendance->monthlyRecordsForStudent($branchId, $id, $dateFrom, $dateTo);
+        $days = [];
+        $notes = [];
+        foreach ($records as $rec) {
+            $day = (int) substr((string) $rec['session_date'], 8, 2);
+            if ($day < 1 || $day > $daysInMonth) {
+                continue;
+            }
+            $days[$day] = (string) $rec['status'];
+            $note = trim((string) ($rec['note'] ?? ''));
+            if ($note !== '') {
+                $notes[$day] = $note;
+            }
+        }
+
+        $counts = [
+            'present' => 0,
+            'late' => 0,
+            'excused_absent' => 0,
+            'unexcused_absent' => 0,
+            'planned_leave' => 0,
+        ];
+        foreach ($days as $st) {
+            if (array_key_exists($st, $counts)) {
+                $counts[$st]++;
+            }
+        }
+        $presentTotal = $counts['present'] + $counts['late'];
+        $absentTotal = $counts['excused_absent'] + $counts['unexcused_absent'] + $counts['planned_leave'];
+        $recordedTotal = $presentTotal + $absentTotal;
+
+        $tuitionData = null;
+        if ($includeTuition) {
+            $tRow = $this->tuition->findByStudentPeriod($id, $year, $month);
+            if ($tRow !== null) {
+                $final = (float) ($tRow['final_amount'] ?? 0);
+                $paid = (float) ($tRow['paid_amount'] ?? 0);
+                $tuitionData = [
+                    'exists' => true,
+                    'base_amount' => (float) ($tRow['base_amount'] ?? 0),
+                    'adjustment_total' => (float) ($tRow['adjustment_total'] ?? 0),
+                    'final_amount' => $final,
+                    'paid_amount' => $paid,
+                    'remaining_amount' => max(0.0, $final - $paid),
+                    'status' => (string) ($tRow['status'] ?? 'unpaid'),
+                ];
+            } elseif ((float) $student->monthly_fee > 0) {
+                $tuitionData = [
+                    'exists' => false,
+                    'base_amount' => (float) $student->monthly_fee,
+                    'adjustment_total' => 0.0,
+                    'final_amount' => (float) $student->monthly_fee,
+                    'paid_amount' => 0.0,
+                    'remaining_amount' => (float) $student->monthly_fee,
+                    'status' => 'reference',
+                ];
+            }
+        }
+
+        return [
+            'center' => [
+                'name' => trim((string) ($settings->get('general.center_name', 'Trung tâm HappyKidsCK') ?? 'Trung tâm HappyKidsCK')),
+                'hotline' => trim((string) ($branch?->phone ?: ($settings->get('general.hotline', '') ?? ''))),
+                'address' => trim((string) ($branch?->address ?: ($settings->get('general.address', '') ?? ''))),
+            ],
+            'branch' => [
+                'id' => $branchId,
+                'code' => $branch?->code,
+                'name' => $branch?->name ?? $student->branch_name,
+            ],
+            'student' => [
+                'id' => (int) $student->id,
+                'student_code' => $student->student_code,
+                'full_name' => $student->full_name,
+                'dob' => $student->dob,
+                'class_name' => $student->class_name,
+                'study_format' => $student->study_format,
+                'guardian_name' => $student->guardian_name,
+                'guardian_phone' => $student->guardian_phone,
+                'monthly_fee' => $includeTuition ? (float) $student->monthly_fee : null,
+            ],
+            'period' => [
+                'year' => $year,
+                'month' => $month,
+                'days_in_month' => $daysInMonth,
+                'first_iso_dow' => $firstIsoDow,
+                'sundays' => $sundays,
+            ],
+            'attendance' => [
+                'days' => (object) $days,
+                'notes' => (object) $notes,
+                'summary' => [
+                    'present' => $counts['present'],
+                    'late' => $counts['late'],
+                    'excused_absent' => $counts['excused_absent'],
+                    'unexcused_absent' => $counts['unexcused_absent'],
+                    'planned_leave' => $counts['planned_leave'],
+                    'present_total' => $presentTotal,
+                    'absent_total' => $absentTotal,
+                    'total_recorded' => $recordedTotal,
+                    'attendance_rate' => $recordedTotal > 0 ? round($presentTotal * 100 / $recordedTotal, 1) : null,
+                ],
+            ],
+            'tuition' => $tuitionData,
+            'can_view_tuition' => $includeTuition,
         ];
     }
 

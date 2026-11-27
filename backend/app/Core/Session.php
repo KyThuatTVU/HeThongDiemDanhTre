@@ -49,26 +49,37 @@ final class Session
         ]);
     }
 
+    public static function gc(int $maxLifetimeSec = 7200): int
+    {
+        $savePath = BASE_PATH . '/storage/sessions';
+        if (!is_dir($savePath)) {
+            return 0;
+        }
+        $deadline = time() - max(1800, $maxLifetimeSec);
+        $removed = 0;
+        $files = glob(rtrim($savePath, '/\\') . '/sess_*') ?: [];
+        foreach (array_slice($files, 0, 200) as $file) {
+            if (!is_file($file)) {
+                continue;
+            }
+            $modified = @filemtime($file);
+            if ($modified !== false && $modified < $deadline && @unlink($file)) {
+                $removed++;
+            }
+        }
+        return $removed;
+    }
+
     private static function maybeGc(string $savePath, int $maxLifetimeSec): void
     {
         try {
-            if (random_int(1, 50) !== 1) {
+            if (random_int(1, 40) !== 1) {
                 return;
             }
         } catch (\Throwable) {
             return;
         }
-        $deadline = time() - max(1800, $maxLifetimeSec);
-        $files = glob(rtrim($savePath, '/\\') . '/sess_*') ?: [];
-        foreach (array_slice($files, 0, 120) as $file) {
-            if (!is_file($file)) {
-                continue;
-            }
-            $modified = @filemtime($file);
-            if ($modified !== false && $modified < $deadline) {
-                @unlink($file);
-            }
-        }
+        self::gc($maxLifetimeSec);
     }
 
     public static function get(string $key, mixed $default = null): mixed

@@ -12,6 +12,7 @@ const PAGE_ROUTES = [
     'students' => 'students/list',
     'student-form' => 'students/form',
     'student' => 'students/detail',
+    'student-slip' => 'students/slip',
     'classes' => 'classes/list',
     'class-form' => 'classes/form',
     'class' => 'classes/detail',

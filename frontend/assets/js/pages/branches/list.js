@@ -30,12 +30,14 @@ const table = createTable(qs('[data-branches-table]'), {
         },
         {
             label: 'Địa chỉ',
+            mobileHide: true,
             render: (row) => row.address
                 ? escapeHtml(row.address)
                 : '<span class="text-muted-2">—</span>'
         },
         {
             label: 'Điện thoại',
+            mobileHide: true,
             render: (row) => row.phone
                 ? escapeHtml(row.phone)
                 : '<span class="text-muted-2">—</span>'
@@ -49,8 +51,9 @@ const table = createTable(qs('[data-branches-table]'), {
         {
             label: 'Thao tác',
             headerClass: 'text-end',
+            className: 'text-end',
             render: (row) => can('branches.manage')
-                ? `<a class="btn btn-sm btn-light" href="../form/?id=${row.id}" title="Chỉnh sửa"><i class="bi bi-pencil"></i></a>`
+                ? `<a class="btn btn-sm btn-light" href="../form/?id=${row.id}" title="Chỉnh sửa"><i class="bi bi-pencil"></i><span class="hk-mobile-only ms-1">Chi tiết</span></a>`
                 : '<span class="text-muted-2">—</span>'
         }
     ]

@@ -14,8 +14,8 @@
     <link rel="stylesheet" href="../../../assets/css/layout/app.css">
     <link rel="stylesheet" href="../../../assets/css/pages/students/list.css">
     <script src="../../../assets/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
-    <script type="module" src="../../../assets/js/app.js"></script>
-    <script type="module" src="../../../assets/js/pages/students/list.js"></script>
+    <script type="module" src="../../../assets/js/app.js?v=20261127-20"></script>
+    <script type="module" src="../../../assets/js/pages/students/list.js?v=20261127-20"></script>
 </head>
 <body data-auth="required" data-layout="dashboard" data-page="students">
     <div class="page-stack">
@@ -54,6 +54,9 @@
                 </label>
             </template>
             <template data-slot="actions">
+                <a class="btn-hk-outline" href="../slip/">
+                    <i class="bi bi-file-earmark-image me-1"></i>Phiếu gửi PH
+                </a>
                 <a class="btn-hk" href="../form/" data-permission="students.create">
                     <i class="bi bi-plus-lg me-1"></i>Thêm học viên
                 </a>

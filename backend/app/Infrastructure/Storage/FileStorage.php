@@ -65,11 +65,112 @@ final class FileStorage
         if (!is_dir($directory) && !mkdir($directory, 0775, true) && !is_dir($directory)) {
             throw new HttpException(500, 'Không thể tạo thư mục lưu trữ');
         }
-        $filename = bin2hex(random_bytes(16)) . '.' . $extension;
-        if (!move_uploaded_file($temporary, $directory . '/' . $filename)) {
-            throw new HttpException(500, 'Không thể lưu hình ảnh');
+        $normalizedExt = $extension === 'jpeg' ? 'jpg' : $extension;
+        $filename = bin2hex(random_bytes(16)) . '.' . $normalizedExt;
+        $destination = $directory . '/' . $filename;
+
+        // Nén & thu nhỏ ảnh tự động (tối đa 480x480px) để tiết kiệm ~95% dung lượng host miễn phí
+        if (!self::optimizeAndSaveImage($temporary, $destination, $mime, $normalizedExt, (int) $imageInfo[0], (int) $imageInfo[1], $size)) {
+            if (!move_uploaded_file($temporary, $destination)) {
+                throw new HttpException(500, 'Không thể lưu hình ảnh');
+            }
         }
         return $module . '/' . $filename;
+    }
+
+    private static function optimizeAndSaveImage(
+        string $sourcePath,
+        string $destinationPath,
+        string $mime,
+        string $extension,
+        int $width,
+        int $height,
+        int $originalBytes
+    ): bool {
+        if (!extension_loaded('gd')) {
+            return false;
+        }
+        $maxDim = max(120, (int) Config::get('upload.max_dimension', 480));
+        $quality = max(50, min(92, (int) Config::get('upload.quality', 78)));
+
+        // Tránh tràn RAM trên host miễn phí nếu ảnh quá lớn (VD > 20 megapixel)
+        if ($width * $height > 20_000_000) {
+            return false;
+        }
+        // Ảnh đã rất nhỏ (< 50KB và kích thước gọn) thì vẫn re-encode nhẹ nếu muốn hoặc giữ nguyên nếu nhỏ hơn 40KB
+        if ($originalBytes <= 40 * 1024 && $width <= $maxDim && $height <= $maxDim) {
+            return false;
+        }
+
+        $src = match ($mime) {
+            'image/jpeg' => function_exists('imagecreatefromjpeg') ? @imagecreatefromjpeg($sourcePath) : false,
+            'image/png' => function_exists('imagecreatefrompng') ? @imagecreatefrompng($sourcePath) : false,
+            'image/webp' => function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($sourcePath) : false,
+            default => false,
+        };
+        if ($src === false) {
+            return false;
+        }
+
+        try {
+            // Tự xoay ảnh chụp điện thoại theo EXIF (nếu PHP bật exif)
+            if ($mime === 'image/jpeg' && function_exists('exif_read_data') && function_exists('imagerotate')) {
+                $exif = @exif_read_data($sourcePath);
+                $orientation = (int) ($exif['Orientation'] ?? 1);
+                $rotated = match ($orientation) {
+                    3 => @imagerotate($src, 180, 0),
+                    6 => @imagerotate($src, -90, 0),
+                    8 => @imagerotate($src, 90, 0),
+                    default => false,
+                };
+                if ($rotated !== false) {
+                    imagedestroy($src);
+                    $src = $rotated;
+                    $width = imagesx($src);
+                    $height = imagesy($src);
+                }
+            }
+
+            $scale = min(1.0, $maxDim / max(1, $width), $maxDim / max(1, $height));
+            $targetW = max(1, (int) round($width * $scale));
+            $targetH = max(1, (int) round($height * $scale));
+
+            $dst = imagecreatetruecolor($targetW, $targetH);
+            if ($dst === false) {
+                return false;
+            }
+            try {
+                if ($extension === 'png' || $extension === 'webp') {
+                    imagealphablending($dst, false);
+                    imagesavealpha($dst, true);
+                    $transparent = imagecolorallocatealpha($dst, 0, 0, 0, 127);
+                    imagefilledrectangle($dst, 0, 0, $targetW, $targetH, $transparent);
+                } else {
+                    $white = imagecolorallocate($dst, 255, 255, 255);
+                    imagefilledrectangle($dst, 0, 0, $targetW, $targetH, $white);
+                }
+
+                if (!imagecopyresampled($dst, $src, 0, 0, 0, 0, $targetW, $targetH, $width, $height)) {
+                    return false;
+                }
+
+                $saved = match ($extension) {
+                    'jpg' => function_exists('imagejpeg') && @imagejpeg($dst, $destinationPath, $quality),
+                    'png' => function_exists('imagepng') && @imagepng($dst, $destinationPath, 7),
+                    'webp' => function_exists('imagewebp') && @imagewebp($dst, $destinationPath, $quality),
+                    default => false,
+                };
+                if (!$saved || !is_file($destinationPath) || filesize($destinationPath) === 0) {
+                    @unlink($destinationPath);
+                    return false;
+                }
+                return true;
+            } finally {
+                imagedestroy($dst);
+            }
+        } finally {
+            imagedestroy($src);
+        }
     }
 
     public static function delete(?string $relativePath): void

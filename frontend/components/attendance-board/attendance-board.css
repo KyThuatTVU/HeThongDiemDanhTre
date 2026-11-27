@@ -197,6 +197,56 @@
     border-radius: var(--hk-radius-sm);
     background: var(--hk-surface);
     border: 1px solid var(--hk-border);
+    cursor: pointer;
+    transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.att-summary__item:hover {
+    border-color: var(--hk-brand-500);
+}
+
+.att-summary__item.is-active {
+    border-color: var(--hk-brand-700);
+    background: var(--hk-brand-50);
+    box-shadow: 0 0 0 1px var(--hk-brand-700);
+}
+
+.att-meta-right {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.att-note-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    border: 1px solid var(--hk-border);
+    background: var(--hk-surface-2);
+    color: var(--hk-muted);
+    font-size: 14px;
+    cursor: pointer;
+    flex: 0 0 auto;
+}
+
+.att-note-toggle.has-note {
+    border-color: var(--hk-brand-500);
+    background: var(--hk-brand-50);
+    color: var(--hk-brand-700);
+}
+
+.btn-hk.is-dirty {
+    background-color: var(--hk-accent-600);
+    border-color: var(--hk-accent-600);
+    box-shadow: 0 3px 12px rgba(217, 119, 6, 0.32);
+}
+
+.btn-hk.is-dirty:hover {
+    background-color: #b45309;
+    border-color: #b45309;
 }
 
 .att-summary__label {
@@ -317,9 +367,17 @@
     cursor: not-allowed;
 }
 
+.att-pill__mobile,
 .att-pill__short {
     display: none;
 }
+
+/* Phân màu chữ dịu theo trạng thái khi chưa chọn để nhận biết nhanh mà không chói mắt */
+.att-pill--success:not(.is-active) { color: #15803d; }
+.att-pill--warning:not(.is-active) { color: #b45309; }
+.att-pill--info:not(.is-active) { color: #0369a1; }
+.att-pill--danger:not(.is-active) { color: #b91c1c; }
+.att-pill--neutral:not(.is-active) { color: #64748b; }
 
 .att-pill--success.is-active {
     background: var(--hk-success);
@@ -389,16 +447,51 @@
 @media (max-width: 767.98px) {
     .att-board {
         gap: 8px;
-        padding-bottom: 66px;
+        padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+    }
+
+    /* Ghim thanh chọn lớp ngay dưới topbar để đổi lớp bằng 1 chạm ngón cái */
+    .att-class-tabs {
+        position: sticky;
+        top: var(--hk-topbar-h, 56px);
+        z-index: 1015;
+        margin: 0 -10px;
+        padding: 6px 10px;
+        background: rgba(247, 245, 239, 0.94);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid var(--hk-border);
+        scrollbar-width: none;
+    }
+
+    .att-class-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .att-class-tab {
+        padding: 6px 12px;
+        font-size: 13px;
     }
 
     .att-filters {
-        padding: 10px;
+        padding: 0;
         gap: 8px;
+        background: transparent;
+        border: 0;
+        box-shadow: none;
     }
 
     .att-filters__top .form-label {
         display: none;
+    }
+
+    .att-filters__top .input-group {
+        background: var(--hk-surface);
+        border-radius: 10px;
+    }
+
+    .att-filters__top .form-control {
+        height: 38px;
+        font-size: 14.5px;
     }
 
     .att-filter-toggle {
@@ -406,6 +499,9 @@
         align-items: center;
         justify-content: center;
         flex: 0 0 auto;
+        height: 38px;
+        min-height: 38px;
+        background: var(--hk-surface);
     }
 
     /* Mặc định ẩn bộ lọc phụ trên điện thoại để vào phát thấy ngay danh sách học viên */
@@ -413,8 +509,10 @@
         display: none;
         grid-template-columns: 1fr 1fr;
         gap: 8px 10px;
-        padding-top: 8px;
-        border-top: 1px solid var(--hk-border);
+        padding: 10px;
+        background: var(--hk-surface);
+        border: 1px solid var(--hk-border);
+        border-radius: 12px;
     }
 
     .att-filters__extras.is-open {
@@ -427,25 +525,31 @@
     }
 
     .att-summary {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
         gap: 6px;
     }
 
     .att-summary__item {
-        flex-direction: column;
+        flex: 1 1 calc(25% - 6px);
+        flex-direction: row;
         align-items: center;
-        gap: 2px;
-        padding: 6px 4px;
+        justify-content: center;
+        gap: 4px;
+        padding: 5px 4px;
+        min-height: 32px;
+        border-radius: 9px;
         text-align: center;
     }
 
     .att-summary__label {
-        font-size: 11px;
+        font-size: 11.5px;
+        white-space: nowrap;
     }
 
     .att-summary__value {
-        font-size: 15px;
+        font-size: 13.5px;
     }
 
     .att-summary__spacer {
@@ -453,22 +557,270 @@
     }
 
     .att-compact-btn {
-        grid-column: 1 / 3;
-        justify-content: center;
+        flex: 0 0 auto;
+        min-height: 30px;
+        padding: 3px 10px;
+        font-size: 12px;
+        border-radius: 999px;
     }
 
     .att-summary__status {
-        grid-column: 3 / 5;
+        flex: 0 0 auto;
+        margin-left: auto;
         display: flex;
-        justify-content: flex-end;
+        align-items: center;
+    }
+
+    .att-summary__status .hk-chip {
+        font-size: 11.5px;
+        padding: 3px 8px;
     }
 
     .att-summary__buttons {
-        grid-column: 1 / -1;
-        justify-content: flex-end;
+        flex: 0 0 auto;
+        display: flex;
+        gap: 6px;
     }
 
-    /* Chế độ Xem gọn 1 màn hình trên điện thoại: mỗi bé chỉ 1 dòng siêu gọn */
+    .att-summary__buttons .btn-hk-outline {
+        min-height: 30px;
+        padding: 3px 9px;
+        font-size: 12px;
+    }
+
+    .table-card__head {
+        padding: 8px 12px;
+    }
+
+    .table-card__title {
+        font-size: 14px;
+    }
+
+    .table-card__head .section-subtitle {
+        font-size: 11.5px;
+    }
+
+    .table-card__head .att-savebar {
+        display: none;
+    }
+
+    /* Biến bảng thành danh sách thẻ gọn gàng, 1 hàng nút phẳng trên điện thoại */
+    .att-board .table-responsive {
+        overflow-x: visible;
+    }
+
+    .att-board .hk-table {
+        min-width: 0 !important;
+        display: block;
+    }
+
+    .att-board .hk-table thead {
+        display: none;
+    }
+
+    .att-board .hk-table tbody {
+        display: block;
+    }
+
+    .att-board .hk-table tbody tr {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        gap: 7px 8px;
+        align-items: center;
+        padding: 9px 10px;
+        border-bottom: 1px solid var(--hk-border);
+        background: var(--hk-surface);
+    }
+
+    .att-board .hk-table tbody tr:last-child {
+        border-bottom: 0;
+    }
+
+    .att-board .hk-table tbody tr.att-row--present {
+        background: rgba(22, 163, 74, 0.055);
+        border-left: 3px solid var(--hk-success);
+    }
+
+    .att-board .hk-table tbody tr.att-row--late {
+        background: rgba(217, 119, 6, 0.055);
+        border-left: 3px solid var(--hk-warning);
+    }
+
+    .att-board .hk-table tbody tr.att-row--absent {
+        background: rgba(220, 38, 38, 0.045);
+        border-left: 3px solid var(--hk-danger);
+    }
+
+    .att-board .hk-table tbody tr.att-row--present td,
+    .att-board .hk-table tbody tr.att-row--late td,
+    .att-board .hk-table tbody tr.att-row--absent td {
+        background: transparent;
+    }
+
+    .att-board .hk-table tbody td {
+        display: block;
+        border: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* 1: STT | 2: Tên học viên | 3: (Lớp nếu xem tất cả) + nút Ghi chú | 4: Thanh nút 1 hàng | 5: Ô ghi chú */
+    .att-board .hk-table tbody td:nth-child(1) {
+        grid-column: 1;
+        grid-row: 1;
+        width: 24px;
+        height: 24px;
+        line-height: 24px;
+        border-radius: 7px;
+        background: var(--hk-surface-2);
+        font-size: 11.5px;
+        text-align: center;
+    }
+
+    .att-board .hk-table tbody td:nth-child(2) {
+        grid-column: 2;
+        grid-row: 1;
+        min-width: 0;
+    }
+
+    /* Ẩn mã CL00xx trên di động để tên bé thoáng, đỡ rối mắt */
+    .att-board .hk-table tbody td:nth-child(2) .fs-13 {
+        display: none;
+    }
+
+    .att-board .hk-table tbody td:nth-child(3) {
+        grid-column: 3;
+        grid-row: 1;
+        justify-self: end;
+    }
+
+    /* Khi đã chọn riêng 1 lớp ở tab trên thì ẩn nhãn lớp lặp lại ở từng bé */
+    .att-board.is-single-class .att-class-tag {
+        display: none;
+    }
+
+    .att-board .hk-table tbody td:nth-child(4) {
+        grid-column: 1 / -1;
+        grid-row: 2;
+    }
+
+    /* Ẩn ô ghi chú mặc định trên điện thoại để thấy nhiều bé hơn & tránh bật bàn phím nhầm */
+    .att-board .hk-table tbody td:nth-child(5) {
+        display: none;
+        grid-column: 1 / -1;
+        grid-row: 3;
+    }
+
+    .att-board .hk-table tbody tr.has-note td:nth-child(5),
+    .att-board .hk-table tbody tr.is-note-open td:nth-child(5) {
+        display: block;
+    }
+
+    .att-note-toggle {
+        display: inline-flex;
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        border: 0;
+        background: transparent;
+        color: var(--hk-muted);
+    }
+
+    .att-note-toggle.has-note {
+        background: var(--hk-brand-50);
+        color: var(--hk-brand-700);
+    }
+
+    .att-board .hk-table-wrap--state tbody tr {
+        display: block;
+    }
+
+    .att-board .hk-table-wrap--state tbody td {
+        width: auto;
+        height: auto;
+        background: transparent;
+    }
+
+    .att-student-name {
+        font-size: 14.5px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Thanh trạng thái 1 hàng duy nhất, bỏ viền rời rạc để hết rối mắt */
+    .att-pills {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 3px;
+        padding: 3px;
+        border-radius: 10px;
+        background: #f1f4f2;
+    }
+
+    .att-pill {
+        position: relative;
+        flex: 1 1 0;
+        justify-content: center;
+        gap: 3px;
+        min-height: 36px;
+        padding: 4px 4px;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        font-size: 12.5px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    /* Vạch ngăn siêu mảnh giữa các nút chưa chọn cho rõ ranh giới bấm */
+    .att-pill:not(:first-child):not(.is-active)::before {
+        content: '';
+        position: absolute;
+        left: -2px;
+        top: 8px;
+        bottom: 8px;
+        width: 1px;
+        background: rgba(15, 23, 42, 0.1);
+        pointer-events: none;
+    }
+
+    .att-pill.is-active + .att-pill::before {
+        display: none;
+    }
+
+    .att-pill .att-pill__full {
+        display: none;
+    }
+
+    .att-pill .att-pill__mobile {
+        display: inline;
+    }
+
+    .att-pill .att-pill__icon {
+        display: none;
+    }
+
+    .att-pill[data-pick-status="present"] {
+        flex: 1.55 1 0;
+        font-size: 13px;
+    }
+
+    .att-pill[data-pick-status="present"] .att-pill__icon {
+        display: inline;
+    }
+
+    .att-pill:active:not(:disabled) {
+        transform: scale(0.96);
+    }
+
+    .att-note {
+        width: 100%;
+        min-width: 0;
+        min-height: 38px;
+        font-size: 16px;
+    }
+
+    /* Chế độ Xem gọn 1 màn hình trên điện thoại (1 dòng duy nhất cho mỗi bé) */
     .att-board.is-compact .hk-table tbody tr {
         grid-template-columns: auto minmax(0, 1fr) auto;
         gap: 4px 6px;
@@ -491,33 +843,35 @@
         display: block;
     }
 
-    .att-board.is-compact .att-student-name + .fs-13 {
-        font-size: 11px;
-    }
-
     .att-board.is-compact .att-pills {
         display: flex;
         flex-wrap: nowrap;
-        gap: 4px;
+        gap: 2px;
+        padding: 2px;
+        border-radius: 9px;
     }
 
     .att-board.is-compact .att-pill {
+        flex: 0 0 auto;
         min-height: 32px;
         min-width: 32px;
-        padding: 4px 7px;
-        font-size: 12px;
+        padding: 3px 6px;
+        font-size: 12.5px;
+        border-radius: 7px;
     }
 
     .att-board.is-compact .att-pill[data-pick-status="present"] {
-        grid-column: auto;
-        font-size: 12px;
+        flex: 0 0 auto;
+        font-size: 12.5px;
     }
 
     .att-board.is-compact .att-pill[data-pick-status="planned_leave"] {
         display: none;
     }
 
-    .att-board.is-compact .att-pill .att-pill__full {
+    .att-board.is-compact .att-pill .att-pill__full,
+    .att-board.is-compact .att-pill .att-pill__mobile,
+    .att-board.is-compact .att-pill .att-pill__icon {
         display: none;
     }
 
@@ -525,161 +879,29 @@
         display: inline;
     }
 
-    .table-card__head .att-savebar {
-        display: none;
-    }
-
-    /* Biến bảng thành danh sách thẻ bấm 1 chạm trên điện thoại */
-    .att-board .table-responsive {
-        overflow-x: visible;
-    }
-
-    .att-board .hk-table {
-        min-width: 0 !important;
-        display: block;
-    }
-
-    .att-board .hk-table thead {
-        display: none;
-    }
-
-    .att-board .hk-table tbody {
-        display: block;
-    }
-
-    .att-board .hk-table tbody tr {
-        display: grid;
-        grid-template-columns: auto minmax(0, 1fr) auto;
-        gap: 8px 8px;
-        align-items: center;
-        padding: 12px;
-        border-bottom: 1px solid var(--hk-border);
-        background: var(--hk-surface);
-    }
-
-    .att-board .hk-table tbody tr:last-child {
-        border-bottom: 0;
-    }
-
-    .att-board .hk-table tbody tr.att-row--present {
-        background: rgba(22, 163, 74, 0.06);
-        border-left: 3px solid var(--hk-success);
-    }
-
-    .att-board .hk-table tbody tr.att-row--late {
-        background: rgba(217, 119, 6, 0.06);
-        border-left: 3px solid var(--hk-warning);
-    }
-
-    .att-board .hk-table tbody tr.att-row--absent {
-        background: rgba(220, 38, 38, 0.05);
-        border-left: 3px solid var(--hk-danger);
-    }
-
-    .att-board .hk-table tbody tr.att-row--present td,
-    .att-board .hk-table tbody tr.att-row--late td,
-    .att-board .hk-table tbody tr.att-row--absent td {
-        background: transparent;
-    }
-
-    .att-board .hk-table tbody td {
-        display: block;
-        border: 0 !important;
-        padding: 0 !important;
-    }
-
-    /* 1: STT | 2: Học viên | 3: Lớp | 4: Nút tích chọn | 5: Ghi chú */
-    .att-board .hk-table tbody td:nth-child(1) {
-        grid-column: 1;
-        grid-row: 1;
-        width: 26px;
-        height: 26px;
-        line-height: 26px;
-        border-radius: 8px;
-        background: var(--hk-surface-2);
-        font-size: 12px;
-        text-align: center;
-    }
-
-    .att-board .hk-table tbody td:nth-child(2) {
-        grid-column: 2;
-        grid-row: 1;
-        min-width: 0;
-    }
-
-    .att-board .hk-table tbody td:nth-child(3) {
-        grid-column: 3;
-        grid-row: 1;
-        justify-self: end;
-    }
-
-    .att-board .hk-table tbody td:nth-child(4) {
-        grid-column: 1 / -1;
-        grid-row: 2;
-    }
-
-    .att-board .hk-table tbody td:nth-child(5) {
-        grid-column: 1 / -1;
-        grid-row: 3;
-    }
-
-    .att-board .hk-table-wrap--state tbody tr {
-        display: block;
-    }
-
-    .att-board .hk-table-wrap--state tbody td {
-        width: auto;
-        height: auto;
-        background: transparent;
-    }
-
-    .att-student-name {
-        font-size: 15px;
-    }
-
-    .att-pills {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 6px;
-    }
-
-    .att-pill {
-        justify-content: center;
-        min-height: 40px;
-        padding: 6px 6px;
-        font-size: 13px;
-        border-radius: 10px;
-    }
-
-    /* Nút "Có mặt" nổi bật gấp đôi chiều rộng cho ngón tay cái */
-    .att-pill[data-pick-status="present"] {
-        grid-column: span 2;
-        font-size: 14px;
-    }
-
-    .att-note {
-        width: 100%;
-        min-width: 0;
-        min-height: 38px;
-        font-size: 15px;
-    }
-
-    /* Thanh lưu cố định phía dưới cùng trên điện thoại */
+    /* Thanh lưu cố định phía dưới cùng (tính đúng safe-area iPhone để không bị che) */
     .att-mobile-bar {
         position: fixed;
         left: 0;
         right: 0;
-        bottom: var(--hk-mobile-nav-h, 62px);
+        bottom: calc(var(--hk-mobile-nav-h, 58px) + env(safe-area-inset-bottom, 0px));
         z-index: 1020;
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 8px;
         padding: 8px 12px;
-        background: rgba(255, 255, 255, 0.96);
+        background: rgba(255, 255, 255, 0.97);
         backdrop-filter: blur(8px);
         border-top: 1px solid var(--hk-border);
         box-shadow: 0 -4px 16px rgba(15, 40, 34, 0.08);
+        transition: transform 0.18s ease, opacity 0.18s ease;
+    }
+
+    .att-board.is-typing .att-mobile-bar {
+        transform: translateY(120%);
+        opacity: 0;
+        pointer-events: none;
     }
 
     .att-mobile-bar[hidden] {
@@ -704,9 +926,9 @@
 
     .att-mobile-bar__actions .btn-hk,
     .att-mobile-bar__actions .btn-hk-outline {
-        min-height: 38px;
+        min-height: 40px;
         padding: 6px 12px;
-        font-size: 13px;
+        font-size: 13.5px;
         white-space: nowrap;
     }
 }

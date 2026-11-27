@@ -34,14 +34,22 @@
     color: #fff;
 }
 
-@media (max-width: 575.98px) {
+@media (max-width: 767.98px) {
     .report-tabs {
-        flex-wrap: wrap;
-        overflow-x: visible;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding: 4px;
+    }
+
+    .report-tabs::-webkit-scrollbar {
+        display: none;
     }
 
     .report-tabs__link {
-        flex: 1 1 auto;
-        justify-content: center;
+        padding: 6px 11px;
+        font-size: 13px;
+        white-space: nowrap;
     }
 }

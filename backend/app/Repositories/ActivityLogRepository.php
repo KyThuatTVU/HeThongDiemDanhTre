@@ -107,6 +107,28 @@ final class ActivityLogRepository extends Repository
         return ['items' => $rows, 'total' => $total];
     }
 
+    public function pruneOldLogs(int $keepDays = 90, int $batchLimit = 1000): array
+    {
+        $days = max(7, $keepDays);
+        $limit = max(100, min(5000, $batchLimit));
+        $cutoff = date('Y-m-d H:i:s', time() - ($days * 86400));
+
+        $activityDeleted = $this->execute(
+            'DELETE FROM activity_logs WHERE created_at < ? ORDER BY id ASC LIMIT ' . $limit,
+            [$cutoff]
+        );
+        $loginDeleted = $this->execute(
+            'DELETE FROM login_histories WHERE created_at < ? ORDER BY id ASC LIMIT ' . $limit,
+            [$cutoff]
+        );
+
+        return [
+            'activity_logs' => $activityDeleted,
+            'login_histories' => $loginDeleted,
+            'cutoff' => $cutoff,
+        ];
+    }
+
     private function applyBranchScope(array $filters, string $userColumn, array &$where, array &$params): void
     {
         if (!array_key_exists('scope_branch_ids', $filters)) {

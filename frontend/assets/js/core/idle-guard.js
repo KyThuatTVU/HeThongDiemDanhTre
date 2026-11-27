@@ -15,6 +15,8 @@ const TOUCH_THROTTLE_MS = 15 * 1000;
 let started = false;
 let loggingOut = false;
 let keepaliveInFlight = false;
+let lastKeepaliveAttemptAt = 0;
+let keepaliveFailCount = 0;
 let lastLocalTouch = 0;
 let warningBanner = null;
 let countdownTimer = null;
@@ -99,6 +101,9 @@ async function maybeKeepServerAlive() {
     if (document.visibilityState !== 'visible') {
         return;
     }
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+        return;
+    }
     const lastServer = getLastServerTouch();
     const now = nowMs();
     // CHỈ gia hạn nếu thực sự có thao tác người dùng MỚI HƠN lần gọi server gần nhất
@@ -108,11 +113,22 @@ async function maybeKeepServerAlive() {
     if (now - lastServer < keepaliveGapMs()) {
         return;
     }
+    // Nếu mạng chập chờn làm lần ping trước thất bại, giãn thời gian thử lại (1 -> 2 -> 5 phút)
+    // để tuyệt đối không spam API liên tục.
+    const backoffMs = keepaliveFailCount === 0
+        ? 0
+        : Math.min(5 * 60 * 1000, 60 * 1000 * (2 ** (keepaliveFailCount - 1)));
+    if (backoffMs > 0 && (now - lastKeepaliveAttemptAt) < backoffMs) {
+        return;
+    }
     keepaliveInFlight = true;
+    lastKeepaliveAttemptAt = now;
     try {
         await api.get('/auth/ping');
+        keepaliveFailCount = 0;
     } catch {
-        // Nếu đã hết phiên, listener hk:session-expired sẽ tự xử lý
+        keepaliveFailCount = Math.min(keepaliveFailCount + 1, 4);
+        // Nếu đã hết phiên (401), listener hk:session-expired sẽ tự xử lý
     } finally {
         keepaliveInFlight = false;
     }

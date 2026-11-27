@@ -12,10 +12,10 @@
     <link rel="stylesheet" href="../../../assets/css/base/reset.css">
     <link rel="stylesheet" href="../../../assets/css/base/ui.css">
     <link rel="stylesheet" href="../../../assets/css/layout/app.css">
-    <link rel="stylesheet" href="../../../assets/css/pages/attendance/sheet.css?v=20261127-10">
+    <link rel="stylesheet" href="../../../assets/css/pages/attendance/sheet.css?v=20261127-20">
     <script src="../../../assets/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
-    <script type="module" src="../../../assets/js/app.js?v=20261127-10"></script>
-    <script type="module" src="../../../assets/js/pages/attendance/sheet.js?v=20261127-10"></script>
+    <script type="module" src="../../../assets/js/app.js?v=20261127-20"></script>
+    <script type="module" src="../../../assets/js/pages/attendance/sheet.js?v=20261127-20"></script>
 </head>
 <body data-auth="required" data-layout="dashboard" data-page="attendance">
     <div class="page-stack">
@@ -27,6 +27,9 @@
             <template data-slot="actions">
                 <a class="btn-hk-outline" href="../today/" data-permission="attendance.view">
                     <i class="bi bi-check2-square me-1"></i>Điểm danh
+                </a>
+                <a class="btn-hk-outline" href="../../students/slip/" data-permission="attendance.view">
+                    <i class="bi bi-file-earmark-image me-1"></i>Phiếu gửi PH
                 </a>
                 <button type="button" class="btn-hk-outline" data-sheet-fit aria-pressed="false"
                         title="Thu gọn để xem trọn phiếu điểm danh trên 1 màn hình">

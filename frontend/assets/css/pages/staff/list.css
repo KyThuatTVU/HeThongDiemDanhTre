@@ -34,3 +34,10 @@
     color: var(--hk-text-soft);
     max-width: 220px;
 }
+
+@media (max-width: 767.98px) {
+    .staff-cell {
+        min-width: 0;
+        gap: 6px;
+    }
+}

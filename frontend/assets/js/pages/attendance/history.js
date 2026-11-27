@@ -2,6 +2,7 @@ import { api } from '../../core/http.js';
 import { showToast } from '../../../../components/toast/toast.js';
 import { createTable } from '../../../../components/data-table/data-table.js';
 import { renderPagination } from '../../../../components/pagination/pagination.js';
+import { createModal } from '../../../../components/modal/modal.js';
 import { can } from '../../core/auth.js';
 import { date, datetime, number, statusMeta, weekdayLabel } from '../../core/format.js';
 import { escapeHtml, qs } from '../../core/dom.js';
@@ -11,6 +12,7 @@ const state = {
     classId: '',
     dateFrom: '',
     dateTo: '',
+    rows: [],
     loading: false
 };
 
@@ -36,19 +38,21 @@ const table = createTable(qs('[data-history-table]'), {
     columns: [
         {
             label: 'Ngày',
+            mobileHide: true,
             render: (row) => `<span class="d-block">${escapeHtml(date(row.session_date))}</span>
                 <span class="fs-13 text-muted-2">${escapeHtml(weekdayLabel(row.session_date))}</span>`
         },
         {
             label: 'Lớp',
+            mobileHide: true,
             render: (row) => row.class_name
                 ? escapeHtml(row.class_name)
                 : '<span class="text-muted-2">Chưa xếp lớp</span>'
         },
         {
             label: 'Học viên',
-            render: (row) => `<span class="d-block">${escapeHtml(row.full_name)}</span>
-                <span class="fs-13 text-muted-2">${escapeHtml(row.student_code)}</span>`
+            render: (row) => `<span class="d-block fw-semibold">${escapeHtml(row.full_name)}</span>
+                <span class="fs-13 text-muted-2"><span class="hk-mobile-only">${escapeHtml(date(row.session_date))} · </span>${escapeHtml(row.class_name || row.student_code)}</span>`
         },
         {
             label: 'Trạng thái',
@@ -57,9 +61,15 @@ const table = createTable(qs('[data-history-table]'), {
                 return `<span class="hk-badge hk-badge--${meta.tone}">${escapeHtml(meta.label)}</span>`;
             }
         },
-        { label: 'Ghi chú', render: (row) => escapeHtml(row.note || '—') },
-        { label: 'Người ghi', render: (row) => escapeHtml(row.recorded_by_name || '—') },
-        { label: 'Ghi lúc', render: (row) => `<span class="fs-13">${escapeHtml(datetime(row.recorded_at))}</span>` }
+        { label: 'Ghi chú', mobileHide: true, render: (row) => escapeHtml(row.note || '—') },
+        { label: 'Người ghi', mobileHide: true, render: (row) => escapeHtml(row.recorded_by_name || '—') },
+        { label: 'Ghi lúc', mobileHide: true, render: (row) => `<span class="fs-13">${escapeHtml(datetime(row.recorded_at))}</span>` },
+        {
+            label: '',
+            headerClass: 'text-end hk-col-mobile-only',
+            className: 'text-end hk-col-mobile-only',
+            render: (_row, index) => `<button type="button" class="btn btn-sm btn-light" data-history-detail="${index}" title="Xem chi tiết">Chi tiết</button>`
+        }
     ]
 });
 
@@ -99,7 +109,8 @@ async function load() {
     }
     try {
         const payload = await api.get('/attendance/history', query);
-        table.render(payload?.data || []);
+        state.rows = payload?.data || [];
+        table.render(state.rows);
         renderPagination(paginationBox, payload?.meta || {}, (page) => {
             state.page = page;
             load();
@@ -133,7 +144,39 @@ function applyFilters(event) {
     load();
 }
 
+function openHistoryDetail(row) {
+    const meta = statusMeta('attendance', row.status);
+    const modal = createModal({ title: row.full_name || 'Chi tiết điểm danh', size: 'sm' });
+    const body = document.createElement('dl');
+    body.className = 'info-list';
+    body.innerHTML = `
+        <dt>Mã học viên</dt><dd>${escapeHtml(row.student_code || '—')}</dd>
+        <dt>Ngày học</dt><dd>${escapeHtml(date(row.session_date))} (${escapeHtml(weekdayLabel(row.session_date))})</dd>
+        <dt>Lớp</dt><dd>${escapeHtml(row.class_name || 'Chưa xếp lớp')}</dd>
+        <dt>Trạng thái</dt><dd><span class="hk-badge hk-badge--${meta.tone}">${escapeHtml(meta.label)}</span></dd>
+        <dt>Ghi chú</dt><dd>${escapeHtml(row.note || 'Không có')}</dd>
+        <dt>Người ghi</dt><dd>${escapeHtml(row.recorded_by_name || '—')}</dd>
+        <dt>Ghi lúc</dt><dd>${escapeHtml(datetime(row.recorded_at))}</dd>`;
+    modal.setBody(body);
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'btn-hk-outline';
+    closeBtn.textContent = 'Đóng';
+    closeBtn.dataset.bsDismiss = 'modal';
+    modal.setFooter([closeBtn]);
+    modal.show();
+}
+
 document.addEventListener('hk:ready', () => {
+    qs('[data-history-table]')?.addEventListener('click', (event) => {
+        const btn = event.target.closest('[data-history-detail]');
+        if (!btn) return;
+        const row = state.rows[Number(btn.dataset.historyDetail)];
+        if (row) {
+            openHistoryDetail(row);
+        }
+    });
+
     const fromInput = qs('[data-history-from]');
     const toInput = qs('[data-history-to]');
     fromInput.value = state.dateFrom;

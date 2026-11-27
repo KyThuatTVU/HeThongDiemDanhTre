@@ -20,7 +20,26 @@ final class Response
         self::status($status);
         header('Content-Type: application/json; charset=utf-8');
         header('Cache-Control: no-store');
-        echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        $body = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        if ($body === false) {
+            $body = '{"message":"Lỗi mã hoá dữ liệu phản hồi"}';
+        }
+        // Nén gzip cho phản hồi JSON lớn (>1KB) để tiết kiệm băng thông trên host miễn phí
+        if (strlen($body) > 1024
+            && function_exists('gzencode')
+            && !ini_get('zlib.output_compression')
+            && str_contains((string) ($_SERVER['HTTP_ACCEPT_ENCODING'] ?? ''), 'gzip')
+        ) {
+            $compressed = @gzencode($body, 5);
+            if ($compressed !== false) {
+                header('Content-Encoding: gzip');
+                header('Vary: Accept-Encoding');
+                header('Content-Length: ' . (string) strlen($compressed));
+                echo $compressed;
+                exit;
+            }
+        }
+        echo $body;
         exit;
     }
 

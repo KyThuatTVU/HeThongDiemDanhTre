@@ -25,26 +25,28 @@ const table = createTable(qs('[data-students-table]'), {
         {
             label: 'Học viên',
             render: (row) => `
-                <div class="student-cell">
-                    <span class="hk-avatar hk-avatar--sm${row.avatar_path ? '' : ' hk-avatar--fallback'}">
+                <a class="student-cell" href="../detail/?id=${row.id}">
+                    <span class="hk-avatar hk-avatar--sm hk-desktop-only${row.avatar_path ? '' : ' hk-avatar--fallback'}">
                         ${row.avatar_path
                             ? `<img src="${escapeHtml(fileUrl(row.avatar_path))}" alt="${escapeHtml(row.full_name)}">`
                             : escapeHtml(initials(row.full_name))}
                     </span>
-                    <span>
+                    <span class="min-w-0">
                         <span class="student-cell__name">${escapeHtml(row.full_name)}</span>
-                        <span class="student-cell__meta">${escapeHtml(row.student_code)}</span>
+                        <span class="student-cell__meta">${escapeHtml(row.class_name || 'Chưa xếp lớp')}<span class="hk-desktop-only"> · ${escapeHtml(row.student_code)}</span></span>
                     </span>
-                </div>`
+                </a>`
         },
         {
             label: 'Lớp',
+            mobileHide: true,
             render: (row) => row.class_name
                 ? escapeHtml(row.class_name)
                 : '<span class="text-muted-2">Chưa xếp lớp</span>'
         },
         {
             label: 'Phụ huynh',
+            mobileHide: true,
             render: (row) => {
                 if (!row.guardian_name && !row.guardian_phone) {
                     return '<span class="text-muted-2">—</span>';
@@ -53,8 +55,8 @@ const table = createTable(qs('[data-students-table]'), {
                     <span class="student-cell__meta">${escapeHtml(row.guardian_phone || '')}</span>`;
             }
         },
-        { label: 'Ngày sinh', render: (row) => escapeHtml(date(row.dob)) },
-        { label: 'Học phí', className: 'text-end', render: (row) => escapeHtml(money(row.monthly_fee)) },
+        { label: 'Ngày sinh', mobileHide: true, render: (row) => escapeHtml(date(row.dob)) },
+        { label: 'Học phí', mobileHide: true, className: 'text-end', render: (row) => escapeHtml(money(row.monthly_fee)) },
         {
             label: 'Trạng thái',
             render: (row) => {
@@ -69,17 +71,20 @@ const table = createTable(qs('[data-students-table]'), {
             label: 'Thao tác',
             headerClass: 'text-end',
             render: (row) => {
-                const actions = [`<a class="btn btn-sm btn-light" href="../detail/?id=${row.id}" title="Xem hồ sơ"><i class="bi bi-eye"></i></a>`];
+                const actions = [
+                    `<a class="btn btn-sm btn-light" href="../detail/?id=${row.id}" title="Xem hồ sơ"><i class="bi bi-eye"></i><span class="hk-mobile-only ms-1">Chi tiết</span></a>`
+                ];
                 if (row.deleted_at) {
                     if (can('students.restore')) {
-                        actions.push(`<button type="button" class="btn btn-sm btn-light text-success" data-action="restore" data-id="${row.id}" title="Khôi phục"><i class="bi bi-arrow-counterclockwise"></i></button>`);
+                        actions.push(`<button type="button" class="btn btn-sm btn-light text-success hk-desktop-only" data-action="restore" data-id="${row.id}" title="Khôi phục"><i class="bi bi-arrow-counterclockwise"></i></button>`);
                     }
                 } else {
+                    actions.push(`<a class="btn btn-sm btn-light hk-desktop-only" href="../slip/?id=${row.id}" title="Phiếu thống kê gửi phụ huynh"><i class="bi bi-file-earmark-image"></i></a>`);
                     if (can('students.update')) {
-                        actions.push(`<a class="btn btn-sm btn-light" href="../form/?id=${row.id}" title="Chỉnh sửa"><i class="bi bi-pencil"></i></a>`);
+                        actions.push(`<a class="btn btn-sm btn-light hk-desktop-only" href="../form/?id=${row.id}" title="Chỉnh sửa"><i class="bi bi-pencil"></i></a>`);
                     }
                     if (can('students.delete')) {
-                        actions.push(`<button type="button" class="btn btn-sm btn-light text-danger" data-action="delete" data-id="${row.id}" data-name="${escapeHtml(row.full_name)}" title="Xoá"><i class="bi bi-trash3"></i></button>`);
+                        actions.push(`<button type="button" class="btn btn-sm btn-light text-danger hk-desktop-only" data-action="delete" data-id="${row.id}" data-name="${escapeHtml(row.full_name)}" title="Xoá"><i class="bi bi-trash3"></i></button>`);
                     }
                 }
                 return `<div class="student-actions">${actions.join('')}</div>`;

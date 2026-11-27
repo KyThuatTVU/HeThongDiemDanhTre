@@ -96,6 +96,32 @@
                 </button>
             </div>
         </form>
+
+        <section class="card card-pad settings-maint" data-maintenance-section hidden>
+            <div class="section-head">
+                <div>
+                    <h2 class="section-title">Dung lượng &amp; Bảo trì hệ thống</h2>
+                    <p class="section-subtitle">Theo dõi dung lượng CSDL, dọn rác và tải bản sao lưu trực tiếp về máy (tối ưu cho hosting miễn phí)</p>
+                </div>
+                <div class="settings-maint__actions">
+                    <button type="button" class="btn-hk-outline btn-sm" data-maint-refresh>
+                        <i class="bi bi-arrow-repeat me-1"></i>Cập nhật
+                    </button>
+                    <a class="btn-hk-outline btn-sm" data-maint-backup href="#">
+                        <i class="bi bi-download me-1"></i>Tải sao lưu (.sql)
+                    </a>
+                    <button type="button" class="btn-hk btn-sm" data-maint-cleanup>
+                        <i class="bi bi-broom me-1"></i>Dọn rác ngay
+                    </button>
+                </div>
+            </div>
+
+            <div class="settings-maint__grid" data-maint-stats>
+                <div class="settings-maint__loading">Đang kiểm tra dung lượng hệ thống...</div>
+            </div>
+
+            <p class="settings-maint__footnote" data-maint-note></p>
+        </section>
     </div>
 </body>
 </html>

@@ -1,6 +1,7 @@
 import { api } from '../../core/http.js';
 import { showToast } from '../../../../components/toast/toast.js';
 import { createTable } from '../../../../components/data-table/data-table.js';
+import { createModal } from '../../../../components/modal/modal.js';
 import { can } from '../../core/auth.js';
 import { monthLabel, number, percent } from '../../core/format.js';
 import { escapeHtml, qs } from '../../core/dom.js';
@@ -10,6 +11,7 @@ const state = {
     year: now.getFullYear(),
     month: now.getMonth() + 1,
     classId: '',
+    rows: [],
     loading: false
 };
 
@@ -21,15 +23,15 @@ const table = createTable(qs('[data-report-table]'), {
         {
             label: 'Học viên',
             render: (row) => `<span class="cell-title">${escapeHtml(row.full_name)}</span>
-                <span class="cell-meta">${escapeHtml(row.student_code)}</span>`
+                <span class="cell-meta">${escapeHtml(row.class_name || row.student_code)}</span>`
         },
-        { label: 'Lớp', render: (row) => escapeHtml(row.class_name || '—') },
-        { label: 'Có mặt', className: 'text-end', render: (row) => escapeHtml(number(row.present)) },
-        { label: 'Đi trễ', className: 'text-end', render: (row) => escapeHtml(number(row.late)) },
-        { label: 'Có phép', className: 'text-end', render: (row) => escapeHtml(number(row.excused_absent)) },
-        { label: 'Không phép', className: 'text-end', render: (row) => escapeHtml(number(row.unexcused_absent)) },
-        { label: 'Báo trước', className: 'text-end', render: (row) => escapeHtml(number(row.planned_leave)) },
-        { label: 'Tổng lượt', className: 'text-end', render: (row) => escapeHtml(number(row.total)) },
+        { label: 'Lớp', mobileHide: true, render: (row) => escapeHtml(row.class_name || '—') },
+        { label: 'Có mặt', mobileHide: true, className: 'text-end', render: (row) => escapeHtml(number(row.present)) },
+        { label: 'Đi trễ', mobileHide: true, className: 'text-end', render: (row) => escapeHtml(number(row.late)) },
+        { label: 'Có phép', mobileHide: true, className: 'text-end', render: (row) => escapeHtml(number(row.excused_absent)) },
+        { label: 'Không phép', mobileHide: true, className: 'text-end', render: (row) => escapeHtml(number(row.unexcused_absent)) },
+        { label: 'Báo trước', mobileHide: true, className: 'text-end', render: (row) => escapeHtml(number(row.planned_leave)) },
+        { label: 'Tổng lượt', mobileHide: true, className: 'text-end', render: (row) => escapeHtml(number(row.total)) },
         {
             label: 'Tỉ lệ',
             className: 'text-end',
@@ -41,6 +43,12 @@ const table = createTable(qs('[data-report-table]'), {
                 const tone = rate >= 90 ? 'success' : (rate >= 75 ? 'warning' : 'danger');
                 return `<span class="hk-badge hk-badge--${tone}">${escapeHtml(percent(rate))}</span>`;
             }
+        },
+        {
+            label: '',
+            headerClass: 'text-end hk-col-mobile-only',
+            className: 'text-end hk-col-mobile-only',
+            render: (_row, index) => `<button type="button" class="btn btn-sm btn-light" data-report-detail="${index}">Chi tiết</button>`
         }
     ]
 });
@@ -107,6 +115,7 @@ async function load() {
         }
         const payload = await api.get(`/reports/attendance-summary?${params.toString()}`);
         const rows = payload?.data || [];
+        state.rows = rows;
         table.render(rows);
         updateStats(rows);
         renderPeriod();
@@ -173,7 +182,40 @@ function bindFilters() {
     });
 }
 
+function openSummaryDetail(row) {
+    const modal = createModal({ title: row.full_name || 'Tổng hợp tháng', size: 'sm' });
+    const body = document.createElement('dl');
+    body.className = 'info-list';
+    body.innerHTML = `
+        <dt>Mã học viên</dt><dd>${escapeHtml(row.student_code || '—')}</dd>
+        <dt>Lớp</dt><dd>${escapeHtml(row.class_name || 'Chưa xếp lớp')}</dd>
+        <dt>Có mặt</dt><dd>${escapeHtml(number(row.present))} buổi</dd>
+        <dt>Đi trễ</dt><dd>${escapeHtml(number(row.late))} buổi</dd>
+        <dt>Vắng có phép</dt><dd>${escapeHtml(number(row.excused_absent))} buổi</dd>
+        <dt>Vắng không phép</dt><dd>${escapeHtml(number(row.unexcused_absent))} buổi</dd>
+        <dt>Nghỉ báo trước</dt><dd>${escapeHtml(number(row.planned_leave))} buổi</dd>
+        <dt>Tổng lượt</dt><dd>${escapeHtml(number(row.total))} buổi</dd>
+        <dt>Tỉ lệ chuyên cần</dt><dd>${row.attendance_rate !== null && row.attendance_rate !== undefined ? escapeHtml(percent(row.attendance_rate)) : '—'}</dd>`;
+    modal.setBody(body);
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'btn-hk-outline btn-sm';
+    closeBtn.textContent = 'Đóng';
+    closeBtn.dataset.bsDismiss = 'modal';
+    modal.setFooter([closeBtn]);
+    modal.show();
+}
+
 document.addEventListener('hk:ready', () => {
+    qs('[data-report-table]')?.addEventListener('click', (event) => {
+        const btn = event.target.closest('[data-report-detail]');
+        if (!btn) return;
+        const row = state.rows[Number(btn.dataset.reportDetail)];
+        if (row) {
+            openSummaryDetail(row);
+        }
+    });
+
     fillSelects();
     bindFilters();
     loadClasses();

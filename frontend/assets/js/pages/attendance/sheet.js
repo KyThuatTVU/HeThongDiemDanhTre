@@ -270,9 +270,10 @@ function renderSheet() {
             ? `<span class="sheet-student-sub">${escapeHtml(student.class_name || 'Chưa xếp lớp')}</span>`
             : '';
 
+        const slipHref = `../../students/slip/?id=${student.student_id}&year=${state.year}&month=${state.month}`;
         return `<tr>
             <td class="col-stt">${index + 1}</td>
-            <td class="col-name"><span class="sheet-student-name">${escapeHtml(student.full_name)}</span>${classSub}</td>
+            <td class="col-name"><a class="sheet-student-name sheet-student-link" href="${slipHref}" title="Mở phiếu thống kê gửi phụ huynh">${escapeHtml(student.full_name)}</a>${classSub}</td>
             <td class="col-phone">${escapeHtml(student.guardian_phone || '')}</td>
             ${dayCells.join('')}
             <td class="col-total">${presentDays > 0 ? number(presentDays) : ''}</td>
@@ -303,10 +304,10 @@ function renderSheet() {
     }
 }
 
+let sheetRequestSeq = 0;
+
 async function loadSheet() {
-    if (state.loading) {
-        return;
-    }
+    const seq = ++sheetRequestSeq;
     state.loading = true;
     tableWrap.innerHTML = `<div class="sheet-state">
         <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
@@ -317,17 +318,25 @@ async function loadSheet() {
         if (state.classId) {
             params.class_id = state.classId;
         }
-        const payload = await api.get('/attendance/monthly-sheet', params);
+        const payload = await api.get('/attendance/monthly-sheet', params, { cancelKey: 'attendance:sheet' });
+        if (seq !== sheetRequestSeq) {
+            return;
+        }
         state.data = payload?.data || null;
         renderSheet();
         syncUrlAndLinks();
     } catch (error) {
+        if (error?.superseded || seq !== sheetRequestSeq) {
+            return;
+        }
         tableWrap.innerHTML = `<div class="sheet-state text-danger">
             <i class="bi bi-exclamation-triangle me-1"></i>${escapeHtml(error.message || 'Không tải được phiếu điểm danh tháng')}
         </div>`;
         showToast(error.message || 'Không tải được phiếu điểm danh tháng', 'danger');
     } finally {
-        state.loading = false;
+        if (seq === sheetRequestSeq) {
+            state.loading = false;
+        }
     }
 }
 

@@ -53,6 +53,7 @@ $router->post('/api/staff/{id}/avatar', [StaffController::class, 'avatar'], ['th
 
 $router->get('/api/students/search', [StudentController::class, 'search'], ['auth', 'branch', 'permission:students.view']);
 $router->get('/api/students', [StudentController::class, 'index'], ['auth', 'branch', 'permission:students.view']);
+$router->get('/api/students/{id}/parent-slip', [StudentController::class, 'parentSlip'], ['auth', 'branch']);
 $router->get('/api/students/{id}', [StudentController::class, 'show'], ['auth', 'branch', 'permission:students.view']);
 $router->post('/api/students', [StudentController::class, 'store'], ['csrf', 'auth', 'branch', 'permission:students.create']);
 $router->put('/api/students/{id}', [StudentController::class, 'update'], ['csrf', 'auth', 'branch', 'permission:students.update']);
@@ -96,5 +97,9 @@ $router->get('/api/logs/logins', [ActivityLogController::class, 'logins'], ['aut
 
 $router->get('/api/settings', [SettingController::class, 'index'], ['auth', 'permission:settings.manage']);
 $router->put('/api/settings', [SettingController::class, 'save'], ['csrf', 'auth', 'permission:settings.manage']);
+
+$router->get('/api/system/storage', [SystemController::class, 'storage'], ['auth', 'role:super_admin']);
+$router->post('/api/system/cleanup', [SystemController::class, 'cleanup'], ['csrf', 'auth', 'role:super_admin']);
+$router->get('/api/system/backup-download', [SystemController::class, 'backupDownload'], ['auth', 'role:super_admin']);
 
 $router->get('/api/files/{module}/{filename}', [FileController::class, 'show'], ['auth']);

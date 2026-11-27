@@ -122,6 +122,18 @@ final class AttendanceRepository extends Repository
         );
     }
 
+    public function monthlyRecordsForStudent(int $branchId, int $studentId, string $dateFrom, string $dateTo): array
+    {
+        return $this->fetchAll(
+            'SELECT a.status, a.note, s.session_date, s.slot_name
+             FROM attendance a
+             JOIN attendance_sessions s ON s.id = a.attendance_session_id
+             WHERE s.branch_id = ? AND a.student_id = ? AND s.session_date BETWEEN ? AND ?
+             ORDER BY s.session_date ASC, a.updated_at ASC, a.id ASC',
+            [$branchId, $studentId, $dateFrom, $dateTo]
+        );
+    }
+
     public function monthlyTuitionByBranch(int $branchId, int $year, int $month): array
     {
         $rows = $this->fetchAll(

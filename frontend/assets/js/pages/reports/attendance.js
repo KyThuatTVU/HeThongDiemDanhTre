@@ -1,6 +1,7 @@
 import { api } from '../../core/http.js';
 import { showToast } from '../../../../components/toast/toast.js';
 import { createTable } from '../../../../components/data-table/data-table.js';
+import { createModal } from '../../../../components/modal/modal.js';
 import { can } from '../../core/auth.js';
 import { date, datetime, number, statusMeta, todayIso } from '../../core/format.js';
 import { escapeHtml, qs } from '../../core/dom.js';
@@ -12,6 +13,7 @@ const state = {
     classId: '',
     dateFrom: monthStart,
     dateTo: today,
+    rows: [],
     loading: false
 };
 
@@ -22,11 +24,13 @@ const table = createTable(qs('[data-report-table]'), {
     columns: [
         {
             label: 'Ngày',
+            mobileHide: true,
             render: (row) => `${escapeHtml(date(row.session_date))}
                 <span class="cell-meta">${escapeHtml(row.slot_name || '')}</span>`
         },
         {
             label: 'Lớp',
+            mobileHide: true,
             render: (row) => row.class_name
                 ? escapeHtml(row.class_name)
                 : '<span class="text-muted-2">Chưa xếp lớp</span>'
@@ -34,7 +38,7 @@ const table = createTable(qs('[data-report-table]'), {
         {
             label: 'Học viên',
             render: (row) => `<span class="cell-title">${escapeHtml(row.full_name)}</span>
-                <span class="cell-meta">${escapeHtml(row.student_code)}</span>`
+                <span class="cell-meta"><span class="hk-mobile-only">${escapeHtml(date(row.session_date))} · </span>${escapeHtml(row.class_name || row.student_code)}</span>`
         },
         {
             label: 'Trạng thái',
@@ -45,12 +49,19 @@ const table = createTable(qs('[data-report-table]'), {
         },
         {
             label: 'Ghi chú',
+            mobileHide: true,
             render: (row) => row.note
                 ? `<span class="cell-meta">${escapeHtml(row.note)}</span>`
                 : '<span class="text-muted-2">—</span>'
         },
-        { label: 'Người ghi', render: (row) => escapeHtml(row.recorded_by_name || '—') },
-        { label: 'Ghi lúc', render: (row) => escapeHtml(datetime(row.recorded_at)) }
+        { label: 'Người ghi', mobileHide: true, render: (row) => escapeHtml(row.recorded_by_name || '—') },
+        { label: 'Ghi lúc', mobileHide: true, render: (row) => escapeHtml(datetime(row.recorded_at)) },
+        {
+            label: '',
+            headerClass: 'text-end hk-col-mobile-only',
+            className: 'text-end hk-col-mobile-only',
+            render: (_row, index) => `<button type="button" class="btn btn-sm btn-light" data-report-detail="${index}">Chi tiết</button>`
+        }
     ]
 });
 
@@ -90,6 +101,7 @@ async function load() {
         }
         const payload = await api.get(`/reports/attendance?${params.toString()}`);
         const rows = payload?.data || [];
+        state.rows = rows;
         table.render(rows);
         if (totalChip) {
             totalChip.textContent = `${number(payload?.meta?.total ?? rows.length)} lượt`;
@@ -140,7 +152,39 @@ function bindFilters() {
     });
 }
 
+function openAttendanceReportDetail(row) {
+    const meta = statusMeta('attendance', row.status);
+    const modal = createModal({ title: row.full_name || 'Chi tiết điểm danh', size: 'sm' });
+    const body = document.createElement('dl');
+    body.className = 'info-list';
+    body.innerHTML = `
+        <dt>Mã học viên</dt><dd>${escapeHtml(row.student_code || '—')}</dd>
+        <dt>Ngày học</dt><dd>${escapeHtml(date(row.session_date))}${row.slot_name ? ` (${escapeHtml(row.slot_name)})` : ''}</dd>
+        <dt>Lớp</dt><dd>${escapeHtml(row.class_name || 'Chưa xếp lớp')}</dd>
+        <dt>Trạng thái</dt><dd><span class="hk-badge hk-badge--${meta.tone}">${escapeHtml(meta.label)}</span></dd>
+        <dt>Ghi chú</dt><dd>${escapeHtml(row.note || 'Không có')}</dd>
+        <dt>Người ghi</dt><dd>${escapeHtml(row.recorded_by_name || '—')}</dd>
+        <dt>Ghi lúc</dt><dd>${escapeHtml(datetime(row.recorded_at))}</dd>`;
+    modal.setBody(body);
+    const closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'btn-hk-outline btn-sm';
+    closeBtn.textContent = 'Đóng';
+    closeBtn.dataset.bsDismiss = 'modal';
+    modal.setFooter([closeBtn]);
+    modal.show();
+}
+
 document.addEventListener('hk:ready', () => {
+    qs('[data-report-table]')?.addEventListener('click', (event) => {
+        const btn = event.target.closest('[data-report-detail]');
+        if (!btn) return;
+        const row = state.rows[Number(btn.dataset.reportDetail)];
+        if (row) {
+            openAttendanceReportDetail(row);
+        }
+    });
+
     bindFilters();
     loadClasses();
     load();

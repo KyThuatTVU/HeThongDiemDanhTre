@@ -13,6 +13,7 @@ const state = {
 let chartInstance = null;
 
 const table = createTable(qs('[data-report-table]'), {
+    mobileCompact: true,
     emptyTitle: 'Chưa có dữ liệu',
     emptyHint: 'Chưa có dữ liệu biến động trong năm được chọn.',
     emptyIcon: 'bi-arrow-left-right',
