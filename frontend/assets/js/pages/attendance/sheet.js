@@ -1,8 +1,17 @@
 import { api } from '../../core/http.js';
 import { can, currentBranch } from '../../core/auth.js';
 import { showToast } from '../../../../components/toast/toast.js';
-import { money, number } from '../../core/format.js';
+import { number } from '../../core/format.js';
 import { escapeHtml, qs } from '../../core/dom.js';
+import {
+    canCopyPngToClipboard,
+    canSharePngFiles,
+    copyPngBlob,
+    isAndroidDevice,
+    isIosDevice,
+    savePngToDevice,
+    sharePngFile
+} from '../../core/image-export.js';
 
 const STATUS_MARKS = {
     present: { symbol: '✓', cls: 'present', color: '#15803d', label: 'Có mặt' },
@@ -20,7 +29,6 @@ const state = {
     classes: [],
     teacher: '',
     assistant: '',
-    feePerDay: 0,
     data: null,
     loading: false
 };
@@ -31,7 +39,6 @@ const yearSelect = qs('[data-sheet-year]');
 const classSelect = qs('[data-sheet-class]');
 const teacherInput = qs('[data-sheet-teacher]');
 const assistantInput = qs('[data-sheet-assistant]');
-const feeInput = qs('[data-sheet-fee-per-day]');
 const tableWrap = qs('[data-sheet-table-wrap]');
 
 const orgNode = qs('[data-sheet-org]');
@@ -257,14 +264,6 @@ function renderSheet() {
         }
 
         const presentDays = Number(student.present_days || 0);
-        const feePerDayText = state.feePerDay > 0 ? escapeHtml(money(state.feePerDay)) : '';
-        let totalAmount = student.tuition_final_amount;
-        if (state.feePerDay > 0 && presentDays > 0) {
-            totalAmount = presentDays * state.feePerDay;
-        }
-        const totalAmountText = totalAmount !== null && totalAmount !== undefined && Number(totalAmount) > 0
-            ? escapeHtml(money(totalAmount))
-            : '';
 
         const classSub = showClassSub
             ? `<span class="sheet-student-sub">${escapeHtml(student.class_name || 'Chưa xếp lớp')}</span>`
@@ -277,8 +276,6 @@ function renderSheet() {
             <td class="col-phone">${escapeHtml(student.guardian_phone || '')}</td>
             ${dayCells.join('')}
             <td class="col-total">${presentDays > 0 ? number(presentDays) : ''}</td>
-            <td class="col-fee">${feePerDayText}</td>
-            <td class="col-amount">${totalAmountText}</td>
         </tr>`;
     }).join('');
 
@@ -291,8 +288,6 @@ function renderSheet() {
                     <th class="col-phone">SĐT PH</th>
                     ${dayHeaders.join('')}
                     <th class="col-total">Tổng<br>buổi học</th>
-                    <th class="col-fee">Học phí<br>/buổi</th>
-                    <th class="col-amount">Tổng học phí<br>tháng</th>
                 </tr>
             </thead>
             <tbody>${bodyRows}</tbody>
@@ -352,11 +347,11 @@ function fitText(ctx, text, maxWidth) {
     return `${trimmed}…`;
 }
 
-async function exportPng() {
+async function buildSheetPngBlob() {
     const data = state.data;
     if (!data || !(data.students || []).length) {
-        showToast('Chưa có dữ liệu để tải ảnh', 'warning');
-        return;
+        showToast('Chưa có dữ liệu để xuất ảnh', 'warning');
+        return null;
     }
 
     if (document.fonts && document.fonts.ready) {
@@ -384,11 +379,9 @@ async function exportPng() {
     const colName = 195;
     const colPhone = 104;
     const colDay = 28;
-    const colTotal = 64;
-    const colFee = 86;
-    const colAmount = 104;
+    const colTotal = 72;
 
-    const tableW = colStt + colName + colPhone + (daysInMonth * colDay) + colTotal + colFee + colAmount;
+    const tableW = colStt + colName + colPhone + (daysInMonth * colDay) + colTotal;
     const width = tableW + padX * 2;
     const height = padY * 2 + titleH + metaH + theadH + (students.length * rowH) + legendH;
 
@@ -401,7 +394,7 @@ async function exportPng() {
     const ctx = canvas.getContext('2d');
     if (!ctx) {
         showToast('Trình duyệt không hỗ trợ xuất ảnh PNG', 'danger');
-        return;
+        return null;
     }
     ctx.scale(scale, scale);
 
@@ -471,11 +464,7 @@ async function exportPng() {
     for (let d = 1; d <= daysInMonth; d += 1) {
         cols.push({ key: `d${d}`, day: d, label: String(d), w: colDay, isSunday: sundays.has(d) });
     }
-    cols.push(
-        { key: 'total', label: 'Tổng\nbuổi học', w: colTotal },
-        { key: 'fee', label: 'Học phí\n/buổi', w: colFee },
-        { key: 'amount', label: 'Tổng học phí\ntháng', w: colAmount }
-    );
+    cols.push({ key: 'total', label: 'Tổng\nbuổi học', w: colTotal });
 
     ctx.fillStyle = '#f3f4f6';
     ctx.fillRect(padX, y, tableW, theadH);
@@ -507,14 +496,6 @@ async function exportPng() {
     students.forEach((student, idx) => {
         const days = student.days || {};
         const presentDays = Number(student.present_days || 0);
-        const feePerDayText = state.feePerDay > 0 ? money(state.feePerDay) : '';
-        let totalAmount = student.tuition_final_amount;
-        if (state.feePerDay > 0 && presentDays > 0) {
-            totalAmount = presentDays * state.feePerDay;
-        }
-        const totalAmountText = totalAmount !== null && totalAmount !== undefined && Number(totalAmount) > 0
-            ? money(totalAmount)
-            : '';
 
         let cx = padX;
         cols.forEach((col) => {
@@ -560,16 +541,6 @@ async function exportPng() {
                 ctx.font = `700 12.5px ${fontStack}`;
                 ctx.textAlign = 'center';
                 ctx.fillText(presentDays > 0 ? number(presentDays) : '', cx + col.w / 2, y + rowH / 2);
-            } else if (col.key === 'fee') {
-                ctx.fillStyle = '#374151';
-                ctx.font = `500 11.5px ${fontStack}`;
-                ctx.textAlign = 'right';
-                ctx.fillText(fitText(ctx, feePerDayText, col.w - 10), cx + col.w - 5, y + rowH / 2);
-            } else if (col.key === 'amount') {
-                ctx.fillStyle = '#111827';
-                ctx.font = `700 11.5px ${fontStack}`;
-                ctx.textAlign = 'right';
-                ctx.fillText(fitText(ctx, totalAmountText, col.w - 10), cx + col.w - 5, y + rowH / 2);
             }
             cx += col.w;
         });
@@ -600,21 +571,34 @@ async function exportPng() {
 
     const classSlug = state.classId ? slugifyClass(data.class_label) : 'tat-ca';
     const filename = `phieu-diem-danh-${classSlug || 'thang'}-${String(state.month).padStart(2, '0')}-${state.year}.png`;
-    canvas.toBlob((blob) => {
-        if (!blob) {
-            showToast('Không tạo được tệp ảnh PNG', 'danger');
-            return;
-        }
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-        showToast(`Đã tải ảnh ${filename}`, 'success');
-    }, 'image/png');
+    return new Promise((resolve) => {
+        canvas.toBlob((blob) => {
+            if (!blob) {
+                showToast('Không tạo được tệp ảnh PNG', 'danger');
+                resolve(null);
+                return;
+            }
+            resolve({ blob, filename, title: titleText });
+        }, 'image/png');
+    });
+}
+
+async function saveSheetPng() {
+    const result = await buildSheetPngBlob();
+    if (!result) return;
+    await savePngToDevice(result.blob, result.filename, result.title);
+}
+
+async function shareSheetPng() {
+    const result = await buildSheetPngBlob();
+    if (!result) return;
+    await sharePngFile(result.blob, result.filename, result.title);
+}
+
+async function copySheetPng() {
+    const result = await buildSheetPngBlob();
+    if (!result) return;
+    await copyPngBlob(result.blob, result.filename);
 }
 
 function bindEvents() {
@@ -656,11 +640,6 @@ function bindEvents() {
         state.assistant = assistantInput.value;
         renderMeta();
     });
-    feeInput?.addEventListener('input', () => {
-        const parsed = Number(feeInput.value);
-        state.feePerDay = Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
-        renderSheet();
-    });
     const fitBtn = qs('[data-sheet-fit]');
     const FIT_KEY = 'hk_sheet_fit_screen';
 
@@ -686,12 +665,23 @@ function bindEvents() {
         applyFitScreen(next);
     });
 
-    qs('[data-sheet-png]')?.addEventListener('click', () => {
-        exportPng();
-    });
-    qs('[data-sheet-print]')?.addEventListener('click', () => {
+    const pngBtn = qs('[data-sheet-png]');
+    const shareBtn = qs('[data-sheet-share]');
+    const copyBtn = qs('[data-sheet-copy]');
+    const printBtn = qs('[data-sheet-print]');
+
+    pngBtn?.addEventListener('click', saveSheetPng);
+    printBtn?.addEventListener('click', () => {
         window.print();
     });
+    if (shareBtn && canSharePngFiles()) {
+        shareBtn.hidden = false;
+        shareBtn.addEventListener('click', shareSheetPng);
+    }
+    if (copyBtn && !isIosDevice() && !isAndroidDevice() && canCopyPngToClipboard()) {
+        copyBtn.hidden = false;
+        copyBtn.addEventListener('click', copySheetPng);
+    }
 }
 
 document.addEventListener('hk:ready', async () => {

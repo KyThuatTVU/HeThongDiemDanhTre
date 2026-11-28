@@ -1,8 +1,17 @@
 import { api } from '../../core/http.js';
 import { can, session } from '../../core/auth.js';
 import { showToast } from '../../../../components/toast/toast.js';
-import { date, money, number, percent, statusMeta, todayIso } from '../../core/format.js';
+import { number, percent, todayIso } from '../../core/format.js';
 import { escapeHtml, qs, queryParam } from '../../core/dom.js';
+import {
+    canCopyPngToClipboard,
+    canSharePngFiles,
+    copyPngBlob,
+    isAndroidDevice,
+    isIosDevice,
+    savePngToDevice,
+    sharePngFile
+} from '../../core/image-export.js';
 
 const STATUS_MARKS = {
     present: { symbol: '✓', cls: 'present', color: '#15803d', bg: '#f0fdf4', border: '#86efac', label: 'Có mặt' },
@@ -19,7 +28,6 @@ const state = {
     month: Number(queryParam('month') || (now.getMonth() + 1)),
     students: [],
     data: null,
-    showTuition: true,
     showNotes: true,
     comment: '',
     teacher: '',
@@ -31,13 +39,10 @@ const monthSelect = qs('[data-slip-month]');
 const yearSelect = qs('[data-slip-year]');
 const teacherInput = qs('[data-slip-teacher]');
 const commentInput = qs('[data-slip-comment]');
-const showTuitionCheck = qs('[data-slip-show-tuition]');
-const showTuitionWrap = qs('[data-slip-tuition-wrap]');
 const showNotesCheck = qs('[data-slip-show-notes]');
 const previewHost = qs('[data-slip-preview]');
 const prevBtn = qs('[data-slip-prev]');
 const nextBtn = qs('[data-slip-next]');
-const shareBtn = qs('[data-slip-share]');
 
 function slugify(value) {
     return String(value || '')
@@ -130,12 +135,6 @@ async function loadStudents() {
     }
 }
 
-function tuitionStatusLabel(tuition) {
-    if (!tuition) return '';
-    if (tuition.status === 'reference') return 'Mức học phí thoả thuận (chưa lập phiếu thu tháng)';
-    return statusMeta('tuition', tuition.status).label;
-}
-
 function collectNoteItems(data) {
     const notesObj = data?.attendance?.notes || {};
     const daysObj = data?.attendance?.days || {};
@@ -169,10 +168,6 @@ function renderPreview() {
     const daysObj = att.days || {};
     const sundays = new Set((period.sundays || []).map(Number));
     const monthStr = `${String(period.month).padStart(2, '0')}/${period.year}`;
-
-    if (showTuitionWrap) {
-        showTuitionWrap.hidden = !data.can_view_tuition;
-    }
 
     const orgLine = [center.name || 'Trung tâm HappyKidsCK', branch.name || ''].filter(Boolean).join(' · ');
     const contactParts = [];
@@ -208,27 +203,6 @@ function renderPreview() {
         ? `<div>
             <h3 class="slip-section-title">Ghi chú chuyên cần trong tháng</h3>
             <ul class="slip-notes-list">${noteItems.map((line) => `<li>${escapeHtml(line)}</li>`).join('')}</ul>
-        </div>`
-        : '';
-
-    const tuition = (data.can_view_tuition && state.showTuition) ? data.tuition : null;
-    const tuitionSection = tuition
-        ? `<div>
-            <h3 class="slip-section-title">
-                <span>Thông tin học phí tháng ${escapeHtml(monthStr)}</span>
-                <span class="hk-chip">${escapeHtml(tuitionStatusLabel(tuition))}</span>
-            </h3>
-            <div class="slip-tuition">
-                <div class="slip-tuition__row"><span>Học phí gốc / thoả thuận</span><strong>${escapeHtml(money(tuition.base_amount))}</strong></div>
-                ${Number(tuition.adjustment_total || 0) !== 0
-                    ? `<div class="slip-tuition__row"><span>Điều chỉnh / giảm trừ</span><strong>${escapeHtml(money(tuition.adjustment_total))}</strong></div>`
-                    : ''}
-                <div class="slip-tuition__row slip-tuition__row--total"><span>Tổng học phí tháng</span><strong>${escapeHtml(money(tuition.final_amount))}</strong></div>
-                ${tuition.exists
-                    ? `<div class="slip-tuition__row"><span>Đã thanh toán</span><strong class="money-positive">${escapeHtml(money(tuition.paid_amount))}</strong></div>
-                       <div class="slip-tuition__row"><span>Còn lại</span><strong class="${Number(tuition.remaining_amount) > 0 ? 'money-danger' : 'money-positive'}">${escapeHtml(money(tuition.remaining_amount))}</strong></div>`
-                    : ''}
-            </div>
         </div>`
         : '';
 
@@ -304,7 +278,6 @@ function renderPreview() {
             </section>
 
             ${notesSection}
-            ${tuitionSection}
             ${commentSection}
 
             <footer class="slip-footer">
@@ -427,25 +400,6 @@ async function buildPngBlob() {
         noteLines.push(...wrapped);
     });
 
-    const tuition = (data.can_view_tuition && state.showTuition) ? data.tuition : null;
-    const tuitionRows = [];
-    if (tuition) {
-        tuitionRows.push({ label: 'Học phí gốc / thoả thuận', value: money(tuition.base_amount), bold: false, color: '#0f172a' });
-        if (Number(tuition.adjustment_total || 0) !== 0) {
-            tuitionRows.push({ label: 'Điều chỉnh / giảm trừ', value: money(tuition.adjustment_total), bold: false, color: '#0f172a' });
-        }
-        tuitionRows.push({ label: 'Tổng học phí tháng', value: money(tuition.final_amount), bold: true, color: '#0f172a', bg: '#f8fafc' });
-        if (tuition.exists) {
-            tuitionRows.push({ label: 'Đã thanh toán', value: money(tuition.paid_amount), bold: true, color: '#15803d' });
-            tuitionRows.push({
-                label: 'Còn lại',
-                value: money(tuition.remaining_amount),
-                bold: true,
-                color: Number(tuition.remaining_amount) > 0 ? '#dc2626' : '#15803d'
-            });
-        }
-    }
-
     const commentText = state.comment.trim();
     mCtx.font = `500 14px ${fontStack}`;
     const commentLines = commentText ? wrapLines(mCtx, commentText, contentW - 32) : [];
@@ -458,13 +412,11 @@ async function buildPngBlob() {
     const calGap = 6;
     const calSectionH = 30 + 24 + calRows * calCellH + (calRows - 1) * calGap + 28;
     const notesSectionH = noteLines.length ? (30 + noteLines.length * 20 + 16) : 0;
-    const tuitionSectionH = tuitionRows.length ? (32 + tuitionRows.length * 38 + 14) : 0;
     const commentSectionH = commentLines.length ? (30 + commentLines.length * 21 + 26) : 0;
     const footerH = 70;
 
     const totalH = headerH + 22 + studentBoxH + 18 + kpiH + 22 + calSectionH
         + (notesSectionH ? notesSectionH + 14 : 0)
-        + (tuitionSectionH ? tuitionSectionH + 14 : 0)
         + (commentSectionH ? commentSectionH + 14 : 0)
         + footerH + 18;
 
@@ -656,53 +608,7 @@ async function buildPngBlob() {
         y += 14;
     }
 
-    // 6. Học phí tháng
-    if (tuitionRows.length) {
-        ctx.textAlign = 'left';
-        ctx.fillStyle = '#0e5347';
-        ctx.font = `700 14px ${fontStack}`;
-        ctx.fillText(`Thông tin học phí tháng ${monthStr}`, padX, y + 10);
-
-        ctx.textAlign = 'right';
-        ctx.fillStyle = '#475569';
-        ctx.font = `600 12px ${fontStack}`;
-        ctx.fillText(tuitionStatusLabel(tuition), padX + contentW, y + 10);
-        y += 26;
-
-        const boxH = tuitionRows.length * 38;
-        drawRoundedRect(ctx, padX, y, contentW, boxH, 12);
-        ctx.fillStyle = '#ffffff';
-        ctx.fill();
-        ctx.strokeStyle = '#cbd5e1';
-        ctx.stroke();
-
-        tuitionRows.forEach((tr, idx) => {
-            const ry = y + idx * 38;
-            if (tr.bg) {
-                ctx.fillStyle = tr.bg;
-                ctx.fillRect(padX + 1, ry + 1, contentW - 2, 36);
-            }
-            if (idx > 0) {
-                ctx.beginPath();
-                ctx.moveTo(padX, ry);
-                ctx.lineTo(padX + contentW, ry);
-                ctx.strokeStyle = '#e2e8f0';
-                ctx.stroke();
-            }
-            ctx.textAlign = 'left';
-            ctx.fillStyle = '#334155';
-            ctx.font = `${tr.bold ? '700' : '500'} 13.5px ${fontStack}`;
-            ctx.fillText(tr.label, padX + 14, ry + 19);
-
-            ctx.textAlign = 'right';
-            ctx.fillStyle = tr.color;
-            ctx.font = `700 14px ${fontStack}`;
-            ctx.fillText(tr.value, padX + contentW - 14, ry + 19);
-        });
-        y += boxH + 20;
-    }
-
-    // 7. Nhận xét của giáo viên
+    // 6. Nhận xét của giáo viên
     if (commentLines.length) {
         ctx.textAlign = 'left';
         ctx.fillStyle = '#0e5347';
@@ -765,36 +671,22 @@ async function buildPngBlob() {
     });
 }
 
-async function downloadPng() {
+async function saveSlipPng() {
     const result = await buildPngBlob();
     if (!result) return;
-    const url = URL.createObjectURL(result.blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = result.filename;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-    showToast(`Đã tải ảnh ${result.filename}`, 'success');
+    await savePngToDevice(result.blob, result.filename, `Phiếu thống kê ${state.data?.student?.full_name || ''}`);
 }
 
 async function sharePng() {
     const result = await buildPngBlob();
     if (!result) return;
-    const file = new File([result.blob], result.filename, { type: 'image/png' });
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        try {
-            await navigator.share({
-                files: [file],
-                title: `Phiếu thống kê ${state.data?.student?.full_name || ''}`
-            });
-            return;
-        } catch (err) {
-            if (err?.name === 'AbortError') return;
-        }
-    }
-    await downloadPng();
+    await sharePngFile(result.blob, result.filename, `Phiếu thống kê ${state.data?.student?.full_name || ''}`);
+}
+
+async function copyPng() {
+    const result = await buildPngBlob();
+    if (!result) return;
+    await copyPngBlob(result.blob, result.filename);
 }
 
 function bindEvents() {
@@ -834,20 +726,26 @@ function bindEvents() {
         state.comment = commentInput.value;
         renderPreview();
     });
-    showTuitionCheck?.addEventListener('change', () => {
-        state.showTuition = showTuitionCheck.checked;
-        renderPreview();
-    });
     showNotesCheck?.addEventListener('change', () => {
         state.showNotes = showNotesCheck.checked;
         renderPreview();
     });
 
-    qs('[data-slip-png]')?.addEventListener('click', downloadPng);
-    qs('[data-slip-print]')?.addEventListener('click', () => window.print());
-    if (shareBtn && typeof navigator !== 'undefined' && typeof navigator.share === 'function' && typeof File === 'function') {
+    const pngBtn = qs('[data-slip-png]');
+    const shareBtn = qs('[data-slip-share]');
+    const copyBtn = qs('[data-slip-copy]');
+    const printBtn = qs('[data-slip-print]');
+
+    pngBtn?.addEventListener('click', saveSlipPng);
+    printBtn?.addEventListener('click', () => window.print());
+
+    if (shareBtn && canSharePngFiles()) {
         shareBtn.hidden = false;
         shareBtn.addEventListener('click', sharePng);
+    }
+    if (copyBtn && !isIosDevice() && !isAndroidDevice() && canCopyPngToClipboard()) {
+        copyBtn.hidden = false;
+        copyBtn.addEventListener('click', copyPng);
     }
 }
 

@@ -21,12 +21,16 @@ final class AuthController extends Controller
         $data = $this->validate($this->request->all(), [
             'identifier' => 'required|string|max:150',
             'password' => 'required|string|max:255',
-        ], ['identifier' => 'Tài khoản', 'password' => 'Mật khẩu']);
+            'remember' => 'nullable|boolean',
+        ], ['identifier' => 'Tài khoản', 'password' => 'Mật khẩu', 'remember' => 'Giữ đăng nhập']);
+
+        $remember = filter_var($data['remember'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
         $payload = (new AuthService())->loginWithPassword(
             $this->request,
             (string) $data['identifier'],
-            (string) $data['password']
+            (string) $data['password'],
+            $remember
         );
         Response::json(['message' => 'Đăng nhập thành công', 'data' => $payload]);
     }

@@ -237,6 +237,7 @@ final class StaffService
         $this->assertCanManageTarget($user);
         $this->assertNotLastSuperAdmin($user);
         $this->users->setStatus($id, 'locked');
+        (new RememberMeService())->revokeAllForUser($id);
         $this->logs->record('lock', 'staff', 'user', $id, 'Khoá tài khoản ' . $user->full_name);
     }
 
@@ -261,6 +262,7 @@ final class StaffService
         PasswordPolicy::assertValid($newPassword);
         $hash = password_hash($newPassword, PASSWORD_DEFAULT);
         $this->users->setPassword($id, $hash);
+        (new RememberMeService())->revokeAllForUser($id);
         if ($id === $actorId) {
             Session::set('password_fingerprint', hash('sha256', $hash));
         }

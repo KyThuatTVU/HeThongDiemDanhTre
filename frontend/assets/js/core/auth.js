@@ -9,6 +9,8 @@ export const session = {
     branches: [],
     currentBranchId: null,
     idleTimeoutMinutes: 30,
+    remembered: false,
+    rememberDays: 30,
     googleLoginEnabled: false,
     loaded: false
 };
@@ -25,6 +27,8 @@ function applyPayload(data) {
     session.branches = data.branches || [];
     session.currentBranchId = data.current_branch_id ?? null;
     session.idleTimeoutMinutes = Math.max(5, Number(data.idle_timeout_minutes || 30));
+    session.remembered = Boolean(data.remembered);
+    session.rememberDays = Math.max(1, Number(data.remember_days || 30));
     session.googleLoginEnabled = Boolean(data.google_login_enabled);
     session.loaded = true;
     if (data.csrf_token) {

@@ -29,6 +29,12 @@ Options -Indexes
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
+    # Tự động chuyển HTTP -> HTTPS khi chạy trên hosting (giữ nguyên HTTP trên localhost/XAMPP)
+    RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1)(:\d+)?$ [NC]
+    RewriteCond %{HTTPS} !=on
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https [NC]
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
     # Chặn đường dẫn chứa thư mục ẩn (.git, .env...)
     RewriteRule (^|/)\. - [F,L]
 

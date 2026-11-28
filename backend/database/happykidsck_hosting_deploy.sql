@@ -1,6 +1,6 @@
 -- ============================================================
 -- HappyKidsCK — Hosting Full Deploy (1-Click Import / Re-Import)
--- Xuất lúc: 2026-11-28 00:42:22 (UTC+7)
+-- Xuất lúc: 2026-11-28 08:46:46 (UTC+7)
 -- Dùng cho lần đầu đưa lên host hoặc khi muốn đồng bộ đè toàn bộ (tự DROP/CREATE từng bảng, không cần xóa DB).
 -- Tương thích: MariaDB 10.2+ & MySQL 5.7/8.0+ (ByetHost/cPanel)
 -- Lưu ý: KHÔNG có CREATE DATABASE / USE / LOCK TABLES.
@@ -204,13 +204,15 @@ CREATE TABLE `users` (
   UNIQUE KEY `uq_users_google_id` (`google_id`),
   KEY `idx_users_role` (`role_id`),
   CONSTRAINT `fk_users_role` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Tài khoản admin & nhân viên';
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Tài khoản admin & nhân viên';
 
 INSERT INTO `users` (`id`, `role_id`, `username`, `email`, `google_id`, `password_hash`, `full_name`, `phone`, `avatar_path`, `status`, `last_login_at`, `created_at`, `updated_at`) VALUES
-(1, 1, 'admin', 'dothienvu84tv@gmail.com', '105227688268935859438', '$2y$10$S.bbKciw8gDMEr0/xKOc5ehPm10LblmSwaFrfSsAhqEseccbYmvSa', 'Thiên Vũ Đỗ', NULL, NULL, 'active', '2026-11-27 22:15:56', '2026-11-26 14:36:46', '2026-11-27 22:15:56'),
+(1, 1, 'admin', 'dothienvu84tv@gmail.com', '105227688268935859438', '$2y$10$S.bbKciw8gDMEr0/xKOc5ehPm10LblmSwaFrfSsAhqEseccbYmvSa', 'Thiên Vũ Đỗ', NULL, NULL, 'active', '2026-11-28 08:19:07', '2026-11-26 14:36:46', '2026-11-28 08:19:07'),
 (2, 3, 'thuatnguyen123', 'nguyenhuynhkithuat84tv@gmail.com', NULL, '$2y$10$h7rw0KC43oxEB5O364uUBOmEwRNuaibI919MGVIFTdgjX9zB/Vnpy', 'Nguyễn Huỳnh Kỹ Thuật', '0388854044', NULL, 'active', NULL, '2026-11-27 19:30:32', '2026-11-27 19:30:32'),
-(3, 3, 'vuimamnonlx', 'vuimamnonlx@gmail.com', NULL, '$2y$10$rqKZeKTl2xjroxuoDNVK8.E9M4jOXIl25wHZSae21F2z1X4D1WG.m', 'Cô Vui', NULL, NULL, 'active', NULL, '2026-11-27 23:27:10', '2026-11-27 23:29:06'),
-(4, 3, 'vothingocthi', 'vothingocthi2211@gmail.com', NULL, '$2y$10$3L4uXzMYIxwmHUoBtS67JeFvq4SXMDq8qr3xad/C6gc6xugoVvLzq', 'Võ Thị Ngọc Thi', NULL, NULL, 'active', NULL, '2026-11-27 23:27:10', '2026-11-27 23:29:06');
+(3, 3, 'vuimamnonlx', 'vuimamnonlx@gmail.com', NULL, '$2y$10$rqKZeKTl2xjroxuoDNVK8.E9M4jOXIl25wHZSae21F2z1X4D1WG.m', 'Cô Vui', NULL, NULL, 'active', '2026-11-28 07:53:37', '2026-11-27 23:27:10', '2026-11-28 07:53:37'),
+(4, 3, 'vothingocthi', 'vothingocthi2211@gmail.com', NULL, '$2y$10$3L4uXzMYIxwmHUoBtS67JeFvq4SXMDq8qr3xad/C6gc6xugoVvLzq', 'Võ Thị Ngọc Thi', NULL, NULL, 'active', '2026-11-28 07:54:22', '2026-11-27 23:27:10', '2026-11-28 07:54:22'),
+(5, 3, 'trannhuhuynh', 'trannhuhuynh4203@gmail.com', NULL, '$2y$10$COOgPxp7IJan5J3LRGdA6uJDXAkkdHMFvWyT/qx5kvz06em6Du7ma', 'Trần Như Huỳnh', NULL, NULL, 'active', '2026-11-28 08:32:40', '2026-11-28 08:32:39', '2026-11-28 08:32:40'),
+(6, 3, 'ngoctram', 'ngoctram@happykidsck.vn', NULL, '$2y$10$JrqPeYEa164m/C2zK5Fqp.s9EEXOrSkRaM2NJ48WZ7O0ULj53rvw.', 'Ngọc Trâm', NULL, NULL, 'active', '2026-11-28 08:46:01', '2026-11-28 08:46:00', '2026-11-28 08:46:01');
 
 -- ------------------------------------------------------------
 -- Bảng `user_branches`
@@ -228,8 +230,10 @@ CREATE TABLE `user_branches` (
 
 INSERT INTO `user_branches` (`user_id`, `branch_id`, `assigned_at`) VALUES
 (2, 2, '2026-11-27 21:01:45'),
-(3, 1, '2026-11-27 23:27:10'),
-(4, 2, '2026-11-27 23:27:10');
+(3, 1, '2026-11-28 07:56:11'),
+(4, 2, '2026-11-28 07:55:50'),
+(5, 1, '2026-11-28 08:32:39'),
+(6, 2, '2026-11-28 08:46:00');
 
 -- ------------------------------------------------------------
 -- Bảng `user_permissions`
@@ -259,7 +263,52 @@ INSERT INTO `user_permissions` (`user_id`, `permission_id`, `effect`, `created_a
 (2, 12, 'allow', '2026-11-27 21:01:45'),
 (2, 15, 'allow', '2026-11-27 21:01:45'),
 (2, 26, 'allow', '2026-11-27 21:01:45'),
-(2, 27, 'allow', '2026-11-27 21:01:45');
+(2, 27, 'allow', '2026-11-27 21:01:45'),
+(3, 2, 'allow', '2026-11-28 07:56:11'),
+(3, 3, 'allow', '2026-11-28 07:56:11'),
+(3, 4, 'allow', '2026-11-28 07:56:11'),
+(3, 5, 'allow', '2026-11-28 07:56:11'),
+(3, 8, 'allow', '2026-11-28 07:56:11'),
+(3, 10, 'allow', '2026-11-28 07:56:11'),
+(3, 11, 'allow', '2026-11-28 07:56:11'),
+(3, 12, 'allow', '2026-11-28 07:56:11'),
+(3, 15, 'allow', '2026-11-28 07:56:11'),
+(3, 16, 'allow', '2026-11-28 07:56:11'),
+(4, 2, 'allow', '2026-11-28 07:55:50'),
+(4, 3, 'allow', '2026-11-28 07:55:50'),
+(4, 4, 'allow', '2026-11-28 07:55:50'),
+(4, 5, 'allow', '2026-11-28 07:55:50'),
+(4, 8, 'allow', '2026-11-28 07:55:50'),
+(4, 10, 'allow', '2026-11-28 07:55:50'),
+(4, 11, 'allow', '2026-11-28 07:55:50'),
+(4, 12, 'allow', '2026-11-28 07:55:50'),
+(4, 15, 'allow', '2026-11-28 07:55:50'),
+(4, 16, 'allow', '2026-11-28 07:55:50');
+
+-- ------------------------------------------------------------
+-- Bảng `user_remember_tokens` (chỉ cấu trúc, không chép dữ liệu)
+-- ------------------------------------------------------------
+DROP TABLE IF EXISTS `user_remember_tokens`;
+CREATE TABLE `user_remember_tokens` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
+  `selector` varchar(64) NOT NULL COMMENT 'Định danh công khai của token trên thiết bị',
+  `token_hash` char(64) NOT NULL COMMENT 'SHA-256 của validator (không lưu token gốc)',
+  `password_fingerprint` char(64) NOT NULL COMMENT 'SHA-256 của password_hash lúc cấp token',
+  `branch_id` int(10) unsigned DEFAULT NULL COMMENT 'Cơ sở làm việc gần nhất trên thiết bị',
+  `ip_address` varchar(45) DEFAULT NULL,
+  `user_agent` varchar(255) DEFAULT NULL,
+  `last_used_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `expires_at` datetime NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_remember_selector` (`selector`),
+  KEY `idx_remember_user` (`user_id`),
+  KEY `idx_remember_expires` (`expires_at`),
+  KEY `fk_remember_tokens_branch` (`branch_id`),
+  CONSTRAINT `fk_remember_tokens_branch` FOREIGN KEY (`branch_id`) REFERENCES `branches` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `fk_remember_tokens_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Token giữ đăng nhập nhiều ngày trên thiết bị cá nhân';
 
 -- ------------------------------------------------------------
 -- Bảng `classes`

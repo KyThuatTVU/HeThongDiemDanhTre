@@ -7,8 +7,8 @@ use App\Core\Config;
 use App\Core\Request;
 use App\Core\Response;
 use App\Core\Session;
-use App\Exceptions\HttpException;
 use App\Repositories\UserRepository;
+use App\Services\RememberMeService;
 
 final class AuthMiddleware
 {
@@ -16,6 +16,12 @@ final class AuthMiddleware
     {
         $userId = (int) Session::get('user_id', 0);
         if ($userId <= 0) {
+            $restored = (new RememberMeService())->restoreFromCookie($request);
+            if ($restored !== null) {
+                $request->setAttribute('user', $restored);
+                $next();
+                return;
+            }
             $this->reject($request, 'Vui lòng đăng nhập để tiếp tục');
         }
 
@@ -24,18 +30,28 @@ final class AuthMiddleware
         $now = time();
         $lastActivity = (int) Session::get('last_activity', 0);
         if ($lastActivity > 0 && ($now - $lastActivity) > ($idleMinutes * 60)) {
+            if ((bool) Session::get('remembered', false)) {
+                $restored = (new RememberMeService())->restoreFromCookie($request);
+                if ($restored !== null) {
+                    $request->setAttribute('user', $restored);
+                    $next();
+                    return;
+                }
+            }
             Session::destroy();
             $this->reject($request, 'Phiên làm việc đã tự đóng sau ' . $idleMinutes . ' phút không thao tác. Vui lòng đăng nhập lại');
         }
 
         $user = (new UserRepository())->findWithRole($userId);
         if ($user === null || (string) $user->status !== 'active') {
+            (new RememberMeService())->clearCurrentCookie();
             Session::destroy();
             $this->reject($request, 'Phiên đăng nhập không hợp lệ hoặc tài khoản đã bị khoá');
         }
         $fingerprint = Session::get('password_fingerprint');
         $expected = hash('sha256', (string) $user->password_hash);
         if (!is_string($fingerprint) || $fingerprint === '' || !hash_equals($expected, $fingerprint)) {
+            (new RememberMeService())->clearCurrentCookie();
             Session::destroy();
             $this->reject($request, 'Phiên đăng nhập đã hết hiệu lực. Vui lòng đăng nhập lại');
         }

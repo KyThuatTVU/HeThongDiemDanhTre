@@ -22,6 +22,7 @@ final class AuthService
     private BranchRepository $branches;
     private ActivityLogService $logs;
     private GoogleOAuthClient $google;
+    private RememberMeService $rememberMe;
 
     public function __construct()
     {
@@ -29,9 +30,10 @@ final class AuthService
         $this->branches = new BranchRepository();
         $this->logs = new ActivityLogService();
         $this->google = new GoogleOAuthClient();
+        $this->rememberMe = new RememberMeService();
     }
 
-    public function loginWithPassword(Request $request, string $identifier, string $password): array
+    public function loginWithPassword(Request $request, string $identifier, string $password, bool $remember = false): array
     {
         $identifier = trim($identifier);
         $user = $this->users->findByLogin($identifier);
@@ -50,7 +52,7 @@ final class AuthService
         }
         RateLimiter::clear('login', 'ip', $request->ip());
         RateLimiter::clear('login', 'account', $identifier);
-        return $this->establishSession($user, $identifier, 'password');
+        return $this->establishSession($user, $identifier, 'password', $remember, $request);
     }
 
     public function googleAuthUrl(): string
@@ -126,13 +128,14 @@ final class AuthService
         ), static fn (string $email): bool => $email !== '')));
     }
 
-    private function establishSession(User $user, string $identifier, string $method): array
+    private function establishSession(User $user, string $identifier, string $method, bool $remember = false, ?Request $request = null): array
     {
         Session::regenerate();
         Session::set('user_id', (int) $user->id);
         Session::set('role_key', (string) $user->role_key);
         Session::set('password_fingerprint', hash('sha256', (string) $user->password_hash));
         Session::set('last_activity', time());
+        Session::set('remembered', $remember);
 
         $branchIds = (string) $user->role_key === 'super_admin'
             ? $this->branches->ids()
@@ -141,6 +144,12 @@ final class AuthService
         Session::set('branch_ids', $branchIds);
         Session::set('current_branch_id', $currentBranchId);
         Session::set('_csrf', bin2hex(random_bytes(32)));
+
+        if ($remember) {
+            $this->rememberMe->issue($user, $currentBranchId, $request);
+        } else {
+            $this->rememberMe->clearCurrentCookie();
+        }
 
         $this->users->touchLogin((int) $user->id);
         $this->logs->recordLogin((int) $user->id, $identifier, $method, 'success');
@@ -187,6 +196,8 @@ final class AuthService
             ], $branches),
             'current_branch_id' => Session::get('current_branch_id'),
             'idle_timeout_minutes' => max(5, (int) Config::get('auth.session.idle_minutes', 30)),
+            'remembered' => (bool) Session::get('remembered', false),
+            'remember_days' => $this->rememberMe->days(),
             'google_login_enabled' => $this->googleLoginEnabled(),
             'csrf_token' => Session::csrfToken(),
         ];
@@ -197,6 +208,7 @@ final class AuthService
         $authz = new AuthorizationService();
         $authz->assertBranch($branchId);
         Session::set('current_branch_id', $branchId);
+        $this->rememberMe->syncBranch($branchId);
         $this->logs->record('select_branch', 'auth', 'branch', $branchId, 'Chọn cơ sở làm việc');
         return ['current_branch_id' => $branchId];
     }
@@ -207,6 +219,7 @@ final class AuthService
         if ($userId > 0) {
             $this->logs->record('logout', 'auth', 'user', $userId, 'Đăng xuất');
         }
+        $this->rememberMe->clearCurrentCookie();
         Session::destroy();
     }
 
@@ -223,6 +236,12 @@ final class AuthService
         $hash = password_hash($newPassword, PASSWORD_DEFAULT);
         $this->users->setPassword($userId, $hash);
         Session::set('password_fingerprint', hash('sha256', $hash));
+        $this->rememberMe->revokeAllForUser($userId);
+        if ((bool) Session::get('remembered', false)) {
+            $user->password_hash = $hash;
+            $branchId = Session::get('current_branch_id');
+            $this->rememberMe->issue($user, $branchId !== null ? (int) $branchId : null);
+        }
         $this->logs->record('change_password', 'staff', 'user', $userId, 'Đổi mật khẩu cá nhân');
     }
 

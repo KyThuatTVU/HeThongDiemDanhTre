@@ -17,6 +17,19 @@ export function init(root) {
         }
     });
 
+    root.querySelectorAll('.sidebar__label').forEach((label) => {
+        let hasVisibleLink = false;
+        let sibling = label.nextElementSibling;
+        while (sibling && !sibling.classList.contains('sidebar__label')) {
+            if (sibling.classList.contains('sidebar__link') && !sibling.hidden) {
+                hasVisibleLink = true;
+                break;
+            }
+            sibling = sibling.nextElementSibling;
+        }
+        label.hidden = !hasVisibleLink;
+    });
+
     root.querySelectorAll('.mobile-nav__item[data-mobile-nav]').forEach((item) => {
         const permission = item.dataset.permission;
         if (permission && !can(permission)) {

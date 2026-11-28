@@ -1,5 +1,6 @@
 # Bí mật môi trường - không commit
 .env
+.env.hosting
 
 # Thư viện Composer
 /vendor/

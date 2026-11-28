@@ -16,7 +16,7 @@ const alertBox = document.querySelector('[data-login-alert]');
 const noticeBox = document.querySelector('[data-login-notice]');
 const submit = document.querySelector('[data-login-submit]');
 const googleLink = document.querySelector('[data-google-login]');
-const rememberCheckbox = document.querySelector('[data-remember-username]');
+const rememberCheckbox = document.querySelector('[data-remember-me], [data-remember-username]');
 const capsLockHint = document.querySelector('[data-capslock-hint]');
 
 function showAlert(message) {
@@ -205,14 +205,15 @@ form?.addEventListener('submit', async (event) => {
     }
 
     setLoading(submit, true, 'Đang đăng nhập...');
+    const remember = Boolean(rememberCheckbox?.checked);
     try {
-        const payload = await api.post('/auth/login', { identifier, password });
+        const payload = await api.post('/auth/login', { identifier, password, remember });
         const data = payload?.data;
         if (!data?.user) {
             throw new Error('Phản hồi đăng nhập không hợp lệ');
         }
         try {
-            if (rememberCheckbox?.checked) {
+            if (remember) {
                 localStorage.setItem(REMEMBER_USER_KEY, identifier);
             } else {
                 localStorage.removeItem(REMEMBER_USER_KEY);

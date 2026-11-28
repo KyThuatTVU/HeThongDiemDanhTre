@@ -189,11 +189,12 @@ async function request(method, path, options = {}) {
     const promise = execute();
     if (method === 'GET' && !cancelKey) {
         inFlightGets.set(url, promise);
-        promise.finally(() => {
+        const cleanup = () => {
             if (inFlightGets.get(url) === promise) {
                 inFlightGets.delete(url);
             }
-        });
+        };
+        promise.then(cleanup, cleanup);
     }
     return promise;
 }

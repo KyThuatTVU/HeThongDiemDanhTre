@@ -2,7 +2,7 @@
 import { ROOT } from './config.js';
 import { qsa, injectCss } from './dom.js';
 
-const ASSET_VERSION = '20261127-20';
+const ASSET_VERSION = '20261128-01';
 const TPL_CACHE_PREFIX = `hk_tpl:${ASSET_VERSION}:`;
 const htmlCache = new Map();
 

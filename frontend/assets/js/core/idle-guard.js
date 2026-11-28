@@ -1,11 +1,10 @@
-// Bảo vệ phiên làm việc khi giáo viên để mở trang web lâu không thao tác:
+// Bảo vệ phiên làm việc & tự làm mới khi qua ngày mới:
 // - KHÔNG gọi server ngầm khi để máy rảnh (0 tải khi mở tab để đó)
-// - CHỈ gửi 1 gói ping nhẹ khi cô ĐANG thao tác liên tục lâu trên 1 trang (vd: tích điểm danh >15 phút)
-//   để không bị hết phiên đúng lúc bấm Lưu
-// - Đồng bộ mốc hoạt động & đăng xuất tức thì giữa nhiều tab qua localStorage
-// - Cảnh báo trước 2 phút và tự đăng xuất sạch sẽ (không bị hộp thoại trình duyệt chặn) khi quá giờ
+// - Nếu đăng nhập chế độ "Giữ đăng nhập 30 ngày": không tự đăng xuất sau 30 phút và không chạy timer ngầm
+// - Nếu qua ngày mới (so với lúc mở trang): tự tải lại trang khi quay lại tab để luôn hiển thị dữ liệu ngày hôm nay
+// - Đồng bộ đăng xuất tức thì giữa nhiều tab qua localStorage
 import { api, getLastServerTouch } from './http.js';
-import { LOGOUT_SIGNAL_KEY, logout, redirectToLogin, session } from './auth.js';
+import { LOGOUT_SIGNAL_KEY, logout, redirectToLogin, session, skipBeforeUnload } from './auth.js';
 
 const STORAGE_KEY = 'hk_last_activity_at';
 const WARN_BEFORE_MS = 2 * 60 * 1000;
@@ -14,6 +13,8 @@ const TOUCH_THROTTLE_MS = 15 * 1000;
 
 let started = false;
 let loggingOut = false;
+let dayReloading = false;
+let loadedDate = '';
 let keepaliveInFlight = false;
 let lastKeepaliveAttemptAt = 0;
 let keepaliveFailCount = 0;
@@ -24,6 +25,42 @@ let checkTimer = null;
 
 function nowMs() {
     return Date.now();
+}
+
+function localDateIso(date = new Date()) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function reloadIfNewDay() {
+    if (dayReloading || loggingOut || !loadedDate) {
+        return false;
+    }
+    const today = localDateIso();
+    if (today === loadedDate) {
+        return false;
+    }
+    dayReloading = true;
+    removeBanner();
+    clearTimers();
+    skipBeforeUnload();
+
+    const url = new URL(window.location.href);
+    let urlChanged = false;
+    ['date', 'session_date'].forEach((param) => {
+        if (url.searchParams.get(param) === loadedDate) {
+            url.searchParams.delete(param);
+            urlChanged = true;
+        }
+    });
+    if (urlChanged) {
+        window.location.replace(url.toString());
+    } else {
+        window.location.reload();
+    }
+    return true;
 }
 
 function timeoutMs() {
@@ -220,13 +257,28 @@ function checkIdle() {
 }
 
 function onUserActivity() {
-    if (loggingOut || warningBanner) {
+    if (loggingOut || dayReloading || warningBanner) {
         return;
     }
     const ts = nowMs();
     if (ts - lastLocalTouch >= TOUCH_THROTTLE_MS) {
-        writeLastActivity(ts);
-        maybeKeepServerAlive();
+        lastLocalTouch = ts;
+        if (reloadIfNewDay()) {
+            return;
+        }
+        if (!session.remembered) {
+            writeLastActivity(ts);
+            maybeKeepServerAlive();
+        }
+    }
+}
+
+function handleReturnToPage() {
+    if (reloadIfNewDay()) {
+        return;
+    }
+    if (!session.remembered) {
+        checkIdle();
     }
 }
 
@@ -235,7 +287,7 @@ export function startIdleGuard() {
         return;
     }
     started = true;
-    writeLastActivity();
+    loadedDate = localDateIso();
 
     ['pointerdown', 'keydown', 'touchstart'].forEach((evt) => {
         window.addEventListener(evt, onUserActivity, { passive: true });
@@ -243,22 +295,35 @@ export function startIdleGuard() {
 
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') {
-            checkIdle();
+            handleReturnToPage();
+        }
+    });
+
+    window.addEventListener('focus', handleReturnToPage);
+    window.addEventListener('pageshow', (event) => {
+        if (event.persisted) {
+            handleReturnToPage();
         }
     });
 
     window.addEventListener('storage', (event) => {
-        if (event.key === STORAGE_KEY) {
-            checkIdle();
-        } else if (event.key === LOGOUT_SIGNAL_KEY && event.newValue) {
+        if (event.key === LOGOUT_SIGNAL_KEY && event.newValue) {
             if (!loggingOut) {
                 loggingOut = true;
                 removeBanner();
                 clearTimers();
                 redirectToLogin({ rememberNext: false });
             }
+        } else if (!session.remembered && event.key === STORAGE_KEY) {
+            checkIdle();
         }
     });
 
+    if (session.remembered) {
+        // Thiết bị đã chọn "Giữ đăng nhập 30 ngày": không chạy timer 30 phút và không gọi ping ngầm
+        return;
+    }
+
+    writeLastActivity();
     checkTimer = window.setInterval(checkIdle, CHECK_INTERVAL_MS);
 }

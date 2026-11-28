@@ -28,6 +28,11 @@ return [
         'http_only' => Env::bool('SESSION_HTTP_ONLY', true),
         'same_site' => Env::get('SESSION_SAME_SITE', 'Lax'),
     ],
+    'remember' => [
+        'cookie_name' => Env::get('REMEMBER_COOKIE_NAME', 'happykidsck_remember'),
+        'days' => max(1, min(90, Env::int('REMEMBER_DAYS', 30))),
+        'max_devices_per_user' => max(1, min(30, Env::int('REMEMBER_MAX_DEVICES', 10))),
+    ],
     'google' => [
         'client_id' => Env::get('GOOGLE_CLIENT_ID', ''),
         'client_secret' => Env::get('GOOGLE_CLIENT_SECRET', ''),

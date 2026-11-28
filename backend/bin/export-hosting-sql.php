@@ -43,6 +43,7 @@ $preferredOrder = [
     'users',
     'user_branches',
     'user_permissions',
+    'user_remember_tokens',
     'classes',
     'students',
     'student_class_histories',
@@ -59,6 +60,9 @@ $preferredOrder = [
 
 // Bảng nhật ký local mặc định bỏ qua dữ liệu khi đưa lên host sạch
 $logTables = ['activity_logs', 'login_histories'];
+
+// Bảng token phiên/thiết bị local: luôn chỉ xuất cấu trúc, không mang token máy local lên host
+$ephemeralTables = ['user_remember_tokens'];
 
 // Các bảng danh mục/hồ sơ được đồng bộ an toàn (upsert) mà không đụng điểm danh/học phí đang chạy trên host
 $safeSyncDataTables = [
@@ -305,8 +309,8 @@ try {
     }
 
     $deployDataTables = $includeLogs
-        ? $orderedTables
-        : array_values(array_diff($orderedTables, $logTables));
+        ? array_values(array_diff($orderedTables, $ephemeralTables))
+        : array_values(array_diff($orderedTables, $logTables, $ephemeralTables));
 
     $safeDataTables = array_values(array_intersect($orderedTables, $safeSyncDataTables));
 

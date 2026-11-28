@@ -14,22 +14,25 @@
     <link rel="stylesheet" href="../../../assets/css/layout/app.css">
     <link rel="stylesheet" href="../../../assets/css/pages/students/slip.css?v=20261127-20">
     <script src="../../../assets/vendor/bootstrap/bootstrap.bundle.min.js" defer></script>
-    <script type="module" src="../../../assets/js/app.js?v=20261127-20"></script>
-    <script type="module" src="../../../assets/js/pages/students/slip.js?v=20261127-20"></script>
+    <script type="module" src="../../../assets/js/app.js?v=20261128-04"></script>
+    <script type="module" src="../../../assets/js/pages/students/slip.js?v=20261128-04"></script>
 </head>
 <body data-auth="required" data-layout="dashboard" data-page="student-slip">
     <div class="page-stack">
         <div class="no-print"
              data-component="page-header"
              data-title="Phiếu thống kê gửi phụ huynh"
-             data-subtitle="Xuất ảnh phiếu chuyên cần & học phí theo tháng của từng bé để gửi nhanh qua Zalo"
+             data-subtitle="Xuất ảnh phiếu chuyên cần theo tháng của từng bé để gửi nhanh qua Zalo"
              data-breadcrumb='[{"label":"Học viên","href":"../list/"},{"label":"Phiếu gửi phụ huynh"}]'>
             <template data-slot="actions">
                 <button type="button" class="btn-hk-outline" data-slip-share hidden>
-                    <i class="bi bi-share me-1"></i>Chia sẻ ảnh
+                    <i class="bi bi-share me-1"></i>Gửi Zalo / Chia sẻ
+                </button>
+                <button type="button" class="btn-hk-outline" data-slip-copy hidden>
+                    <i class="bi bi-clipboard me-1"></i>Copy ảnh
                 </button>
                 <button type="button" class="btn-hk" data-slip-png>
-                    <i class="bi bi-image me-1"></i>Tải ảnh PNG
+                    <i class="bi bi-image me-1"></i>Lưu ảnh về máy
                 </button>
                 <button type="button" class="btn-hk-outline" data-slip-print>
                     <i class="bi bi-printer me-1"></i>In / PDF
@@ -70,10 +73,6 @@
 
             <div class="slip-controls__extras">
                 <div class="slip-controls__toggles">
-                    <label class="slip-check" data-slip-tuition-wrap>
-                        <input type="checkbox" id="slip-show-tuition" data-slip-show-tuition checked>
-                        <span>Hiện thông tin học phí</span>
-                    </label>
                     <label class="slip-check">
                         <input type="checkbox" id="slip-show-notes" data-slip-show-notes checked>
                         <span>Hiện ghi chú ngày nghỉ</span>
